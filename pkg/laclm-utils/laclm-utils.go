@@ -47,3 +47,24 @@ func InitLogger(isProduction bool) {
 
 	log.Println("Initialized Zap Logger")
 }
+
+/* yaml file loader for config */
+func LoadConfig(filename string) (*models.Config, error) {
+    data, err := os.ReadFile(filename)
+    if err != nil {
+        return nil, err
+    }
+
+    var config models.Config
+    err = yaml.Unmarshal(data, &config)
+    if err != nil {
+        return nil, err
+    }
+
+    return &config, nil
+}
+
+/* generate a new uuid */
+func GenerateTxnID() string {
+	return uuid.New().String()
+}
