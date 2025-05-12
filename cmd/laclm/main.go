@@ -1,9 +1,19 @@
 package main
 
 import (
-	"fmt"
+	"os"
 )
 
 func main() {
-	fmt.Println("Hello World")
+	if err := exec(); err != nil {
+		os.Exit(1)
+	}
+}
+
+func exec() error {
+	return nil
+}
+
+func run() {
+
 }
