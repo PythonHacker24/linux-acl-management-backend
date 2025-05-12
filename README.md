@@ -4,10 +4,14 @@ Securing Linux Storage with ACLs: An Open-Source Web Management Interface for En
 
 Progress Docs: https://pythonhacker24.github.io/linux-acl-management/
 
+## Releases
+
+- `main`: Production Branch
+- `development-v<version_name>`: Development Branch of specific version
+
 ## Documentation
 
 To be written ...
-
 
 ## Progress Report
 
