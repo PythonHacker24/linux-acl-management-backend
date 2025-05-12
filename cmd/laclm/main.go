@@ -5,6 +5,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
+	"net/http"
+
+	"go.uber.org/zap"
+
+	"github.com/PythonHacker24/linux-acl-management-backend/pkg/laclm-utils"
+	"github.com/PythonHacker24/linux-acl-management-backend/api/routes"
 )
 
 func main() {
@@ -18,6 +25,11 @@ func exec() error {
 	/*
 		exec() wraps run() protecting it with user interrupts  
 	*/
+
+	/* true for production, false for development mode */
+	laclmutils.InitLogger(false)
+
+	zap.L().Info("Logger Initiated ...")
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -34,6 +46,28 @@ func exec() error {
 }
 
 func run(ctx context.Context) error {
+	var err error
+
+	/* setting up http mux and routes */
+	mux := http.NewServeMux()
+
+	/* routes declared in /api/routes */
+	routes.RegisterRoutes(mux)
+
+	server := &http.Server{
+        Addr:    ":8080",
+        Handler: mux,
+    }
+
+	/* starting http server as a goroutine */
+	go func() {
+        zap.L().Info("HTTP REST API server starting on :8080")
+		if err = server.ListenAndServe(); err != http.ErrServerClosed {
+            zap.L().Error("ListenAndServe error", 
+				zap.Error(err),
+			)
+        }
+    }()
 
 	/*
 		whatever written here will be protected by graceful shutdowns
@@ -47,6 +81,19 @@ func run(ctx context.Context) error {
 		following code must be executed to shutdown graceful shutdown
 		call all the kill switches with context
 	*/
+	
+	/* graceful shutdown of http server */
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdownCancel()
 
-	return nil
+	/* initiate http server shutdown */
+	if err = server.Shutdown(shutdownCtx); err != nil {
+        zap.L().Error("HTTP server shutdown error", 
+			zap.Error(err),
+		)
+    }
+	
+	zap.L().Info("HTTP server stopped")
+
+	return err 
 }
