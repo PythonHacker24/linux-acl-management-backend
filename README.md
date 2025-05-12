@@ -24,10 +24,10 @@ This project is part of Google Summer of Code 2025, undertaken with the Departme
 
 ## Technologies Used
 
-Programming Languages: Golang
-Frameworks/Libraries: net/http
-Standards/Protocols: gRPC, REST
-Tools: Tarball, Redis, Docker, OpenLDAP
+- **Programming Languages:** Golang
+- **Frameworks/Libraries:** net/http
+- **Standards/Protocols:** gRPC, REST
+- **Tools:** Tarball, Redis, Docker, OpenLDAP
 
 ## License
 
