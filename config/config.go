@@ -1,9 +1,6 @@
 package config
 
-/* structure of config struct for yaml config */
-type Config struct {
-
-}
+import "github.com/PythonHacker24/linux-acl-management-backend/internal/models"
 
 /* globally accessible config */
-var BackendConfig Config
+var BackendConfig models.Config 

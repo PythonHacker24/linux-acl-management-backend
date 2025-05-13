@@ -1,0 +1,39 @@
+# config.yaml 
+
+# backend environment configs
+app:
+  name: 
+  version: 
+  environment:
+
+# backend server deployment configs
+server:
+  host:
+  port:
+
+# databases for operations
+database:
+  transaction_logs_redis: 
+    address:
+    password:
+    db: 
+
+# logging configurations
+logging:
+  file:
+  max_size:
+  max_backups:
+  max_age:
+  compress:
+
+# filesystem server that needs management
+filesystem_servers:
+  - path:
+    method:
+    remote:
+      host:
+      port:
+
+# authentication information
+authentication:
+  ldap:

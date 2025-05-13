@@ -2,16 +2,18 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-	"net/http"
 
 	"go.uber.org/zap"
 
-	"github.com/PythonHacker24/linux-acl-management-backend/internal/utils"
 	"github.com/PythonHacker24/linux-acl-management-backend/api/routes"
+	"github.com/PythonHacker24/linux-acl-management-backend/config"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/utils"
 )
 
 func main() {
@@ -22,9 +24,13 @@ func main() {
 
 func exec() error {
 
-	/*
-		exec() wraps run() protecting it with user interrupts  
+	/* exec() wraps run() protecting it with user interrupts  */
+
+	/* 
+		load config file 
+		if there is an error in loading the config file, then it will exit with code 1
 	*/
+	config.LoadConfig("./config.yaml")
 
 	/* true for production, false for development mode */
 	utils.InitLogger(false)
@@ -56,7 +62,10 @@ func run(ctx context.Context) error {
 	routes.RegisterRoutes(mux)
 
 	server := &http.Server{
-        Addr:    ":8080",
+		Addr:	fmt.Sprintf("%s:%s", 
+			config.BackendConfig.Server.Host,
+			config.BackendConfig.Server.Port,	
+		),
         Handler: mux,
     }
 

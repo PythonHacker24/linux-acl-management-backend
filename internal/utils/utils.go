@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/google/uuid"
-	"gopkg.in/yaml.v3"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -52,22 +51,6 @@ func InitLogger(isProduction bool) {
 	zap.ReplaceGlobals(Log)
 
 	log.Println("Initialized Zap Logger")
-}
-
-/* yaml file loader for config */
-func LoadConfig(filename string) (*models.Config, error) {
-    data, err := os.ReadFile(filename)
-    if err != nil {
-        return nil, err
-    }
-
-    var config models.Config
-    err = yaml.Unmarshal(data, &config)
-    if err != nil {
-        return nil, err
-    }
-
-    return &config, nil
 }
 
 /* generate a new uuid */
