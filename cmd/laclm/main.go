@@ -10,7 +10,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/PythonHacker24/linux-acl-management-backend/pkg/laclm-utils"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/utils"
 	"github.com/PythonHacker24/linux-acl-management-backend/api/routes"
 )
 
@@ -27,8 +27,9 @@ func exec() error {
 	*/
 
 	/* true for production, false for development mode */
-	laclmutils.InitLogger(false)
+	utils.InitLogger(false)
 
+	/* zap.L() can be used all over the code for global level logging */
 	zap.L().Info("Logger Initiated ...")
 
 	ctx, cancel := context.WithCancel(context.Background())
