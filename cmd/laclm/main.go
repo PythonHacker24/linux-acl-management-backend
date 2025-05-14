@@ -26,17 +26,23 @@ func exec() error {
 
 	/* exec() wraps run() protecting it with user interrupts  */
 
+	/* zap.L() can be used all over the code for global level logging */
+	zap.L().Info("Logger Initiated ...")
+
 	/*
 		load config file
 		if there is an error in loading the config file, then it will exit with code 1
 	*/
 	config.LoadConfig("./config.yaml")
 
+	/*
+		load environment variables
+		if there is an error or environment variables are not set, then it will exit with code 1
+	*/
+	config.LoadEnv()
+
 	/* true for production, false for development mode */
 	utils.InitLogger(false)
-
-	/* zap.L() can be used all over the code for global level logging */
-	zap.L().Info("Logger Initiated ...")
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -54,6 +60,8 @@ func exec() error {
 
 func run(ctx context.Context) error {
 	var err error
+
+	/* complete backend system must initiate before http server starts */
 
 	/* setting up http mux and routes */
 	mux := http.NewServeMux()
@@ -104,6 +112,8 @@ func run(ctx context.Context) error {
 	}
 
 	zap.L().Info("HTTP server stopped")
+
+	/* after the http server is stopped, rest of the components can be shutdown */
 
 	return err
 }

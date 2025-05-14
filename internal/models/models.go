@@ -36,9 +36,9 @@ type Logging struct {
 
 /* file system server parameters */
 type FileSystemServers struct {
+	Remote *Remote `yaml:"remote"`
 	Path   string  `yaml:"path"`
 	Method string  `yaml:"method"`
-	Remote *Remote `yaml:"remote"`
 }
 
 /* remote parameters for file system server with laclm daemons installed */
