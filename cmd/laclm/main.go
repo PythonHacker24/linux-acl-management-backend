@@ -26,8 +26,8 @@ func exec() error {
 
 	/* exec() wraps run() protecting it with user interrupts  */
 
-	/* 
-		load config file 
+	/*
+		load config file
 		if there is an error in loading the config file, then it will exit with code 1
 	*/
 	config.LoadConfig("./config.yaml")
@@ -62,22 +62,22 @@ func run(ctx context.Context) error {
 	routes.RegisterRoutes(mux)
 
 	server := &http.Server{
-		Addr:	fmt.Sprintf("%s:%s", 
+		Addr: fmt.Sprintf("%s:%s",
 			config.BackendConfig.Server.Host,
-			config.BackendConfig.Server.Port,	
+			config.BackendConfig.Server.Port,
 		),
-        Handler: mux,
-    }
+		Handler: mux,
+	}
 
 	/* starting http server as a goroutine */
 	go func() {
-        zap.L().Info("HTTP REST API server starting on :8080")
+		zap.L().Info("HTTP REST API server starting on :8080")
 		if err = server.ListenAndServe(); err != http.ErrServerClosed {
-            zap.L().Error("ListenAndServe error", 
+			zap.L().Error("ListenAndServe error",
 				zap.Error(err),
 			)
-        }
-    }()
+		}
+	}()
 
 	/*
 		whatever written here will be protected by graceful shutdowns
@@ -86,24 +86,24 @@ func run(ctx context.Context) error {
 
 	<-ctx.Done()
 
-	/* 
+	/*
 		after this, exit signal is triggered
 		following code must be executed to shutdown graceful shutdown
 		call all the kill switches with context
 	*/
-	
+
 	/* graceful shutdown of http server */
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer shutdownCancel()
 
 	/* initiate http server shutdown */
 	if err = server.Shutdown(shutdownCtx); err != nil {
-        zap.L().Error("HTTP server shutdown error", 
+		zap.L().Error("HTTP server shutdown error",
 			zap.Error(err),
 		)
-    }
-	
+	}
+
 	zap.L().Info("HTTP server stopped")
 
-	return err 
+	return err
 }

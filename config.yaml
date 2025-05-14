@@ -37,3 +37,6 @@ filesystem_servers:
 # authentication information
 authentication:
   ldap:
+
+backend_security:
+  jwt_expiry:

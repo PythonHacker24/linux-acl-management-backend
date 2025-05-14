@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"os"
 	"log"
+	"os"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
