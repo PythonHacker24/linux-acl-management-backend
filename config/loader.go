@@ -7,6 +7,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+/*
+	we need config normalization as well
+	config normalization fixes all the fields that are not present in config file 
+	and sets it to default value
+*/
+
 /* loads yaml config file from given file path */
 func LoadConfig(path string) {
 
@@ -25,6 +31,8 @@ func LoadConfig(path string) {
 			zap.Error(err),
 		)
     }
+
+	BackendConfig.Normalize()
 }
 
 /* loads environment variables */

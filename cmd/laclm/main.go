@@ -29,6 +29,7 @@ func exec() error {
 	/* exec() wraps run() protecting it with user interrupts  */
 
 	utils.InitLogger(true)
+
 	/* zap.L() can be used all over the code for global level logging */
 
 	zap.L().Info("Logger Initiated ...")

@@ -13,6 +13,8 @@ import (
 /* generating jwt token for user identification with specified configs */
 func GenerateJWT(username string) (string, error) {
 	expiryHours := config.BackendConfig.BackendSecurity.JWTExpiry
+
+	/* GET THIS INTO CONFIG SANITISATION */
 	if expiryHours == 0 {
 		expiryHours = 24
 	}

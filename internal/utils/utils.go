@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/PythonHacker24/linux-acl-management-backend/config"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -25,11 +26,11 @@ func InitLogger(isProduction bool) {
 		encoder = zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())
 		logLevel = zapcore.InfoLevel
 		writeSyncer = zapcore.AddSync(&lumberjack.Logger{
-			Filename:   "logs/app.log",
-			MaxSize:    100, // MB
-			MaxBackups: 5,
-			MaxAge:     30, // days
-			Compress:   true,
+			Filename:   config.BackendConfig.Logging.File,
+			MaxSize:    config.BackendConfig.Logging.MaxSize, // MB
+			MaxBackups: config.BackendConfig.Logging.MaxBackups, 
+			MaxAge:     config.BackendConfig.Logging.MaxBackups, // days
+			Compress:   config.BackendConfig.Logging.Compress,
 		})
 	} else {
 

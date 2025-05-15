@@ -10,7 +10,7 @@ type App struct {
 /* server deployment parameters */
 type Server struct {
 	Host string `yaml:"host"`
-	Port string `yaml:"port"`
+	Port int    `yaml:"port"`
 }
 
 /* database parameters */
@@ -31,12 +31,12 @@ type Logging struct {
 	MaxSize    int    `yaml:"max_size"`
 	MaxBackups int    `yaml:"max_backups"`
 	MaxAge     int    `yaml:"max_age"`
-	Compress   int    `yaml:"compress"`
+	Compress   bool   `yaml:"compress"`
 }
 
 /* file system server parameters */
 type FileSystemServers struct {
-	Remote *Remote `yaml:"remote"`
+	Remote *Remote `yaml:"remote,omitempty"`
 	Path   string  `yaml:"path"`
 	Method string  `yaml:"method"`
 }

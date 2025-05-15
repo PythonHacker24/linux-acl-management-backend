@@ -20,23 +20,23 @@ database:
 
 # logging configurations
 logging:
-  file:
-  max_size:
-  max_backups:
-  max_age:
-  compress:
+  file: "logs/app.log"
+  max_size: 100
+  max_backups: 5
+  max_age: 30
+  compress: true
 
 # filesystem server that needs management
 filesystem_servers:
-  - path:
-    method:
+  - path: /mnt/beegfs-1
+    method: "remote"
     remote:
-      host:
-      port:
+      host: "127.0.0.1"
+      port: 4444
 
 # authentication information
 authentication:
   ldap:
 
 backend_security:
-  jwt_expiry:
+  jwt_expiry: 1
