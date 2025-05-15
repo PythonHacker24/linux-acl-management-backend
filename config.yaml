@@ -4,7 +4,7 @@
 app:
   name: laclm-dev
   version: v1.1
-  environment: development
+  debug_mode: development
 
 # backend server deployment configs
 server:

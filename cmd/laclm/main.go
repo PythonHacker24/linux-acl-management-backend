@@ -28,12 +28,6 @@ func exec() error {
 
 	/* exec() wraps run() protecting it with user interrupts  */
 
-	utils.InitLogger(true)
-
-	/* zap.L() can be used all over the code for global level logging */
-
-	zap.L().Info("Logger Initiated ...")
-	
 	/* setting up cobra for cli interactions */
 	var(
 		configPath string
@@ -59,9 +53,7 @@ func exec() error {
 
 	/* Execute the command */
 	if err := rootCmd.Execute(); err != nil {
-		zap.L().Error("arguements error",
-			zap.Error(err),
-		)
+		fmt.Printf("arguements error: %s", err.Error())
 		os.Exit(1)
 	}
 
@@ -76,8 +68,16 @@ func exec() error {
 		if there is an error or environment variables are not set, then it will exit with code 1
 	*/
 	config.LoadEnv()
+	
+	/* 
+		true for production, false for development mode 
+		logger is only for http server and core components (after this step)
+		using logger for cli issues doesn't make sense
+	*/
+	utils.InitLogger(!config.BackendConfig.AppInfo.DebugMode)
 
-	/* true for production, false for development mode */
+	/* zap.L() can be used all over the code for global level logging */
+	zap.L().Info("Logger Initiated ...")
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
