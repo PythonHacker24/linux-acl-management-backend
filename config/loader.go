@@ -31,8 +31,6 @@ func LoadConfig(path string) {
 			zap.Error(err),
 		)
     }
-
-	BackendConfig.Normalize()
 }
 
 /* loads environment variables */

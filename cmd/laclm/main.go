@@ -105,7 +105,7 @@ func run(ctx context.Context) error {
 	routes.RegisterRoutes(mux)
 
 	server := &http.Server{
-		Addr: fmt.Sprintf("%s:%s",
+		Addr: fmt.Sprintf("%s:%d",
 			config.BackendConfig.Server.Host,
 			config.BackendConfig.Server.Port,
 		),
