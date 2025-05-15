@@ -42,7 +42,12 @@ func InitLogger(isProduction bool) {
 		writeSyncer = zapcore.AddSync(os.Stdout)
 	}
 
-	core := zapcore.NewCore(encoder, writeSyncer, logLevel)
+	core := zapcore.NewCore(
+		encoder, 
+		writeSyncer, 
+		logLevel,
+	)
+
 	Log = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 
 	/* allow global logging with zap.L() */

@@ -51,7 +51,7 @@ func GetUsernameFromJWT(tokenString string) (string, error) {
 	/* get claims from JWT Token */
     claims, err := ValidateJWT(tokenString)
     if err != nil {
-        return "", fmt.Errorf("invalid token: %v", err)
+        return "", err
     }
 
 	/* extract username from JWT Token */

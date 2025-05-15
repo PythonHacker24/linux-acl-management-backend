@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"github.com/spf13/cobra"
+	"github.com/MakeNowJust/heredoc"
 
 	"github.com/PythonHacker24/linux-acl-management-backend/api/routes"
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
@@ -26,14 +28,47 @@ func exec() error {
 
 	/* exec() wraps run() protecting it with user interrupts  */
 
+	utils.InitLogger(true)
 	/* zap.L() can be used all over the code for global level logging */
+
 	zap.L().Info("Logger Initiated ...")
+	
+	/* setting up cobra for cli interactions */
+	var(
+		configPath string
+		rootCmd = &cobra.Command{
+			Use:   "laclm <command> <subcommand>",
+			Short: "Backend server for linux acl management",
+			Example: heredoc.Doc(`
+				$ laclm
+				$ laclm --config /path/to/config.yaml
+			`),
+			Run: func(cmd *cobra.Command, args []string) {
+				if configPath != "" {
+					fmt.Printf("Using config file: %s\n", configPath)
+				} else {
+					fmt.Println("No config file provided.")
+				}
+			},
+		}
+	)
+
+	/* adding --config arguement */
+	rootCmd.PersistentFlags().StringVar(&configPath, "config", "", "Path to config file")
+
+	/* Execute the command */
+	if err := rootCmd.Execute(); err != nil {
+		zap.L().Error("arguements error",
+			zap.Error(err),
+		)
+		os.Exit(1)
+	}
 
 	/*
 		load config file
 		if there is an error in loading the config file, then it will exit with code 1
 	*/
-	config.LoadConfig("./config.yaml")
+	config.LoadConfig(configPath)
 
 	/*
 		load environment variables
@@ -42,7 +77,6 @@ func exec() error {
 	config.LoadEnv()
 
 	/* true for production, false for development mode */
-	utils.InitLogger(false)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

@@ -2,14 +2,14 @@
 
 # backend environment configs
 app:
-  name: 
-  version: 
-  environment:
+  name: laclm-dev
+  version: v1.1
+  environment: development
 
 # backend server deployment configs
 server:
-  host:
-  port:
+  host: localhost
+  port: 8080
 
 # databases for operations
 database:
