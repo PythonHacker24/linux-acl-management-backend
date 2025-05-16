@@ -4,7 +4,7 @@
 app:
   name: laclm-dev
   version: v1.1
-  debug_mode: development
+  debug_mode: true 
 
 # backend server deployment configs
 server:
@@ -14,13 +14,13 @@ server:
 # databases for operations
 database:
   transaction_logs_redis: 
-    address:
-    password:
-    db: 
+    address: localhost
+    password: testingpassword
+    db: 1
 
 # logging configurations
 logging:
-  file: "logs/app.log"
+  file: logs/app.log
   max_size: 100
   max_backups: 5
   max_age: 30
@@ -29,9 +29,9 @@ logging:
 # filesystem server that needs management
 filesystem_servers:
   - path: /mnt/beegfs-1
-    method: "remote"
+    method: remote
     remote:
-      host: "127.0.0.1"
+      host: 127.0.0.1
       port: 4444
 
 # authentication information

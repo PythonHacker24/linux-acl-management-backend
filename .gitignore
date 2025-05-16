@@ -1,6 +1,9 @@
 # Binary files
 /bin/
 
+# Debug logs
+/logs/
+
 # for macOS dev environments
 .DS_Store
 

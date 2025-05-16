@@ -2,13 +2,14 @@ package config
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/MakeNowJust/heredoc"
 )
 
 /* database parameters */
 type Database struct {
-	TransactionLogRedis TransactionLogRedis `yaml:"transaction_log_redis"`
+	TransactionLogRedis TransactionLogRedis `yaml:"transaction_logs_redis"`
 }
 
 /* transaction log redis parameters */
@@ -30,6 +31,12 @@ func (r *TransactionLogRedis) Normalize() error {
 
 			Please check the docs for more information: 
 		`))
+	}
+	
+	/* password can be empty */
+	if r.Password == "" {
+		/* just warn users to use password protected redis */
+		fmt.Println("Prefer using password for redis for security purposes")	
 	}
 
 	if r.DB == "" {

@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	"go.uber.org/zap"
-	"github.com/spf13/cobra"
 	"github.com/MakeNowJust/heredoc"
+	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 
 	"github.com/PythonHacker24/linux-acl-management-backend/api/routes"
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
@@ -40,9 +40,9 @@ func exec() error {
 			`),
 			Run: func(cmd *cobra.Command, args []string) {
 				if configPath != "" {
-					fmt.Printf("Using config file: %s\n", configPath)
+					fmt.Printf("Using config file: %s\n\n", configPath)
 				} else {
-					fmt.Println("No config file provided.")
+					fmt.Println("No config file provided.\n\n")
 				}
 			},
 		}
@@ -61,13 +61,22 @@ func exec() error {
 		load config file
 		if there is an error in loading the config file, then it will exit with code 1
 	*/
-	config.LoadConfig(configPath)
+	if err := config.LoadConfig(configPath); err != nil {
+		fmt.Printf("Configuration Error in %s: %s", 
+			configPath, 
+			err.Error(),
+		)
+		/* since the configuration is invalid, don't proceed */
+		os.Exit(1)
+	}
 
 	/*
 		load environment variables
 		if there is an error or environment variables are not set, then it will exit with code 1
 	*/
 	config.LoadEnv()
+
+	fmt.Println("loaded config")
 	
 	/* 
 		true for production, false for development mode 
