@@ -70,14 +70,8 @@ func exec() error {
 		os.Exit(1)
 	}
 
-	/*
-		load environment variables
-		if there is an error or environment variables are not set, then it will exit with code 1
-	*/
-	config.LoadEnv()
-
 	fmt.Println("loaded config")
-	
+
 	/* 
 		true for production, false for development mode 
 		logger is only for http server and core components (after this step)

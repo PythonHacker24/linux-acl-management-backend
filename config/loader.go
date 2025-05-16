@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 	"github.com/davecgh/go-spew/spew"
 )
@@ -27,14 +26,18 @@ func LoadConfig(path string) error {
 
     }
 
+	/* expand all environment variables in the yaml config */
+	expanded := os.ExpandEnv(string(data))
+
 	/* unmarshal the yaml file to defined struct */
-    err = yaml.Unmarshal(data, &BackendConfig)
+    err = yaml.Unmarshal([]byte(expanded), &BackendConfig)
     if err != nil {
 		return fmt.Errorf("config loading error %w", 
 			err,
 		)
     }
 
+	/* write the config file in console if in debug mode */
 	if BackendConfig.AppInfo.DebugMode {
 		fmt.Println("Contents of Config File (debug mode ON)")
 		spew.Dump(BackendConfig)
@@ -43,16 +46,4 @@ func LoadConfig(path string) error {
 	
 	/* normalize the complete backend config before proceeding */
 	return BackendConfig.Normalize()
-}
-
-/* loads environment variables */
-func LoadEnv() {
-
-	/* get the JWT_SECRET_KEY from environment variable */
-	secret := os.Getenv("JWT_SECRET_KEY")
-    if secret == "" {
-        zap.L().Fatal("JWT_SECRET_KEY environment variable not set")
-    }
-	
-	EnvConfig.JWTSecret = secret
 }

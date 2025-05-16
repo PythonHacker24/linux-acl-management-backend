@@ -24,7 +24,7 @@ func GenerateJWT(username string) (string, error) {
 		"exp":      time.Now().Add(time.Hour * time.Duration(expiryHours)).Unix(),
 	})
 
-	return token.SignedString([]byte(config.EnvConfig.JWTSecret))
+	return token.SignedString([]byte(config.BackendConfig.BackendSecurity.JWTTokenSecret))
 }
 
 /* validate JWT token and return claims */
@@ -33,7 +33,7 @@ func ValidateJWT(tokenString string) (jwt.MapClaims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method")
 		}
-		return config.EnvConfig.JWTSecret, nil
+		return config.BackendConfig.BackendSecurity.JWTTokenSecret, nil
 	})
 
 	if err != nil {

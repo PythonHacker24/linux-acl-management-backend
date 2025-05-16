@@ -5,9 +5,6 @@ import "fmt"
 /* globally accessible yaml config */
 var BackendConfig Config
 
-/* globally accessible environment variables */
-var EnvConfig EnvironmentConfig
-
 /* complete yaml config for global usage */
 type Config struct {
 	AppInfo           App                 `yaml:"app"`
@@ -16,11 +13,7 @@ type Config struct {
 	Logging           Logging             `yaml:"logging"`
 	FileSystemServers []FileSystemServers `yaml:"filesystem_servers"`
 	BackendSecurity   BackendSecurity     `yaml:"backend_security"`
-}
-
-/* complete environment variables configs for global usage */
-type EnvironmentConfig struct {
-	JWTSecret string
+	Authentication	  Authentication	  `yaml:"authentication"`
 }
 
 /* complete config normalizer function */
@@ -49,6 +42,10 @@ func (c *Config) Normalize() error {
 
 	if err := c.BackendSecurity.Normalize(); err != nil {
 		return fmt.Errorf("backend security configuration error: %w", err) 
+	}
+
+	if err := c.Authentication.Normalize(); err != nil {
+		return fmt.Errorf("authentication configuration error: %w", err)
 	}
 
 	return nil

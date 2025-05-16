@@ -1,10 +1,13 @@
 package ldap
 
 import (
+	"os"
+	"crypto/tls"
 	"fmt"
-	"go.uber.org/zap"
 
+	"github.com/PythonHacker24/linux-acl-management-backend/config"
 	"github.com/go-ldap/ldap/v3"
+	"go.uber.org/zap"
 )
 
 /* authenticate a user with ldap */
@@ -18,8 +21,22 @@ func AuthenticateUser(username, password, searchbase string) bool {
 		reducing unauthorized access in edge cases
 	*/
 
+	var l *ldap.Conn
+	var err error
+	ldapAddress := config.BackendConfig.Authentication.LDAPConfig.Address
+
+	if config.BackendConfig.Authentication.LDAPConfig.TLS {
+		l, err = ldap.DialURL(ldapAddress, ldap.DialWithTLSConfig(&tls.Config{
+
+			/* true if using self-signed certs (not recommended) */
+			InsecureSkipVerify: false,
+		}))
+	} else {
+		l, err = ldap.DialURL(ldapAddress)
+	}
+
 	/* dial to the ldap server */
-	l, err := ldap.DialURL("")
+	l, err = ldap.DialURL("")
 	if err != nil {
 		zap.L().Error("Failed to connect to LDAP Server",
 			zap.Error(err),
@@ -28,8 +45,12 @@ func AuthenticateUser(username, password, searchbase string) bool {
 	}
 	defer l.Close()
 
+	/* securely fetch LDAP credentials from the environment */
+	adminDN := os.Getenv("LDAP_ADMIN_DN")
+	adminPassword := os.Getenv("LDAP_ADMIN_PASSWORD")
+
 	/* authenticating with the ldap server with admin */
-	err = l.Bind("", "")
+	err = l.Bind(adminDN, adminPassword)
 	if err != nil {
 		zap.L().Error("Admin authentication failed",
 			zap.Error(err),
