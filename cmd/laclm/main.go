@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/MakeNowJust/heredoc"
+	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
@@ -27,6 +28,11 @@ func main() {
 func exec() error {
 
 	/* exec() wraps run() protecting it with user interrupts  */
+	
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("No .env file found, continuing with system environment variables")
+	}
 
 	/* setting up cobra for cli interactions */
 	var(

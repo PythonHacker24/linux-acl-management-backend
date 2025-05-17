@@ -4,7 +4,7 @@
 app:
   name: laclm-dev
   version: v1.1
-  debug_mode: false
+  debug_mode: true 
 
 # backend server deployment configs
 server:
@@ -43,5 +43,5 @@ authentication:
     admin_password: ${LACLM_LDAP_ADMIN_PASSWORD} 
 
 backend_security:
-  jwt_secret_key: ${JWT_SECRET_KEY}
+  jwt_secret_token: ${JWT_SECRET_TOKEN}
   jwt_expiry: 1
