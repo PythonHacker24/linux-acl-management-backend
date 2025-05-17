@@ -8,15 +8,15 @@ import (
 
 /* authentication parameters */
 type Authentication struct {
-	LDAPConfig		LDAPConfig 	`yaml:"ldap"`
+	LDAPConfig		LDAPConfig 	`yaml:"ldap,omitempty"`
 }
 
 /* ldap authentication parameters */
 type LDAPConfig struct {
-	TLS             bool		`yaml:"tls"`
-	Address			string 		`yaml:"address"`
-	AdminDN 		string		`yaml:"admin_dn"`
-	AdminPassword	string		`yaml:"admin_password"`
+	TLS             bool		`yaml:"tls,omitempty"`
+	Address			string 		`yaml:"address,omitempty"`
+	AdminDN 		string		`yaml:"admin_dn,omitempty"`
+	AdminPassword	string		`yaml:"admin_password,omitempty"`
 }
 
 /* normalization function */

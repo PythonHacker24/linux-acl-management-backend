@@ -8,8 +8,8 @@ import (
 
 /* backend security configs */
 type BackendSecurity struct {
-	JWTTokenSecret 	string 	`yaml:"jwt_secret_token"`
-	JWTExpiry 		int 	`yaml:"jwt_expiry"`
+	JWTTokenSecret 	string 	`yaml:"jwt_secret_token,omitempty"`
+	JWTExpiry 		int 	`yaml:"jwt_expiry,omitempty"`
 }
 
 /* normalization function */

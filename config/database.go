@@ -9,14 +9,14 @@ import (
 
 /* database parameters */
 type Database struct {
-	TransactionLogRedis TransactionLogRedis `yaml:"transaction_log_redis"`
+	TransactionLogRedis TransactionLogRedis `yaml:"transaction_log_redis,omitempty"`
 }
 
 /* transaction log redis parameters */
 type TransactionLogRedis struct {
-	Address  string `yaml:"address"`
-	Password string `yaml:"password"`
-	DB       int    `yaml:"db"`
+	Address  string `yaml:"address,omitempty"`
+	Password string `yaml:"password,omitempty"`
+	DB       int    `yaml:"db,omitempty"`
 }
 
 /* normalization function */

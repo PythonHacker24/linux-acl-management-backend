@@ -2,7 +2,7 @@
 
 # backend environment configs
 app:
-  name: laclm-dev
+#  name: laclm-dev
   version: v1.1
   debug_mode: true 
 

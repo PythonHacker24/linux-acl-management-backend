@@ -7,13 +7,13 @@ var BackendConfig Config
 
 /* complete yaml config for global usage */
 type Config struct {
-	AppInfo           App                 `yaml:"app"`
-	Server            Server              `yaml:"server"`
-	Database          Database            `yaml:"database"`
-	Logging           Logging             `yaml:"logging"`
-	FileSystemServers []FileSystemServers `yaml:"filesystem_servers"`
-	BackendSecurity   BackendSecurity     `yaml:"backend_security"`
-	Authentication	  Authentication	  `yaml:"authentication"`
+	AppInfo           App                 `yaml:"app,omitempty"`
+	Server            Server              `yaml:"server,omitempty"`
+	Database          Database            `yaml:"database,omitempty"`
+	Logging           Logging             `yaml:"logging,omitempty"`
+	FileSystemServers []FileSystemServers `yaml:"filesystem_servers,omitempty"`
+	BackendSecurity   BackendSecurity     `yaml:"backend_security,omitempty"`
+	Authentication	  Authentication	  `yaml:"authentication,omitempty"`
 }
 
 /* complete config normalizer function */

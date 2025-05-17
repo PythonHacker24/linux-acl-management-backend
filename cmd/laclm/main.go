@@ -31,7 +31,7 @@ func exec() error {
 	
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("No .env file found, continuing with system environment variables")
+		fmt.Println("No .env file found, continuing with system environment variables\n")
 	}
 
 	/* setting up cobra for cli interactions */

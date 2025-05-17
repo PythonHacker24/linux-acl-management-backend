@@ -2,9 +2,9 @@ package config
 
 /* app parameters */
 type App struct {
-	Name        string `yaml:"name"`
-	Version     string `yaml:"version"`
-	DebugMode   bool   `yaml:"debug_mode"`
+	Name        string `yaml:"name,omitempty"`
+	Version     string `yaml:"version,omitempty"`
+	DebugMode   bool   `yaml:"debug_mode,omitempty"`
 }
 
 /* normalization function */

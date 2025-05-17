@@ -8,15 +8,15 @@ import (
 
 /* file system server parameters */
 type FileSystemServers struct {
-	Path   string  `yaml:"path"`
-	Method string  `yaml:"method"`
+	Path   string  `yaml:"path,omitempty"`
+	Method string  `yaml:"method,omitempty"`
 	Remote *Remote `yaml:"remote,omitempty"`
 }
 
 /* remote parameters for file system server with laclm daemons installed */
 type Remote struct {
-	Host string `yaml:"host"`
-	Port int    `yaml:"port"`
+	Host string `yaml:"host,omitempty"`
+	Port int    `yaml:"port,omitempty"`
 }
 
 /* normalization function */
