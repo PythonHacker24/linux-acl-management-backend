@@ -9,14 +9,14 @@ import (
 
 /* database parameters */
 type Database struct {
-	TransactionLogRedis TransactionLogRedis `yaml:"transaction_logs_redis"`
+	TransactionLogRedis TransactionLogRedis `yaml:"transaction_log_redis"`
 }
 
 /* transaction log redis parameters */
 type TransactionLogRedis struct {
 	Address  string `yaml:"address"`
 	Password string `yaml:"password"`
-	DB       string `yaml:"db"`
+	DB       int    `yaml:"db"`
 }
 
 /* normalization function */
@@ -36,12 +36,10 @@ func (r *TransactionLogRedis) Normalize() error {
 	/* password can be empty */
 	if r.Password == "" {
 		/* just warn users to use password protected redis */
-		fmt.Println("Prefer using password for redis for security purposes")	
+		fmt.Println("Prefer using password for redis for security purposes\n")	
 	}
 
-	if r.DB == "" {
-		r.DB = "0"
-	}
+	/* r.DB default value can be 0 */
 
 	return nil
 }

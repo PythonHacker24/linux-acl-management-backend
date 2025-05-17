@@ -4,7 +4,7 @@
 app:
   name: laclm-dev
   version: v1.1
-  debug_mode: false 
+  debug_mode: false
 
 # backend server deployment configs
 server:
@@ -13,7 +13,7 @@ server:
 
 # databases for operations
 database:
-  transaction_logs_redis: 
+  transaction_log_redis: 
     address: localhost
     password: ${LACLM_TRANS_REDIS_PASSWORD} 
     db: 1

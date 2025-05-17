@@ -35,8 +35,6 @@ func AuthenticateUser(username, password, searchbase string) bool {
 		l, err = ldap.DialURL(ldapAddress)
 	}
 
-	/* dial to the ldap server */
-	l, err = ldap.DialURL("")
 	if err != nil {
 		zap.L().Error("Failed to connect to LDAP Server",
 			zap.Error(err),
