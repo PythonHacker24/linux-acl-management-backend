@@ -9,8 +9,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      # config.yaml is mounted as volume - editable outside docker
-      - ./config.yaml:/app/config.yaml
+      - ./config.yaml:/app/config.yaml         # mount config from host
+      - ./.env:/app/.env                       # mount env file from host
     depends_on:
       - openldap
       - redis
@@ -35,9 +35,9 @@ services:
     container_name: phpldapadmin
     environment:
       PHPLDAPADMIN_LDAP_HOSTS: openldap
-      PHPLDAPADMIN_HTTPS: "false"  # disable HTTPS for local development
+      PHPLDAPADMIN_HTTPS: "false"
     ports:
-      - "8090:80"  # accessible via http://localhost:8090
+      - "8090:80"
     depends_on:
       - openldap
     networks:
