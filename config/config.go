@@ -13,13 +13,13 @@ type Config struct {
 	Logging           Logging             `yaml:"logging,omitempty"`
 	FileSystemServers []FileSystemServers `yaml:"filesystem_servers,omitempty"`
 	BackendSecurity   BackendSecurity     `yaml:"backend_security,omitempty"`
-	Authentication	  Authentication	  `yaml:"authentication,omitempty"`
+	Authentication    Authentication      `yaml:"authentication,omitempty"`
 }
 
 /* complete config normalizer function */
 func (c *Config) Normalize() error {
 	if err := c.AppInfo.Normalize(); err != nil {
-		return fmt.Errorf("app configuration error: %w", err)	
+		return fmt.Errorf("app configuration error: %w", err)
 	}
 
 	if err := c.Server.Normalize(); err != nil {
@@ -37,11 +37,11 @@ func (c *Config) Normalize() error {
 	for i := range c.FileSystemServers {
 		if err := c.FileSystemServers[i].Normalize(); err != nil {
 			return fmt.Errorf("file system server [%d] error: %w", i, err)
-		}	
+		}
 	}
 
 	if err := c.BackendSecurity.Normalize(); err != nil {
-		return fmt.Errorf("backend security configuration error: %w", err) 
+		return fmt.Errorf("backend security configuration error: %w", err)
 	}
 
 	if err := c.Authentication.Normalize(); err != nil {

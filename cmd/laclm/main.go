@@ -28,16 +28,16 @@ func main() {
 func exec() error {
 
 	/* exec() wraps run() protecting it with user interrupts  */
-	
+
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("No .env file found, continuing with system environment variables\n")
 	}
 
 	/* setting up cobra for cli interactions */
-	var(
+	var (
 		configPath string
-		rootCmd = &cobra.Command{
+		rootCmd    = &cobra.Command{
 			Use:   "laclm <command> <subcommand>",
 			Short: "Backend server for linux acl management",
 			Example: heredoc.Doc(`
@@ -68,18 +68,16 @@ func exec() error {
 		if there is an error in loading the config file, then it will exit with code 1
 	*/
 	if err := config.LoadConfig(configPath); err != nil {
-		fmt.Printf("Configuration Error in %s: %s", 
-			configPath, 
+		fmt.Printf("Configuration Error in %s: %s",
+			configPath,
 			err.Error(),
 		)
 		/* since the configuration is invalid, don't proceed */
 		os.Exit(1)
 	}
 
-	fmt.Println("loaded config")
-
-	/* 
-		true for production, false for development mode 
+	/*
+		true for production, false for development mode
 		logger is only for http server and core components (after this step)
 		using logger for cli issues doesn't make sense
 	*/
