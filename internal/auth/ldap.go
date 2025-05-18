@@ -1,4 +1,4 @@
-package ldap
+package auth 
 
 import (
 	"os"

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/PythonHacker24/linux-acl-management-backend/internal/authentication"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/auth"
 	"go.uber.org/zap"
 )
 
@@ -36,7 +36,7 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		/* authenticate the request through JWT */
-		username, err := authentication.ExtractUsernameFromRequest(r)		
+		username, err := auth.ExtractUsernameFromRequest(r)		
 		if err != nil {
 			zap.L().Error("Error during authentication",
 				zap.Error(err),

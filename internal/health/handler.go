@@ -1,4 +1,4 @@
-package handlers
+package health 
 
 import (
 	"encoding/json"
@@ -6,12 +6,12 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/PythonHacker24/linux-acl-management-backend/internal/models"
+	// "github.com/PythonHacker24/linux-acl-management-backend/internal/models"
 )
 
 /* health handler provides status check on the backend server */
 func HealthHandler(w http.ResponseWriter, r *http.Request) {
-	var response models.HealthResponse
+	var response HealthResponse
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

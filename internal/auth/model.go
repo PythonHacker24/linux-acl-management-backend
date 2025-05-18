@@ -1,10 +1,4 @@
-package models
-
-
-/* health response */
-type HealthResponse struct {
-	Status string `json:"status"`
-}
+package auth
 
 /* username and password */
 type User struct {
