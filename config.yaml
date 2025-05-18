@@ -1,8 +1,5 @@
-# config.yaml 
-
 # backend environment configs
 app:
-#  name: laclm-dev
   version: v1.1
   debug_mode: true 
 
@@ -14,8 +11,8 @@ server:
 # databases for operations
 database:
   transaction_log_redis: 
-    address: localhost
-    password: ${LACLM_TRANS_REDIS_PASSWORD} 
+    address: redis   # Docker service name, not localhost
+    password: ${LACLM_TRANS_REDIS_PASSWORD}
     db: 1
 
 # logging configurations
@@ -31,16 +28,16 @@ filesystem_servers:
   - path: /mnt/beegfs-1
     method: remote
     remote:
-      host: 127.0.0.1
+      host: host.docker.internal  # allows container to access host network
       port: 4444
 
 # authentication information
 authentication:
   ldap:
     tls: true 
-    address: "ldaps://ldap.example.com"
+    address: "ldaps://openldap"  # Use the service name from docker-compose
     admin_dn: ${LACLM_LDAP_ADMIN_DN}
-    admin_password: ${LACLM_LDAP_ADMIN_PASSWORD} 
+    admin_password: ${LACLM_LDAP_ADMIN_PASSWORD}
 
 backend_security:
   jwt_secret_token: ${JWT_SECRET_TOKEN}

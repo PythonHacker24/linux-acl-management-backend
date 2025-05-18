@@ -17,7 +17,7 @@ WORKDIR /app
 
 # Copy binary and config
 COPY --from=builder /app/bin/laclm ./bin/laclm
-COPY config.yaml .
+# COPY config.yaml .
 COPY .env .
 
 # Install `bash` to source the env file
