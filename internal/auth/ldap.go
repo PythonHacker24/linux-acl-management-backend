@@ -1,7 +1,6 @@
 package auth 
 
 import (
-	"os"
 	"crypto/tls"
 	"fmt"
 
@@ -29,7 +28,7 @@ func AuthenticateUser(username, password, searchbase string) bool {
 		l, err = ldap.DialURL(ldapAddress, ldap.DialWithTLSConfig(&tls.Config{
 
 			/* true if using self-signed certs (not recommended) */
-			InsecureSkipVerify: false,
+			InsecureSkipVerify: true,
 		}))
 	} else {
 		l, err = ldap.DialURL(ldapAddress)
@@ -43,12 +42,10 @@ func AuthenticateUser(username, password, searchbase string) bool {
 	}
 	defer l.Close()
 
-	/* securely fetch LDAP credentials from the environment */
-	adminDN := os.Getenv("LDAP_ADMIN_DN")
-	adminPassword := os.Getenv("LDAP_ADMIN_PASSWORD")
-
 	/* authenticating with the ldap server with admin */
-	err = l.Bind(adminDN, adminPassword)
+	err = l.Bind(config.BackendConfig.Authentication.LDAPConfig.AdminDN, 
+		config.BackendConfig.Authentication.LDAPConfig.AdminPassword,
+	)
 	if err != nil {
 		zap.L().Error("Admin authentication failed",
 			zap.Error(err),
@@ -62,7 +59,8 @@ func AuthenticateUser(username, password, searchbase string) bool {
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 
 		/* Searching by username */
-		fmt.Sprintf("(uid=%s)", username),
+		/* for uid -> fmt.Sprintf("(uid=%s)", username), */
+		fmt.Sprintf("(cn=%s)", username),
 
 		/* We only need the DN */
 		[]string{"dn"},

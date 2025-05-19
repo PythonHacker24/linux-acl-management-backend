@@ -34,11 +34,11 @@ filesystem_servers:
 # authentication information
 authentication:
   ldap:
-    tls: true 
-    address: "ldaps://openldap"  # Use the service name from docker-compose
+    tls: false
+    address: "ldap://openldap:389"  # Use the service name from docker-compose
     admin_dn: ${LACLM_LDAP_ADMIN_DN}
     admin_password: ${LACLM_LDAP_ADMIN_PASSWORD}
-    search_base: "ou=users,dc=example,dc=com"
+    search_base: "cn=Princeton Plainsboro Hospital,dc=myorg,dc=local"
 
 backend_security:
   jwt_secret_token: ${JWT_SECRET_TOKEN}
