@@ -17,6 +17,7 @@ type LDAPConfig struct {
 	Address			string 		`yaml:"address,omitempty"`
 	AdminDN 		string		`yaml:"admin_dn,omitempty"`
 	AdminPassword	string		`yaml:"admin_password,omitempty"`
+	SearchBase		string		`yaml:"search_base,omitempty"`
 }
 
 /* normalization function */
@@ -46,6 +47,14 @@ func (l *LDAPConfig) Normalize() error {
 	if l.AdminPassword == "" {
 		return errors.New(heredoc.Doc(`
 			LDAP admin password is not specified in the configuration file. 
+
+			Please check the docs for more information: 
+		`))
+	}
+
+	if l.SearchBase == "" {
+		return errors.New(heredoc.Doc(`
+			LDAP search base is not specified in the configuration file. 
 
 			Please check the docs for more information: 
 		`))
