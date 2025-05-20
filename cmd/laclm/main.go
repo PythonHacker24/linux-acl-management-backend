@@ -31,7 +31,7 @@ func exec() error {
 
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("No .env file found, continuing with system environment variables\n")
+		fmt.Print("No .env file found, continuing with system environment variables\n")
 	}
 
 	/* setting up cobra for cli interactions */
@@ -48,7 +48,7 @@ func exec() error {
 				if configPath != "" {
 					fmt.Printf("Using config file: %s\n\n", configPath)
 				} else {
-					fmt.Println("No config file provided.\n\n")
+					fmt.Printf("No config file provided.\n\n")
 				}
 			},
 		}
