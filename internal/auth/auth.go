@@ -33,11 +33,11 @@ func ValidateJWT(tokenString string) (jwt.MapClaims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method")
 		}
-		return config.BackendConfig.BackendSecurity.JWTTokenSecret, nil
+		return []byte(config.BackendConfig.BackendSecurity.JWTTokenSecret), nil
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("JWT parsing error: %w", err)
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
@@ -53,7 +53,7 @@ func GetUsernameFromJWT(tokenString string) (string, error) {
 	/* get claims from JWT Token */
     claims, err := ValidateJWT(tokenString)
     if err != nil {
-        return "", err
+		return "", fmt.Errorf("JWT validation error: %w", err)
     }
 
 	/* extract username from JWT Token */

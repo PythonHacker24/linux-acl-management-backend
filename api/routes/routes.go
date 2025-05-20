@@ -13,7 +13,9 @@ func RegisterRoutes(mux *http.ServeMux) {
 
 	/* for monitoring the state of overall server and laclm backend */
 	mux.Handle("GET /health", http.HandlerFunc(
-		middleware.LoggingMiddleware(health.HealthHandler),
+		middleware.LoggingMiddleware(
+			middleware.AuthenticationMiddleware(health.HealthHandler),
+		),
 	))
 
 	/* for logging into the backend and creating a session */
