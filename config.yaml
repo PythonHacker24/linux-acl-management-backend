@@ -1,7 +1,9 @@
 # backend environment configs
 app:
+  name: laclm
   version: v1.1
-  debug_mode: true 
+  debug_mode: true
+  session_timeout: 24
 
 # backend server deployment configs
 server:

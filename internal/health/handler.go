@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"go.uber.org/zap"
-	// "github.com/PythonHacker24/linux-acl-management-backend/internal/models"
 )
 
 /* health handler provides status check on the backend server */
