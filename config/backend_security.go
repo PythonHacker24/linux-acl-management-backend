@@ -8,8 +8,8 @@ import (
 
 /* backend security configs */
 type BackendSecurity struct {
-	JWTTokenSecret 	string 	`yaml:"jwt_secret_token,omitempty"`
-	JWTExpiry 		int 	`yaml:"jwt_expiry,omitempty"`
+	JWTTokenSecret string `yaml:"jwt_secret_token,omitempty"`
+	JWTExpiry      int    `yaml:"jwt_expiry,omitempty"`
 }
 
 /* normalization function */
@@ -19,7 +19,7 @@ func (b *BackendSecurity) Normalize() error {
 			JWT Token Security is not specified in the configuration file. 
 
 			Please check the docs for more information: 
-		`)) 
+		`))
 	}
 
 	if b.JWTExpiry == 0 {

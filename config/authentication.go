@@ -8,16 +8,16 @@ import (
 
 /* authentication parameters */
 type Authentication struct {
-	LDAPConfig		LDAPConfig 	`yaml:"ldap,omitempty"`
+	LDAPConfig LDAPConfig `yaml:"ldap,omitempty"`
 }
 
 /* ldap authentication parameters */
 type LDAPConfig struct {
-	TLS             bool		`yaml:"tls,omitempty"`
-	Address			string 		`yaml:"address,omitempty"`
-	AdminDN 		string		`yaml:"admin_dn,omitempty"`
-	AdminPassword	string		`yaml:"admin_password,omitempty"`
-	SearchBase		string		`yaml:"search_base,omitempty"`
+	TLS           bool   `yaml:"tls,omitempty"`
+	Address       string `yaml:"address,omitempty"`
+	AdminDN       string `yaml:"admin_dn,omitempty"`
+	AdminPassword string `yaml:"admin_password,omitempty"`
+	SearchBase    string `yaml:"search_base,omitempty"`
 }
 
 /* normalization function */
@@ -59,6 +59,6 @@ func (l *LDAPConfig) Normalize() error {
 			Please check the docs for more information: 
 		`))
 	}
-	
+
 	return nil
 }

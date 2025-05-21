@@ -1,4 +1,4 @@
-package auth 
+package auth
 
 import (
 	"crypto/tls"
@@ -43,7 +43,7 @@ func AuthenticateUser(username, password, searchbase string) bool {
 	defer l.Close()
 
 	/* authenticating with the ldap server with admin */
-	err = l.Bind(config.BackendConfig.Authentication.LDAPConfig.AdminDN, 
+	err = l.Bind(config.BackendConfig.Authentication.LDAPConfig.AdminDN,
 		config.BackendConfig.Authentication.LDAPConfig.AdminPassword,
 	)
 	if err != nil {

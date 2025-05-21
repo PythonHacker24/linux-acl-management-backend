@@ -28,7 +28,7 @@ func InitLogger(isProduction bool) {
 		writeSyncer = zapcore.AddSync(&lumberjack.Logger{
 			Filename:   config.BackendConfig.Logging.File,
 			MaxSize:    config.BackendConfig.Logging.MaxSize, // MB
-			MaxBackups: config.BackendConfig.Logging.MaxBackups, 
+			MaxBackups: config.BackendConfig.Logging.MaxBackups,
 			MaxAge:     config.BackendConfig.Logging.MaxBackups, // days
 			Compress:   config.BackendConfig.Logging.Compress,
 		})
@@ -44,8 +44,8 @@ func InitLogger(isProduction bool) {
 	}
 
 	core := zapcore.NewCore(
-		encoder, 
-		writeSyncer, 
+		encoder,
+		writeSyncer,
 		logLevel,
 	)
 

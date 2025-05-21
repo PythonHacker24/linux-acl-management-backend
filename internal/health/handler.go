@@ -1,11 +1,10 @@
-package health 
+package health
 
 import (
 	"encoding/json"
 	"net/http"
 
 	"go.uber.org/zap"
-
 	// "github.com/PythonHacker24/linux-acl-management-backend/internal/models"
 )
 
@@ -23,4 +22,3 @@ func HealthHandler(w http.ResponseWriter, r *http.Request) {
 		)
 	}
 }
-

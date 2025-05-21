@@ -22,7 +22,7 @@ func (l *Logging) Normalize() error {
 	if l.MaxBackups == 0 {
 		l.MaxBackups = 3
 	}
-	
+
 	/* let compression remain false by default */
 
 	return nil

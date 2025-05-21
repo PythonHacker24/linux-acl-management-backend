@@ -1,13 +1,13 @@
-package auth 
+package auth
 
 import (
 	"fmt"
-	"time"
 	"net/http"
 	"strings"
+	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 /* generating jwt token for user identification with specified configs */
@@ -51,34 +51,34 @@ func ValidateJWT(tokenString string) (jwt.MapClaims, error) {
 func GetUsernameFromJWT(tokenString string) (string, error) {
 
 	/* get claims from JWT Token */
-    claims, err := ValidateJWT(tokenString)
-    if err != nil {
+	claims, err := ValidateJWT(tokenString)
+	if err != nil {
 		return "", fmt.Errorf("JWT validation error: %w", err)
-    }
+	}
 
 	/* extract username from JWT Token */
-    username, ok := claims["username"].(string)
-    if !ok {
-        return "", fmt.Errorf("username not found in token")
-    }
+	username, ok := claims["username"].(string)
+	if !ok {
+		return "", fmt.Errorf("username not found in token")
+	}
 
-    return username, nil
+	return username, nil
 }
 
 /* extract username from http request (wrapper around GetUsernameFromJWT for http requests) */
 func ExtractUsernameFromRequest(r *http.Request) (string, error) {
 
 	/* extract authentication hearder from http request */
-    authHeader := r.Header.Get("Authorization")
-    if authHeader == "" {
-        return "", fmt.Errorf("missing Authorization header")
-    }
-	
-	/* parse the token from the header */
-    tokenParts := strings.Split(authHeader, " ")
-    if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
-        return "", fmt.Errorf("invalid Authorization header format")
-    }
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return "", fmt.Errorf("missing Authorization header")
+	}
 
-    return GetUsernameFromJWT(tokenParts[1])
+	/* parse the token from the header */
+	tokenParts := strings.Split(authHeader, " ")
+	if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+		return "", fmt.Errorf("invalid Authorization header format")
+	}
+
+	return GetUsernameFromJWT(tokenParts[1])
 }

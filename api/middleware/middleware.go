@@ -15,7 +15,7 @@ func LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		/* logging recieved request at the instant of receiving */
 		zap.L().Info("Recieved request",
-			zap.String("Method", r.Method),	
+			zap.String("Method", r.Method),
 			zap.String("Path", r.URL.Path),
 		)
 
@@ -36,11 +36,11 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		/* authenticate the request through JWT */
-		username, err := auth.ExtractUsernameFromRequest(r)		
+		username, err := auth.ExtractUsernameFromRequest(r)
 		if err != nil {
 			zap.L().Error("Error during authentication",
 				zap.Error(err),
-			)		
+			)
 			return
 		}
 

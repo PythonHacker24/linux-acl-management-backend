@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"gopkg.in/yaml.v3"
 	"github.com/davecgh/go-spew/spew"
+	"gopkg.in/yaml.v3"
 )
 
 /*
@@ -18,24 +18,24 @@ import (
 func LoadConfig(path string) error {
 
 	/* read the yaml config file */
-    data, err := os.ReadFile(path)
-    if err != nil {
-		return fmt.Errorf("config loading error %w", 
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("config loading error %w",
 			err,
 		)
 
-    }
+	}
 
 	/* expand all environment variables in the yaml config */
 	expanded := os.ExpandEnv(string(data))
 
 	/* unmarshal the yaml file to defined struct */
-    err = yaml.Unmarshal([]byte(expanded), &BackendConfig)
-    if err != nil {
-		return fmt.Errorf("config loading error %w", 
+	err = yaml.Unmarshal([]byte(expanded), &BackendConfig)
+	if err != nil {
+		return fmt.Errorf("config loading error %w",
 			err,
 		)
-    }
+	}
 
 	/* write the config file in console if in debug mode */
 	if BackendConfig.AppInfo.DebugMode {
@@ -43,7 +43,7 @@ func LoadConfig(path string) error {
 		spew.Dump(BackendConfig)
 		fmt.Println()
 	}
-	
+
 	/* normalize the complete backend config before proceeding */
 	return BackendConfig.Normalize()
 }

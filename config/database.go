@@ -32,11 +32,11 @@ func (r *TransactionLogRedis) Normalize() error {
 			Please check the docs for more information: 
 		`))
 	}
-	
+
 	/* password can be empty */
 	if r.Password == "" {
 		/* just warn users to use password protected redis */
-		fmt.Printf("Prefer using password for redis for security purposes\n\n")	
+		fmt.Printf("Prefer using password for redis for security purposes\n\n")
 	}
 
 	/* r.DB default value can be 0 */

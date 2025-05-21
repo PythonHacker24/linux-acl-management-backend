@@ -26,27 +26,27 @@ func (f *FileSystemServers) Normalize() error {
 			Remote server file path not specified in the configuration file. 
 
 			Please check the docs for more information: 
-		`))	
+		`))
 	}
 
 	if f.Method == "" {
 		f.Method = "local"
 	}
-	
+
 	if f.Method == "remote" {
 		if f.Remote == nil {
 			return errors.New(heredoc.Doc(`
 			
 			`))
 		}
-		
+
 		if f.Remote.Host == "" {
 			return errors.New(heredoc.Doc(`
 				Address not provided for remote file server
 				
 				Please check the docs for more information: 
 			`))
-		} 
+		}
 
 		if f.Remote.Port == 0 {
 			return errors.New(heredoc.Doc(`
