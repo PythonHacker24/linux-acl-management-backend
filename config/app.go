@@ -2,10 +2,10 @@ package config
 
 /* app parameters */
 type App struct {
-	Name      string `yaml:"name,omitempty"`
-	Version   string `yaml:"version,omitempty"`
-	DebugMode bool   `yaml:"debug_mode,omitempty"`
-	SessionTimeout	int	`yaml:"session_timeout,omitempty"`
+	Name           string `yaml:"name,omitempty"`
+	Version        string `yaml:"version,omitempty"`
+	DebugMode      bool   `yaml:"debug_mode,omitempty"`
+	SessionTimeout int    `yaml:"session_timeout,omitempty"`
 }
 
 /* normalization function */
