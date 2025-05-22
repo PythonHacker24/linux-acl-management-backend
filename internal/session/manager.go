@@ -10,19 +10,19 @@ import (
 )
 
 var (
-	activeSessions = make(map[string]*Session)
-	activeSessionsMutex sync.RWMutex
+	ActiveSessions = make(map[string]*Session)
+	ActiveSessionsMutex sync.RWMutex
 )
 
 /* for creating a session for user */
 func CreateSession(username string) error {
 
-	/* lock the activeSessions mutex till the function ends */
-	activeSessionsMutex.Lock()
-	defer activeSessionsMutex.Unlock()
+	/* lock the ActiveSessions mutex till the function ends */
+	ActiveSessionsMutex.Lock()
+	defer ActiveSessionsMutex.Unlock()
 
 	/* check if session exists */
-	if _, exists := activeSessions[username]; exists {
+	if _, exists := ActiveSessions[username]; exists {
 		return fmt.Errorf("user already exists in active sessions")
 	}
 
@@ -38,18 +38,18 @@ func CreateSession(username string) error {
 	}
 
 	/* add session to active sessions */
-	activeSessions[username] = session 
+	ActiveSessions[username] = session 
 
 	return nil
 }
 
 /* for expiring a session */
 func ExpireSession(username string) {
-	activeSessionsMutex.Lock()
-	defer activeSessionsMutex.Unlock()
+	ActiveSessionsMutex.Lock()
+	defer ActiveSessionsMutex.Unlock()
 
 	/* delete if user exists in active sessions */
-	if _, exists := activeSessions[username]; exists {
-		delete(activeSessions, username)
+	if _, exists := ActiveSessions[username]; exists {
+		delete(ActiveSessions, username)
 	}
 }
