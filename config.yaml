@@ -4,6 +4,7 @@ app:
   version: v1.1
   debug_mode: true
   session_timeout: 24
+  base_path: /mnt
 
 # backend server deployment configs
 server:
