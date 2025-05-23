@@ -6,9 +6,15 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
 	"go.uber.org/zap"
+)
+
+/* comprehensive list of dangerous characters */
+var (
+	dangerousChars = []string{";", "|", "&", "`", "$", "(", ")", "<", ">", "{", "}", "[", "]", "\\", "'", "\""}
 )
 
 /* list files in a given directory with some basic information */
@@ -21,43 +27,101 @@ func ListFiles(path string, userID string) ([]FileEntry, error) {
 	/* clean the path to prevent directory traversal */
 	fullPath = filepath.Clean(fullPath)
 
+	/* evaluate symlinks to get the real path */
+	realPath, err := filepath.EvalSymlinks(fullPath)
+	if err != nil {
+		zap.L().Warn("Failed to evaluate symlinks",
+			zap.String("path", fullPath),
+			zap.Error(err),
+		)
+		return nil, fmt.Errorf("invalid path or broken symlink: %w", err)
+	}
+
 	/* ensure the resulting path is still within the basePath (prevent directory traversal) */
-	if !strings.HasPrefix(fullPath, filepath.Clean(config.BackendConfig.AppInfo.BasePath)) {
-		return nil, fmt.Errorf("Path traversal attempt detected: %s", path)
+	if !strings.HasPrefix(realPath, filepath.Clean(config.BackendConfig.AppInfo.BasePath)) {
+		zap.L().Warn("Path traversal attempt detected",
+			zap.String("path", path),
+			zap.String("resolved_path", realPath),
+		)
+		return nil, fmt.Errorf("access denied: path outside allowed directory")
 	}
 
 	/* list all the files in the given directory */
-	files, err := os.ReadDir(fullPath)
+	files, err := os.ReadDir(realPath)
 	if err != nil {
-		return nil, err
+		zap.L().Error("Failed to read directory",
+			zap.String("path", realPath),
+			zap.Error(err),
+		)
+		return nil, fmt.Errorf("failed to read directory: %w", err)
 	}
 
-	/* retrive information for each file in the directory */
+	/* retrieve information for each file in the directory */
 	for _, f := range files {
-		fullPath := filepath.Join(path, f.Name())
+		entryPath := filepath.Join(path, f.Name())
+		fullEntryPath := filepath.Join(realPath, f.Name())
 
-		/* check ACL access first */
-		isOwner, err := isOwner(fullPath, userID)
+		/* evaluate symlinks for each entry */
+		realEntryPath, err := filepath.EvalSymlinks(fullEntryPath)
 		if err != nil {
-			return nil, fmt.Errorf("error during listing files: %w", err)
+			zap.L().Warn("Failed to evaluate symlinks for entry",
+				zap.String("entry", f.Name()),
+				zap.Error(err),
+			)
+			continue
+		}
+
+		/* verify the entry is still within allowed directory */
+		if !strings.HasPrefix(realEntryPath, filepath.Clean(config.BackendConfig.AppInfo.BasePath)) {
+			zap.L().Warn("Entry symlink points outside allowed directory",
+				zap.String("entry", f.Name()),
+				zap.String("resolved_path", realEntryPath),
+			)
+			continue
+		}
+
+		/* Open the file with O_NOFOLLOW to prevent symlink races */
+		file, err := os.OpenFile(realEntryPath, os.O_RDONLY|syscall.O_NOFOLLOW, 0)
+		if err != nil {
+			zap.L().Warn("Failed to open file",
+				zap.String("path", realEntryPath),
+				zap.Error(err),
+			)
+			continue
+		}
+		defer file.Close()
+
+		/* Get file descriptor for further operations */
+		fd := file.Fd()
+
+		/* check ACL access using the file descriptor */
+		isOwner, err := isOwnerFd(fd, realEntryPath, userID)
+		if err != nil {
+			zap.L().Error("Failed to check ownership",
+				zap.String("path", realEntryPath),
+				zap.Error(err),
+			)
+			continue
 		}
 
 		if !isOwner {
-			/* if the user doesn't have right ACL permissions for the file, skip it */
 			continue
 		}
 
-		/* get information about the file */
-		info, err := f.Info()
+		/* get file information using the same file descriptor */
+		info, err := file.Stat()
 		if err != nil {
+			zap.L().Warn("Error while getting file information",
+				zap.String("path", realEntryPath),
+				zap.Error(err),
+			)
 			continue
 		}
 
-		/* store it in entries that would be returned */
 		entries = append(entries, FileEntry{
 			Name:    f.Name(),
-			Path:    fullPath,
-			IsDir:   f.IsDir(),
+			Path:    entryPath,
+			IsDir:   info.IsDir(),
 			Size:    info.Size(),
 			ModTime: info.ModTime().Unix(),
 		})
@@ -67,28 +131,32 @@ func ListFiles(path string, userID string) ([]FileEntry, error) {
 }
 
 /*
-checks if the user is the owner of the file
-username is the LDAP CN for the user
-uses getfacl to fetch the permissions (usually from filesystems mounted from remote servers)
+checks if the user is the owner of the file using a file descriptor
+this reduces race conditions by operating on an already-open file
 */
-func isOwner(filePath string, userCN string) (bool, error) {
-
+func isOwnerFd(fd uintptr, filePath string, userCN string) (bool, error) {
 	cleanPath := filepath.Clean(filePath)
 
-	/* additional validation to ensure that the path doesn't contain dangerous characters */
-	if strings.Contains(cleanPath, ";") || strings.Contains(cleanPath, "|") ||
-		strings.Contains(cleanPath, "&") || strings.Contains(cleanPath, "`") ||
-		strings.Contains(cleanPath, "$") || strings.Contains(cleanPath, "(") ||
-		strings.Contains(cleanPath, ")") {
-		zap.L().Warn("Illegal method attempted while getting file path by injecting dangerous character in the file path!")
-		return false, fmt.Errorf("invalid characters in file path: %s", cleanPath)
+	/* validation to ensure that the path doesn't contain dangerous characters */
+	for _, char := range dangerousChars {
+		if strings.Contains(cleanPath, char) {
+			zap.L().Warn("Illegal character detected in file path",
+				zap.String("path", cleanPath),
+				zap.String("character", char),
+			)
+			return false, fmt.Errorf("invalid character in file path")
+		}
 	}
 
-	/* get the file's ACL using getfacl with properly escaped arguments */
-	cmd := exec.Command("getfacl", "--", cleanPath)
+	/* get the file's ACL using getfacl with the file descriptor */
+	cmd := exec.Command("getfacl", fmt.Sprintf("/proc/self/fd/%d", fd))
 	output, err := cmd.Output()
 	if err != nil {
-		return false, fmt.Errorf("failed to execute getfacl on %s: %v", cleanPath, err)
+		zap.L().Error("Failed to execute getfacl",
+			zap.String("path", cleanPath),
+			zap.Error(err),
+		)
+		return false, fmt.Errorf("failed to check file permissions: %w", err)
 	}
 
 	/* parse the getfacl output to check ownership */
@@ -96,24 +164,18 @@ func isOwner(filePath string, userCN string) (bool, error) {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 
-		/* check for owner line (format: "# owner: username") */
 		if strings.HasPrefix(line, "# owner:") {
 			owner := strings.TrimSpace(strings.TrimPrefix(line, "# owner:"))
-
-			/* compare with the provided CN (case-insensitive) */
 			if strings.EqualFold(owner, userCN) {
 				return true, nil
 			}
 		}
 
-		/* also check user ACL entries (format: "user:username:permissions") */
 		if strings.HasPrefix(line, "user:") && !strings.HasPrefix(line, "user::") {
 			parts := strings.Split(line, ":")
 			if len(parts) >= 3 {
 				aclUser := parts[1]
 				permissions := parts[2]
-
-				/* check if this user has write permissions (indicating ownership-like access) */
 				if strings.EqualFold(aclUser, userCN) && strings.Contains(permissions, "w") {
 					return true, nil
 				}

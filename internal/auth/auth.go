@@ -14,11 +14,6 @@ import (
 func GenerateJWT(username string) (string, error) {
 	expiryHours := config.BackendConfig.BackendSecurity.JWTExpiry
 
-	/* GET THIS INTO CONFIG SANITISATION */
-	if expiryHours == 0 {
-		expiryHours = 24
-	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
 		"exp":      time.Now().Add(time.Hour * time.Duration(expiryHours)).Unix(),

@@ -23,7 +23,7 @@ func (b *BackendSecurity) Normalize() error {
 	}
 
 	if b.JWTExpiry == 0 {
-		b.JWTExpiry = 1
+		b.JWTExpiry = 24
 	}
 
 	return nil
