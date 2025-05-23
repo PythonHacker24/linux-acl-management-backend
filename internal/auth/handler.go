@@ -55,10 +55,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	response := map[string]string{"token": token}
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		zap.L().Error("Failed to encode response",
+		zap.L().Error("Failed to encode response for login request",
 			zap.Error(err),
 		)
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		http.Error(w, "Failed to encode response for login request", http.StatusInternalServerError)
 		return
 	}
 }
