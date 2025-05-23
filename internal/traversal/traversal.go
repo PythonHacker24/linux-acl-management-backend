@@ -67,9 +67,9 @@ func ListFiles(path string, userID string) ([]FileEntry, error) {
 }
 
 /*
-	checks if the user is the owner of the file
-	username is the LDAP CN for the user
-	uses getfacl to fetch the permissions (usually from filesystems mounted from remote servers)
+checks if the user is the owner of the file
+username is the LDAP CN for the user
+uses getfacl to fetch the permissions (usually from filesystems mounted from remote servers)
 */
 func isOwner(filePath string, userCN string) (bool, error) {
 
