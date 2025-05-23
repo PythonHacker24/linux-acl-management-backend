@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"go.uber.org/zap"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/auth"
+	"go.uber.org/zap"
 )
 
 /*
@@ -25,9 +25,9 @@ func ListFilesInDirectory(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	
+
 	/* check if the request body is valid */
-	var listRequest ListRequest  
+	var listRequest ListRequest
 	err = json.NewDecoder(r.Body).Decode(&listRequest)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -40,7 +40,7 @@ func ListFilesInDirectory(w http.ResponseWriter, r *http.Request) {
 		zap.L().Warn("File listing error",
 			zap.Error(err),
 		)
-		http.Error(w, "Failed to list files", http.StatusInternalServerError)	
+		http.Error(w, "Failed to list files", http.StatusInternalServerError)
 	}
 
 	/* send the response back */

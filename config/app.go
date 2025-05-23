@@ -12,7 +12,7 @@ type App struct {
 	Version        string `yaml:"version,omitempty"`
 	DebugMode      bool   `yaml:"debug_mode,omitempty"`
 	SessionTimeout int    `yaml:"session_timeout,omitempty"`
-	BasePath	   string `yaml:"base_path,omitempty"`		
+	BasePath       string `yaml:"base_path,omitempty"`
 }
 
 /* normalization function */

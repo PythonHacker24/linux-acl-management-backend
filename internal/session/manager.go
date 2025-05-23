@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	ActiveSessions = make(map[string]*Session)
+	ActiveSessions      = make(map[string]*Session)
 	ActiveSessionsMutex sync.RWMutex
 )
 
@@ -30,7 +30,7 @@ func CreateSession(username string) error {
 	session := &Session{
 		Username: username,
 		Expiry:   time.Now().Add(time.Duration(config.BackendConfig.AppInfo.SessionTimeout) * time.Hour),
-		Timer: time.AfterFunc(time.Duration(config.BackendConfig.AppInfo.SessionTimeout) * time.Hour,
+		Timer: time.AfterFunc(time.Duration(config.BackendConfig.AppInfo.SessionTimeout)*time.Hour,
 			func() { ExpireSession(username) },
 		),
 		TransactionQueue:  list.New(),
@@ -38,7 +38,7 @@ func CreateSession(username string) error {
 	}
 
 	/* add session to active sessions */
-	ActiveSessions[username] = session 
+	ActiveSessions[username] = session
 
 	return nil
 }
