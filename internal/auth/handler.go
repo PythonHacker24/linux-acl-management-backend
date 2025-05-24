@@ -15,6 +15,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	/* POST Request only - specified in routes */
 
+	/* decode the request body */
 	var user User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
@@ -22,6 +23,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	/* check if username and password are specified */
 	if user.Username == "" || user.Password == "" {
 		http.Error(w, "Username and password are required", http.StatusBadRequest)
 		return
@@ -32,6 +34,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		user.Password,
 		config.BackendConfig.Authentication.LDAPConfig.SearchBase,
 	)
+
+	/* check if authentication is successful */
 	if !authStatus {
 		zap.L().Warn("User with invalid credentials attempted to log in")
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)

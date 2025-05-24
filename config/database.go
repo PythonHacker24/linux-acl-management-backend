@@ -24,6 +24,7 @@ func (d *Database) Normalize() error {
 	return d.TransactionLogRedis.Normalize()
 }
 
+/* transaction log redis normalization function */
 func (r *TransactionLogRedis) Normalize() error {
 	if r.Address == "" {
 		return errors.New(heredoc.Doc(`

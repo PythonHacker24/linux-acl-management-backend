@@ -14,6 +14,7 @@ import (
 func GenerateJWT(username string) (string, error) {
 	expiryHours := config.BackendConfig.BackendSecurity.JWTExpiry
 
+	/* generate JWT token with claims */
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
 		"exp":      time.Now().Add(time.Hour * time.Duration(expiryHours)).Unix(),
@@ -24,6 +25,8 @@ func GenerateJWT(username string) (string, error) {
 
 /* validate JWT token and return claims */
 func ValidateJWT(tokenString string) (jwt.MapClaims, error) {
+
+	/* parse the token */
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method")
@@ -31,10 +34,12 @@ func ValidateJWT(tokenString string) (jwt.MapClaims, error) {
 		return []byte(config.BackendConfig.BackendSecurity.JWTTokenSecret), nil
 	})
 
+	/* check if token is valid */
 	if err != nil {
 		return nil, fmt.Errorf("JWT parsing error: %w", err)
 	}
 
+	/* check if token is valid */
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		return claims, nil
 	}

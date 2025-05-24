@@ -11,14 +11,18 @@ type Logging struct {
 
 /* normalization function */
 func (l *Logging) Normalize() error {
+
+	/* set default file to log/app.log */
 	if l.File == "" {
 		l.File = "log/app.log"
 	}
 
+	/* set default max size to 100MB */
 	if l.MaxSize == 0 {
 		l.MaxSize = 100
 	}
 
+	/* set default max backups to 3 */
 	if l.MaxBackups == 0 {
 		l.MaxBackups = 3
 	}

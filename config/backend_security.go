@@ -14,6 +14,8 @@ type BackendSecurity struct {
 
 /* normalization function */
 func (b *BackendSecurity) Normalize() error {
+
+	/* check if JWT token secret is specified */
 	if b.JWTTokenSecret == "" {
 		return errors.New(heredoc.Doc(`
 			JWT Token Security is not specified in the configuration file. 
@@ -22,6 +24,7 @@ func (b *BackendSecurity) Normalize() error {
 		`))
 	}
 
+	/* set default JWT expiry to 24 hours */
 	if b.JWTExpiry == 0 {
 		b.JWTExpiry = 24
 	}

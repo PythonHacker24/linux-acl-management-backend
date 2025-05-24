@@ -29,17 +29,23 @@ func (f *FileSystemServers) Normalize() error {
 		`))
 	}
 
+	/* set default method to local */
 	if f.Method == "" {
 		f.Method = "local"
 	}
 
+	/* check if method is remote */
 	if f.Method == "remote" {
+		/* check if remote is specified */
 		if f.Remote == nil {
 			return errors.New(heredoc.Doc(`
-			
+				Remote file server not specified in the configuration file. 
+
+				Please check the docs for more information: 
 			`))
 		}
 
+		/* check if host is specified */
 		if f.Remote.Host == "" {
 			return errors.New(heredoc.Doc(`
 				Address not provided for remote file server
@@ -48,6 +54,7 @@ func (f *FileSystemServers) Normalize() error {
 			`))
 		}
 
+		/* check if port is specified */
 		if f.Remote.Port == 0 {
 			return errors.New(heredoc.Doc(`
 				Port not provided for remote file server 	

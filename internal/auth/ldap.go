@@ -24,6 +24,7 @@ func AuthenticateUser(username, password, searchbase string) bool {
 	var err error
 	ldapAddress := config.BackendConfig.Authentication.LDAPConfig.Address
 
+	/* check if TLS is enabled */
 	if config.BackendConfig.Authentication.LDAPConfig.TLS {
 		l, err = ldap.DialURL(ldapAddress, ldap.DialWithTLSConfig(&tls.Config{
 

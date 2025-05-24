@@ -35,7 +35,7 @@ func InitLogger(isProduction bool) {
 	} else {
 
 		/* development level logging - configured for debug */
-
+		/* set the encoder to console encoder */
 		cfg := zap.NewDevelopmentEncoderConfig()
 		cfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
 		encoder = zapcore.NewConsoleEncoder(cfg)
@@ -43,15 +43,17 @@ func InitLogger(isProduction bool) {
 		writeSyncer = zapcore.AddSync(os.Stdout)
 	}
 
+	/* create the core */
 	core := zapcore.NewCore(
 		encoder,
 		writeSyncer,
 		logLevel,
 	)
 
+	/* create the logger */
 	Log = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
 
-	/* allow global logging with zap.L() */
+	/* allow global logging with zap.L() - zap.L() is a global logger */
 	zap.ReplaceGlobals(Log)
 
 	log.Println("Initialized Zap Logger")
