@@ -1,3 +1,5 @@
+<div align="center">
+
 # Linux ACL Management Interface - Backend Component
 
 A robust web-based management interface for Linux Access Control Lists (ACLs), designed to enhance data protection and simplify ACL administration. This project provides a modern, user-friendly solution for managing file system permissions in Linux environments.
@@ -5,6 +7,8 @@ A robust web-based management interface for Linux Access Control Lists (ACLs), d
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [View Documentation](https://pythonhacker24.github.io/linux-acl-management/)
+
+</div>
 
 ## Features
 
@@ -73,14 +77,14 @@ A complete optional Docker based deployment option will be developed in later st
 
 ## Usage
 
-1. Start the server:
+1. Configure your settings in `config.yaml`
+
+2. Start the server:
    ```bash
-   ./acl-manager
+   ./laclm --config <config.yaml>
    ```
 
-2. Access the api at `http://<ip-address>:<port>`
-
-3. Configure your settings in `config.yaml`
+3. Access the api at `http://<ip-address>:<port>`
 
 For detailed usage instructions, please refer to our [documentation](https://pythonhacker24.github.io/linux-acl-management/).
 
