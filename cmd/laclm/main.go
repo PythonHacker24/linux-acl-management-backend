@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -16,6 +17,9 @@ import (
 
 	"github.com/PythonHacker24/linux-acl-management-backend/api/routes"
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/scheduler"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/scheduler/fcfs"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/utils"
 )
 
@@ -101,15 +105,30 @@ func exec() error {
 }
 
 func run(ctx context.Context) error {
-	var err error
+	var (
+		err error
+		wg sync.WaitGroup
+	)
 
-	/* complete backend system must initiate before http server starts */
+	/* RULE: complete backend system must initiate before http server starts */
 
+	/* 
+		initializing schedular 
+		scheduler uses context to quit - part of waitgroup
+		propogates error through error channel
+	*/
+	errCh := make(chan error, 1)
+	sessionManager := session.NewManager()
+
+	/* currently FCFS scheduler */
+	transSched := fcfs.NewFCFSScheduler(sessionManager)
+	scheduler.InitSchedular(ctx, transSched, &wg, errCh)
+		
 	/* setting up http mux and routes */
 	mux := http.NewServeMux()
 
-	/* routes declared in /api/routes */
-	routes.RegisterRoutes(mux)
+	/* routes declared in /api/routes.go */
+	routes.RegisterRoutes(mux, sessionManager)
 
 	server := &http.Server{
 		Addr: fmt.Sprintf("%s:%d",
@@ -121,7 +140,10 @@ func run(ctx context.Context) error {
 
 	/* starting http server as a goroutine */
 	go func() {
-		zap.L().Info("HTTP REST API server starting on :8080")
+		zap.L().Info("HTTP REST API server starting",
+			zap.String("Host", config.BackendConfig.Server.Host),
+			zap.Int("Port", config.BackendConfig.Server.Port),
+		)
 		if err = server.ListenAndServe(); err != http.ErrServerClosed {
 			zap.L().Error("ListenAndServe error",
 				zap.Error(err),
@@ -134,7 +156,20 @@ func run(ctx context.Context) error {
 		all the functions called must be async here and ready for graceful shutdowns
 	*/
 
-	<-ctx.Done()
+	select {
+	case <-ctx.Done():
+		zap.L().Info("Shutdown process initiated")
+	case err = <-errCh:
+	
+		/* context done can be called here (optional for now) */
+
+		zap.L().Error("Fatal Error from schedular",
+			zap.Error(err),
+		)
+		return err
+	}
+
+	// <-ctx.Done()
 
 	/*
 		after this, exit signal is triggered
@@ -156,6 +191,10 @@ func run(ctx context.Context) error {
 	zap.L().Info("HTTP server stopped")
 
 	/* after the http server is stopped, rest of the components can be shutdown */
+
+	wg.Wait()
+
+	zap.L().Info("All background processes closed gracefully")
 
 	return err
 }

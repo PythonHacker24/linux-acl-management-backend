@@ -6,16 +6,17 @@ import (
 	"github.com/PythonHacker24/linux-acl-management-backend/api/middleware"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/auth"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/health"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/traversal"
 )
 
 /* all routes for all features are registered here */
-func RegisterRoutes(mux *http.ServeMux) {
+func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 
 	/* for logging into the backend and creating a session */
-	mux.Handle("POST /login", http.HandlerFunc(
-		middleware.LoggingMiddleware(auth.LoginHandler),
-	))
+	mux.HandleFunc("POST /login",
+		middleware.LoggingMiddleware(auth.LoginHandler(sessionManager)),
+	)
 
 	/* for monitoring the state of overall server and laclm backend */
 	mux.Handle("GET /health", http.HandlerFunc(

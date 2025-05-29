@@ -9,20 +9,29 @@ import (
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
 )
 
-var (
-	ActiveSessions      = make(map[string]*Session)
-	ActiveSessionsMutex sync.RWMutex
-)
+/*
+	session manager
+	sessionsMap -> Maps of sessions -> for O(1) access | fast access during deletion
+	sessionOrder -> LinkedList of sessions -> for round robin | fair scheduling
+	sessionsMap and sessionOrder are always in sync
+	both are kept at the same time due to various runtime performance requirements
+	trading off space for runtime speed performance
+*/
+type Manager struct {
+	sessionsMap		map[string]*Session
+	sessionOrder	*list.List
+	mutex 			sync.RWMutex
+}
 
-/* for creating a session for user */
-func CreateSession(username string) error {
+/* for creating a session for user - used by HTTP HANDLERS */
+func (m *Manager) CreateSession(username string) error {
 
 	/* lock the ActiveSessions mutex till the function ends */
-	ActiveSessionsMutex.Lock()
-	defer ActiveSessionsMutex.Unlock()
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
 
 	/* check if session exists */
-	if _, exists := ActiveSessions[username]; exists {
+	if _, exists := m.sessionsMap[username]; exists {
 		return fmt.Errorf("user already exists in active sessions")
 	}
 
@@ -31,25 +40,36 @@ func CreateSession(username string) error {
 		Username: username,
 		Expiry:   time.Now().Add(time.Duration(config.BackendConfig.AppInfo.SessionTimeout) * time.Hour),
 		Timer: time.AfterFunc(time.Duration(config.BackendConfig.AppInfo.SessionTimeout)*time.Hour,
-			func() { ExpireSession(username) },
+			func() { m.ExpireSession(username) },
 		),
 		TransactionQueue:  list.New(),
-		CurrentWorkingDir: config.BackendConfig.AppInfo.BasePath,
 	}
 
-	/* add session to active sessions */
-	ActiveSessions[username] = session
+	/* add session to active sessions map and list */
+	element := 	m.sessionOrder.PushBack(session)
+	session.listElem = element
+
+	m.sessionsMap[username] = session
 
 	return nil
 }
 
 /* for expiring a session */
-func ExpireSession(username string) {
-	ActiveSessionsMutex.Lock()
-	defer ActiveSessionsMutex.Unlock()
+func (m *Manager) ExpireSession(username string) {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
 
-	/* delete if user exists in active sessions */
-	if _, exists := ActiveSessions[username]; exists {
-		delete(ActiveSessions, username)
+	/* check if user exists in active sessions */
+	session, ok := m.sessionsMap[username]
+	if !ok {
+		return
 	}
+
+	/* remove session from sessionOrder Linked List */
+	if session.listElem != nil {
+		m.sessionOrder.Remove(session.listElem)
+	}
+
+	/* remove session from sessionsMap */
+	delete(m.sessionsMap, username)
 }
