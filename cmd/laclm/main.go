@@ -177,7 +177,7 @@ func run(ctx context.Context) error {
 		call all the kill switches with context
 	*/
 
-	/* graceful shutdown of http server */
+	/* graceful shutdown of http server - 5 seconds for allowing completion current API requests */
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer shutdownCancel()
 
