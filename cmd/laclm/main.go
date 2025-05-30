@@ -13,14 +13,15 @@ import (
 	"github.com/MakeNowJust/heredoc"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
 	"go.uber.org/automaxprocs/maxprocs"
+	"go.uber.org/zap"
 
 	"github.com/PythonHacker24/linux-acl-management-backend/api/routes"
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/scheduler"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/scheduler/fcfs"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/transprocessor"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/utils"
 )
 
@@ -119,6 +120,8 @@ func run(ctx context.Context) error {
 	)
 
 	/* RULE: complete backend system must initiate before http server starts */
+	
+	/* DATABASE CONNECTIONS MUST BE MADE BEFORE SCHEDULER STARTS */
 
 	/* 
 		initializing schedular 
@@ -126,12 +129,19 @@ func run(ctx context.Context) error {
 		propogates error through error channel
 	*/
 	errCh := make(chan error, 1)
+
+	/* create a session manager */
 	sessionManager := session.NewManager()
 
+	/* create a permissions processor */
+	permProcessor := transprocessor.NewPermProcessor()
+
 	/* currently FCFS scheduler */
-	transSched := fcfs.NewFCFSScheduler(sessionManager)
+	transSched := fcfs.NewFCFSScheduler(sessionManager, permProcessor)
+
+	/* initialize the scheduler */
 	scheduler.InitSchedular(ctx, transSched, &wg, errCh)
-		
+
 	/* setting up http mux and routes */
 	mux := http.NewServeMux()
 

@@ -36,6 +36,11 @@ func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session
 			)
 			return ctx.Err()
 		default:
+			/*
+				permprocessor hands over transactions to remoteprocessor/localprocessor depending upon request
+				remoteprocessor -> handles permissions on remote servers
+				localprocessor -> handles permissions on local system (where this backend is deployed)
+			*/
 			_ = transaction		
 	}
 

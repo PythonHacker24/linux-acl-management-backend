@@ -73,3 +73,25 @@ func (m *Manager) ExpireSession(username string) {
 	/* remove session from sessionsMap */
 	delete(m.sessionsMap, username)
 }
+
+/* add transaction to a session */
+func (m *Manager) AddTransaction(username string, txn interface{}) error {
+	/* thread safety the manager mutex */
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	/* get the session from sessions map with O(1) runtime */
+	session, exists := m.sessionsMap[username]
+	if !exists {
+		return fmt.Errorf("Session not found")
+	}
+
+	/* thread safety for the session */
+	session.Mutex.Lock()
+	defer session.Mutex.Unlock()
+
+	/* push transaction into the queue from back */
+	session.TransactionQueue.PushBack(txn)
+
+	return nil
+}
