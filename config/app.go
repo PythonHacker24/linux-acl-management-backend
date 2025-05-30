@@ -13,6 +13,7 @@ type App struct {
 	DebugMode      bool   `yaml:"debug_mode,omitempty"`
 	SessionTimeout int    `yaml:"session_timeout,omitempty"`
 	BasePath       string `yaml:"base_path,omitempty"`
+	MaxWorkers	   int 	  `yaml:"max_workers,omitempty"`
 }
 
 /* normalization function */
@@ -46,6 +47,8 @@ func (a *App) Normalize() error {
 			Please check the docs for more information: 
 		`))
 	}
+
+	/* max_workers can be zero - it will be adjusted scheduler */
 
 	return nil
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"go.uber.org/automaxprocs/maxprocs"
 
 	"github.com/PythonHacker24/linux-acl-management-backend/api/routes"
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
@@ -89,6 +90,13 @@ func exec() error {
 
 	/* zap.L() can be used all over the code for global level logging */
 	zap.L().Info("Logger Initiated ...")
+
+	/* calculate max procs accurately (runtime.GOMAXPROCS(0)) */
+	if _, err := maxprocs.Set(); err != nil {
+		zap.L().Error("automaxproces: failed to set GOMAXPROCS",
+			zap.Error(err),
+		)
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

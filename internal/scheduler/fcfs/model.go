@@ -7,6 +7,12 @@ import (
 	"go.uber.org/zap"
 )
 
+/*
+	Notes: the structure of scheduler is very modular
+	Docs must be updated for replacing a certain scheduler module with another
+	This includes installation of prebuilt module or developing a module
+*/
+
 /* FCFS Scheduler attached with curSession.Manager */
 type FCFSScheduler struct {
 	curSessionManager *session.Manager 
@@ -29,6 +35,7 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 		default:
 			/* RULE: ctx is propogates all over the coming functions */
 			
+			/* get next session in the queue (round robin manner) */
 			curSession := f.curSessionManager.GetNextSession()
 			if curSession == nil {
 				/* might need a delay of 10 ms */
@@ -54,8 +61,13 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 				/* defer clearing the semaphore channel */
 				defer func() { <-f.semaphore }()
 
-				/* process the transaction */
-				if err := f.processTransaction; err != nil {
+				/* 
+					process the transaction 
+					* processTransaction handles transaction processing completely
+					* now it is responsible now responsible to execute it
+					* role of scheduler in handling transactions ends here
+				*/
+				if err := f.processTransaction(ctx, curSession, transaction); err != nil {
 					zap.L().Error("Faild to process transaction", 
 						zap.Error(err),
 					)
