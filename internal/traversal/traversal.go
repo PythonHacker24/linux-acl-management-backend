@@ -8,8 +8,10 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/PythonHacker24/linux-acl-management-backend/config"
 	"go.uber.org/zap"
+
+	"github.com/PythonHacker24/linux-acl-management-backend/config"
+
 )
 
 /* comprehensive list of dangerous characters */

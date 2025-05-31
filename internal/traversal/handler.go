@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/PythonHacker24/linux-acl-management-backend/internal/auth"
 	"go.uber.org/zap"
+
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/auth"
 )
 
 /*
