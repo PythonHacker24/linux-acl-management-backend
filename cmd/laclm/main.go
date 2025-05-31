@@ -47,7 +47,6 @@ func exec() error {
 			Use:   "laclm <command> <subcommand>",
 			Short: "Backend server for linux acl management",
 			Example: heredoc.Doc(`
-				$ laclm
 				$ laclm --config /path/to/config.yaml
 			`),
 			Run: func(cmd *cobra.Command, args []string) {
@@ -186,8 +185,6 @@ func run(ctx context.Context) error {
 		)
 		return err
 	}
-
-	// <-ctx.Done()
 
 	/*
 		after this, exit signal is triggered

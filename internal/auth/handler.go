@@ -44,7 +44,7 @@ func LoginHandler(sessionManager *session.Manager) http.HandlerFunc {
 		}
 
 		/* after building session manager */
-		err = sessionManager.CreateSession(user.Username)
+		err = sessionManager.CreateSession(user.Username, r.RemoteAddr, r.UserAgent())
 		if err != nil {
 			zap.L().Error("Error creating session",
 				zap.Error(err),

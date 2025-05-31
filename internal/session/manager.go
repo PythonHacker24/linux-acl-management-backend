@@ -6,6 +6,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
 )
 
@@ -24,7 +26,7 @@ type Manager struct {
 }
 
 /* for creating a session for user - used by HTTP HANDLERS */
-func (m *Manager) CreateSession(username string) error {
+func (m *Manager) CreateSession(username, ipAddress, userAgent string) error {
 
 	/* lock the ActiveSessions mutex till the function ends */
 	m.mutex.Lock()
@@ -35,13 +37,24 @@ func (m *Manager) CreateSession(username string) error {
 		return fmt.Errorf("user already exists in active sessions")
 	}
 
+	/* Generate session metadata */
+	sessionID := uuid.New().String()
+	now := time.Now()
+
 	/* create the session */
 	session := &Session{
+		ID: sessionID,
 		Username: username,
+		IP: ipAddress,
+		UserAgent: userAgent,
 		Expiry:   time.Now().Add(time.Duration(config.BackendConfig.AppInfo.SessionTimeout) * time.Hour),
-		Timer: time.AfterFunc(time.Duration(config.BackendConfig.AppInfo.SessionTimeout)*time.Hour,
+		CreatedAt:        now,
+		LastActiveAt:     now,
+		Timer: time.AfterFunc(time.Duration(config.BackendConfig.AppInfo.SessionTimeout) * time.Hour,
 			func() { m.ExpireSession(username) },
 		),
+		CompletedCount:   0,
+		FailedCount:      0,
 		TransactionQueue:  list.New(),
 	}
 
@@ -76,7 +89,7 @@ func (m *Manager) ExpireSession(username string) {
 
 /* add transaction to a session */
 func (m *Manager) AddTransaction(username string, txn interface{}) error {
-	/* thread safety the manager mutex */
+	/* thread safety for the manager */
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
@@ -92,6 +105,35 @@ func (m *Manager) AddTransaction(username string, txn interface{}) error {
 
 	/* push transaction into the queue from back */
 	session.TransactionQueue.PushBack(txn)
+
+	return nil
+}
+
+/* refresh the session timer */
+func (m *Manager) RefreshTimer(username string) error {
+	/* thread safety for the manager */
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	/* get session from sessionMap */
+	session, exists := m.sessionsMap[username]
+	if !exists {
+		return fmt.Errorf("Session not found")
+	}
+
+	/* reset the expiry time and last active time */
+	session.Expiry = time.Now().Add(time.Duration(config.BackendConfig.AppInfo.SessionTimeout) * time.Hour)
+	session.LastActiveAt = time.Now()
+
+	/* stop the session timer */
+	if session.Timer != nil {
+		session.Timer.Stop()
+	}
+	
+	/* reset the session timer */
+	session.Timer = time.AfterFunc(time.Duration(config.BackendConfig.AppInfo.SessionTimeout) * time.Hour,
+			func() { m.ExpireSession(username) },
+		) 
 
 	return nil
 }
