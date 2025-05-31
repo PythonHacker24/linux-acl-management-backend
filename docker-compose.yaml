@@ -1,5 +1,4 @@
 version: "3.8"
-
 services:
   go-app:
     build:
@@ -9,13 +8,22 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./config.yaml:/app/config.yaml         # mount config from host
-      - ./.env:/app/.env                       # mount env file from host
+      - ./config.yaml:/app/config.yaml         
+      - ./.env:/app/.env
+      - beegfs-mount:/mnt/beegfs-test:rshared
     depends_on:
       - openldap
       - redis
+      - beegfs-client
     networks:
       - backend
+    privileged: true
+    devices:
+      - /dev/fuse:/dev/fuse
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
 
   openldap:
     image: osixia/openldap:latest
@@ -24,9 +32,16 @@ services:
       LDAP_ORGANISATION: "My Org"
       LDAP_DOMAIN: "myorg.local"
       LDAP_ADMIN_PASSWORD: "admin"
+      LDAP_BACKEND: "mdb"
+      LDAP_TLS: "false"
+      LDAP_CONFIG_PASSWORD: "config"
     ports:
       - "389:389"
       - "636:636"
+    volumes:
+      - ldap-data:/var/lib/ldap
+      - ldap-config:/etc/ldap/slapd.d
+      - ./ldap-init:/container/service/slapd/assets/config/bootstrap/ldif/custom:ro
     networks:
       - backend
 
@@ -51,6 +66,114 @@ services:
     networks:
       - backend
 
+  # BeeGFS Management Service
+  beegfs-mgmt:
+    image: beegfs/beegfs-mgmt:latest
+    container_name: beegfs-mgmt
+    hostname: beegfs-mgmt
+    ports:
+      - "8008:8008"
+    volumes:
+      - beegfs-mgmt-data:/opt/beegfs/mgmt
+      - ./beegfs-config:/etc/beegfs:ro
+    networks:
+      - backend
+    command: >
+      sh -c "
+        /opt/beegfs/sbin/beegfs-setup-mgmt -p /opt/beegfs/mgmt -s 1 -S mgmt &&
+        /opt/beegfs/sbin/beegfs-mgmtd
+      "
+
+  # BeeGFS Metadata Service
+  beegfs-meta:
+    image: beegfs/beegfs-meta:latest
+    container_name: beegfs-meta
+    hostname: beegfs-meta
+    volumes:
+      - beegfs-meta-data:/opt/beegfs/meta
+      - ./beegfs-config:/etc/beegfs:ro
+    networks:
+      - backend
+    depends_on:
+      - beegfs-mgmt
+    command: >
+      sh -c "
+        sleep 5 &&
+        /opt/beegfs/sbin/beegfs-setup-meta -p /opt/beegfs/meta -s 1 -S meta -m beegfs-mgmt &&
+        /opt/beegfs/sbin/beegfs-meta
+      "
+
+  # BeeGFS Storage Service
+  beegfs-storage:
+    image: beegfs/beegfs-storage:latest
+    container_name: beegfs-storage
+    hostname: beegfs-storage
+    volumes:
+      - beegfs-storage-data:/opt/beegfs/storage
+      - ./beegfs-config:/etc/beegfs:ro
+    networks:
+      - backend
+    depends_on:
+      - beegfs-mgmt
+      - beegfs-meta
+    command: >
+      sh -c "
+        sleep 10 &&
+        /opt/beegfs/sbin/beegfs-setup-storage -p /opt/beegfs/storage -s 1 -S storage -m beegfs-mgmt &&
+        /opt/beegfs/sbin/beegfs-storage
+      "
+
+  # BeeGFS Client with LDAP integration
+  beegfs-client:
+    build:
+      context: .
+      dockerfile: Dockerfile.beegfs-client
+    container_name: beegfs-client
+    hostname: beegfs-client
+    privileged: true
+    devices:
+      - /dev/fuse:/dev/fuse
+    cap_add:
+      - SYS_ADMIN
+      - DAC_OVERRIDE
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - beegfs-mount:/mnt/beegfs:rshared
+      - ./beegfs-config:/etc/beegfs:ro
+      - ./nsswitch.conf:/etc/nsswitch.conf:ro
+      - ./ldap.conf:/etc/ldap/ldap.conf:ro
+    networks:
+      - backend
+    depends_on:
+      - beegfs-mgmt
+      - beegfs-meta
+      - beegfs-storage
+      - openldap
+    command: >
+      sh -c "
+        echo 'Waiting for BeeGFS services...' &&
+        sleep 15 &&
+        echo 'Setting up BeeGFS client...' &&
+        /opt/beegfs/sbin/beegfs-setup-client -m beegfs-mgmt &&
+        echo 'Starting BeeGFS client...' &&
+        /opt/beegfs/sbin/beegfs-helperd &&
+        /opt/beegfs/sbin/beegfs-client nonDaemonized
+      "
+
 networks:
   backend:
     driver: bridge
+
+volumes:
+  beegfs-mgmt-data:
+  beegfs-meta-data:
+  beegfs-storage-data:
+  beegfs-mount:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /tmp/beegfs-mount
+  ldap-data:
+  ldap-config:
