@@ -69,8 +69,11 @@ func (m *Manager) CreateSession(username, ipAddress, userAgent string) error {
 
 /* for expiring a session */
 func (m *Manager) ExpireSession(username string) {
+	/* thread safety for the manager */
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
+
+	/* TODO: Add expired session to REDIS for persistent logging */
 
 	/* check if user exists in active sessions */
 	session, ok := m.sessionsMap[username]
@@ -121,6 +124,10 @@ func (m *Manager) RefreshTimer(username string) error {
 		return fmt.Errorf("Session not found")
 	}
 
+	/* thread safety for the session */
+	session.Mutex.Lock()
+	defer session.Mutex.Unlock()
+
 	/* reset the expiry time and last active time */
 	session.Expiry = time.Now().Add(time.Duration(config.BackendConfig.AppInfo.SessionTimeout) * time.Hour)
 	session.LastActiveAt = time.Now()
@@ -137,3 +144,34 @@ func (m *Manager) RefreshTimer(username string) error {
 
 	return nil
 }
+
+/* convert session information into frontend safe structure */
+func (m *Manager) ToDashboardView(username string) (SessionView, error) {
+	/* thread safety for the manager */
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	/* get session from sessionMap */
+	session, exists := m.sessionsMap[username]
+	if !exists {
+		return SessionView{}, fmt.Errorf("Session not found")
+	}
+
+	/* thread safety for the session */
+	session.Mutex.Lock()
+	defer session.Mutex.Unlock()
+	
+	/* can be directly served as JSON in handler */
+	return SessionView{
+		ID:             session.ID,
+		Username:       session.Username,
+		IP:             session.IP,
+		UserAgent:      session.UserAgent,
+		CreatedAt:      session.CreatedAt,
+		LastActiveAt:   session.LastActiveAt,
+		Expiry:         session.Expiry,
+		CompletedCount: session.CompletedCount,
+		FailedCount:    session.FailedCount,
+		PendingCount:   session.TransactionQueue.Len(),
+	}, nil
+} 

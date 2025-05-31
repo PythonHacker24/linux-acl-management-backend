@@ -38,12 +38,27 @@ type Session struct {
 	/* transactions issued by the user */
 	TransactionQueue  *list.List
 
-	/* mutex for thread safety */
-	Mutex             sync.Mutex
-
 	/* 
 		listElem stores it's node address in sessionOrder 
 		this is done to maintain O(1) runtime performance while deleting session
 	*/
 	listElem 		  *list.Element
+
+	/* mutex for thread safety */
+	Mutex             sync.Mutex
+}
+
+/* sessionView is a frontend-safe representation of a session */
+type SessionView struct {
+	CompletedCount  int       `json:"completedCount"`
+	FailedCount     int       `json:"failedCount"`
+	PendingCount    int       `json:"pendingCount"`
+	ID              string    `json:"id"`
+	Username        string    `json:"username"`
+	IP              string    `json:"ip"`
+	UserAgent       string    `json:"userAgent"`
+	Status          string    `json:"status"`
+	CreatedAt       time.Time `json:"createdAt"`
+	LastActiveAt    time.Time `json:"lastActiveAt"`
+	Expiry          time.Time `json:"expiry"`
 }
