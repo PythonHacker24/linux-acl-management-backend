@@ -6,6 +6,15 @@ import (
 	"time"
 )
 
+/* defining Status type for sessions */
+type Status string
+
+/* for status field */
+const (
+	StatusActive  Status = "active"
+	StatusExpired Status = "expired"
+)
+
 /* 
 	session struct for a user 
 	appropriate fields must always be updated when any request is made
@@ -14,6 +23,9 @@ type Session struct {
 	/* keep count of completed and failed transactions */
 	CompletedCount    int
 	FailedCount       int
+
+	/* session status: active: 1 / expired: 0 */
+	Status			 Status 
 
 	/* unique ID of session [will be associated with the user forever in logs] */
 	ID 				  string

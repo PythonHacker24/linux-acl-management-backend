@@ -44,6 +44,7 @@ func (m *Manager) CreateSession(username, ipAddress, userAgent string) error {
 	/* create the session */
 	session := &Session{
 		ID: sessionID,
+		Status: StatusActive,
 		Username: username,
 		IP: ipAddress,
 		UserAgent: userAgent,
@@ -73,18 +74,21 @@ func (m *Manager) ExpireSession(username string) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
-	/* TODO: Add expired session to REDIS for persistent logging */
-
 	/* check if user exists in active sessions */
 	session, ok := m.sessionsMap[username]
 	if !ok {
 		return
 	}
 
+	/* disable the session */
+	session.Status = StatusExpired
+
 	/* remove session from sessionOrder Linked List */
 	if session.listElem != nil {
 		m.sessionOrder.Remove(session.listElem)
 	}
+
+	/* TODO: Add expired session to REDIS for persistent logging */
 
 	/* remove session from sessionsMap */
 	delete(m.sessionsMap, username)
