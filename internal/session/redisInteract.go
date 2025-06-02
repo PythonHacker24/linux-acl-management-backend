@@ -2,8 +2,11 @@ package session
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
+
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/transprocessor"
 )
 
 /* we make use of Redis hashes for this application */
@@ -84,4 +87,22 @@ func (m *Manager) updateSessionStatus(username string, status Status) error {
 	}
 
 	return nil
+}
+
+/* save transaction results to redis */
+func (m *Manager) saveTransactionResults(sessionID string, txResult transprocessor.Transaction) error {
+
+	ctx := context.Background()
+
+	/* create a key for Redis operation */
+	key := fmt.Sprintf("session:%s:txresults", sessionID)
+
+	/* marshal transaction result to JSON */
+	resultBytes, err := json.Marshal(txResult)
+	if err != nil {
+		return fmt.Errorf("failed to marshal transaction result: %w", err)
+	}
+
+	/* push the transaction result in the back of the list */
+	return m.redis.RPush(ctx, key, resultBytes).Err()
 }
