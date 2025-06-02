@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	/* TODO: fix the cyclic dependencies */
-
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 )
 
