@@ -136,6 +136,8 @@ func (m *Manager) refreshTimer(username string) error {
 	return nil
 }
 
+/* TODO: toDashoardView must be completed changes to fetch data from Redis only */
+
 /* convert session information into frontend safe structure */
 func (m *Manager) toDashboardView(username string) (SessionView, error) {
 	/* thread safety for the manager */
