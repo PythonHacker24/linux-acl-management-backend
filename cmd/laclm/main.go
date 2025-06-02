@@ -21,6 +21,7 @@ import (
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/scheduler"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/scheduler/fcfs"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/session/redis"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/transprocessor"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/utils"
 )
@@ -121,6 +122,14 @@ func run(ctx context.Context) error {
 	/* RULE: complete backend system must initiate before http server starts */
 	
 	/* DATABASE CONNECTIONS MUST BE MADE BEFORE SCHEDULER STARTS */
+	logRedisClient, err := redis.NewRedisClient(
+		config.BackendConfig.Database.TransactionLogRedis.Address,
+		config.BackendConfig.Database.TransactionLogRedis.Password,
+		config.BackendConfig.Database.TransactionLogRedis.DB,
+	)
+	if err != nil {
+		zap.L().Fatal("Failed to connect to Redis", zap.Error(err))
+	}
 
 	/* 
 		initializing schedular 
@@ -130,7 +139,7 @@ func run(ctx context.Context) error {
 	errCh := make(chan error, 1)
 
 	/* create a session manager */
-	sessionManager := session.NewManager()
+	sessionManager := session.NewManager(logRedisClient)
 
 	/* create a permissions processor */
 	permProcessor := transprocessor.NewPermProcessor()
