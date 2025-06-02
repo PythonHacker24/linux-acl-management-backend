@@ -6,20 +6,31 @@ import (
 	"fmt"
 	"time"
 
+	/* TODO: fix the cyclic dependencies */
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/transprocessor"
 )
 
 /* we make use of Redis hashes for this application */
 
+/* TODO: make the operations below thread safe with mutexes*/
+
 /* store session into Redis database */
 func (m *Manager) saveSession(username string) error {
 	ctx := context.Background()
+
+	/* thread safety for the manager */
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
 
 	/* find the session in session map */
 	session, ok := m.sessionsMap[username]
 	if !ok {
 		return fmt.Errorf("username not found in session")
 	}
+
+	/* thread safety for the session */
+	session.Mutex.Lock()
+	defer session.Mutex.Unlock()
 
 	/* session key for redis */
 	key := fmt.Sprintf("session:%s", session.ID)
@@ -43,11 +54,19 @@ func (m *Manager) updateSessionExpiry(username string) error {
 
 	ctx := context.Background()
 
+	/* thread safety for the manager */
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
 	/* find the session in session map */
 	session, ok := m.sessionsMap[username]
 	if !ok {
 		return fmt.Errorf("username not found in session")
 	}
+
+	/* thread safety for the session */
+	session.Mutex.Lock()
+	defer session.Mutex.Unlock()
 
 	/* create a key for Redis operation */
 	key := fmt.Sprintf("session:%s", session.ID)
@@ -71,11 +90,19 @@ func (m *Manager) updateSessionStatus(username string, status Status) error {
 		
 	ctx := context.Background()
 
+	/* thread safety for the manager */
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
 	/* find the session in session map */
 	session, ok := m.sessionsMap[username]
 	if !ok {
 		return fmt.Errorf("username not found in session")
 	}
+
+	/* thread safety for the session */
+	session.Mutex.Lock()
+	defer session.Mutex.Unlock()
 
 	/* create a key for Redis operation */
 	key := fmt.Sprintf("session:%s", session.ID)
@@ -90,9 +117,26 @@ func (m *Manager) updateSessionStatus(username string, status Status) error {
 }
 
 /* save transaction results to redis */
-func (m *Manager) saveTransactionResults(sessionID string, txResult transprocessor.Transaction) error {
+func (m *Manager) saveTransactionResults(username string, txResult transprocessor.Transaction) error {
 
 	ctx := context.Background()
+
+	/* thread safety for the manager */
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	/* find the session in session map */
+	session, ok := m.sessionsMap[username]
+	if !ok {
+		return fmt.Errorf("username not found in session")
+	}
+
+	/* thread safety for the session */
+	session.Mutex.Lock()
+	defer session.Mutex.Unlock()
+
+	/* get the session ID */
+	sessionID := session.ID
 
 	/* create a key for Redis operation */
 	key := fmt.Sprintf("session:%s:txresults", sessionID)
@@ -105,4 +149,47 @@ func (m *Manager) saveTransactionResults(sessionID string, txResult transprocess
 
 	/* push the transaction result in the back of the list */
 	return m.redis.RPush(ctx, key, resultBytes).Err()
+}
+
+func (m *Manager) getTransactionResults(username string, limit int) ([]TransactionResult, error) {
+	ctx := context.Background()
+	
+	/* thread safety for the manager */
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	/* find the session in session map */
+	session, ok := m.sessionsMap[username]
+	if !ok {
+		return nil, fmt.Errorf("username not found in session")
+	}
+
+	/* thread safety for the session */
+	session.Mutex.Lock()
+	defer session.Mutex.Unlock()
+
+	/* get the session ID */
+	sessionID := session.ID
+
+	/* create a key for Redis operation */
+	key := fmt.Sprintf("session:%s:txresults", sessionID)
+	
+	/* returns transactions in chronological order */
+	values, err := m.redis.LRange(ctx, key, int64(-limit), -1).Result()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get transaction results: %w", err)
+	}
+
+	/* converts each JSON string back into a TransactionResult */
+	results := make([]TransactionResult, 0, len(values))
+	for _, val := range values {
+		var result TransactionResult
+		if err := json.Unmarshal([]byte(val), &result); err != nil {
+			/* skip malformed results */
+			continue
+		}
+		results = append(results, result)
+	}
+
+	return results, nil
 }
