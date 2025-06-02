@@ -7,7 +7,8 @@ import (
 	"time"
 
 	/* TODO: fix the cyclic dependencies */
-	"github.com/PythonHacker24/linux-acl-management-backend/internal/transprocessor"
+
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 )
 
 /* we make use of Redis hashes for this application */
@@ -41,15 +42,15 @@ func (m *Manager) saveSession(username string) error {
 	if err := m.redis.HSet(ctx, key, sessionSerialized).Err(); err != nil {
 		return fmt.Errorf("failed to save session to Redis: %w", err)
 	}
-	
+
 	return nil
 }
 
 /* update expiry time in session */
 func (m *Manager) updateSessionExpiry(username string) error {
-	
-	/* 
-		function expects that new expiry time is already set in the session 
+
+	/*
+		function expects that new expiry time is already set in the session
 	*/
 
 	ctx := context.Background()
@@ -78,7 +79,7 @@ func (m *Manager) updateSessionExpiry(username string) error {
 	err := m.redis.HSet(ctx, key, "expiry", formattedExpiry).Err()
 	if err != nil {
 		return fmt.Errorf("failed to update session expiry in Redis: %w", err)
-	}	
+	}
 
 	return nil
 }
@@ -87,7 +88,7 @@ func (m *Manager) updateSessionExpiry(username string) error {
 
 /* update status of the session - update and set expired operations will be done with this */
 func (m *Manager) updateSessionStatus(username string, status Status) error {
-		
+
 	ctx := context.Background()
 
 	/* thread safety for the manager */
@@ -117,7 +118,7 @@ func (m *Manager) updateSessionStatus(username string, status Status) error {
 }
 
 /* save transaction results to redis */
-func (m *Manager) saveTransactionResults(username string, txResult transprocessor.Transaction) error {
+func (m *Manager) saveTransactionResults(username string, txResult types.Transaction) error {
 
 	ctx := context.Background()
 
@@ -151,9 +152,9 @@ func (m *Manager) saveTransactionResults(username string, txResult transprocesso
 	return m.redis.RPush(ctx, key, resultBytes).Err()
 }
 
-func (m *Manager) getTransactionResults(username string, limit int) ([]TransactionResult, error) {
+func (m *Manager) getTransactionResults(username string, limit int) ([]types.TransactionResult, error) {
 	ctx := context.Background()
-	
+
 	/* thread safety for the manager */
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
@@ -173,7 +174,7 @@ func (m *Manager) getTransactionResults(username string, limit int) ([]Transacti
 
 	/* create a key for Redis operation */
 	key := fmt.Sprintf("session:%s:txresults", sessionID)
-	
+
 	/* returns transactions in chronological order */
 	values, err := m.redis.LRange(ctx, key, int64(-limit), -1).Result()
 	if err != nil {
@@ -181,9 +182,9 @@ func (m *Manager) getTransactionResults(username string, limit int) ([]Transacti
 	}
 
 	/* converts each JSON string back into a TransactionResult */
-	results := make([]TransactionResult, 0, len(values))
+	results := make([]types.TransactionResult, 0, len(values))
 	for _, val := range values {
-		var result TransactionResult
+		var result types.TransactionResult
 		if err := json.Unmarshal([]byte(val), &result); err != nil {
 			/* skip malformed results */
 			continue

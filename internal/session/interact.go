@@ -2,8 +2,6 @@ package session
 
 import (
 	"container/list"
-	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
