@@ -6,6 +6,8 @@ package types
 	needs rewriting same code multiple times.
 */
 
+/* Note: currently in development - just dummy fields */
+
 /* transaction represents a permission management transaction */
 type Transaction struct {
 	ID          string
