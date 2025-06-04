@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/MakeNowJust/heredoc"
+	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"go.uber.org/automaxprocs/maxprocs"
@@ -18,10 +19,11 @@ import (
 
 	"github.com/PythonHacker24/linux-acl-management-backend/api/routes"
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/postgresql"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/redis"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/scheduler"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/scheduler/fcfs"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
-	"github.com/PythonHacker24/linux-acl-management-backend/internal/redis"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/transprocessor"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/utils"
 )
@@ -131,6 +133,14 @@ func run(ctx context.Context) error {
 		zap.L().Fatal("Failed to connect to Redis", zap.Error(err))
 	}
 
+	connPQ, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+    if err != nil {
+            fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+            os.Exit(1)
+    }
+
+	archivalPQ := postgresql.New(connPQ)
+
 	/* 
 		initializing schedular 
 		scheduler uses context to quit - part of waitgroup
@@ -139,7 +149,7 @@ func run(ctx context.Context) error {
 	errCh := make(chan error, 1)
 
 	/* create a session manager */
-	sessionManager := session.NewManager(logRedisClient)
+	sessionManager := session.NewManager(logRedisClient, archivalPQ)
 
 	/* create a permissions processor */
 	permProcessor := transprocessor.NewPermProcessor()
@@ -217,6 +227,9 @@ func run(ctx context.Context) error {
 	/* after the http server is stopped, rest of the components can be shutdown */
 
 	wg.Wait()
+
+	/* close archival database connection */
+    connPQ.Close(context.Background())
 
 	zap.L().Info("All background processes closed gracefully")
 
