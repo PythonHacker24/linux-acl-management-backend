@@ -1,0 +1,20 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "db/queries"
+    schema: "db/schema.sql"
+    gen:
+      go:
+        package: "postgresql"
+        out: "internal/postgresql"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+        emit_prepared_queries: true
+        emit_interface: true
+        # emit_exact_table_funcs: true
+        emit_empty_slices: true
+        overrides:
+          - column: "*.id"
+            go_type: "github.com/google/uuid.UUID"
+          - column: "*.session_id"
+            go_type: "github.com/google/uuid.UUID"
