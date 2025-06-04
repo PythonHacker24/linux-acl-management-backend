@@ -4,7 +4,7 @@ import (
 	"container/list"
 	"sync"
 
-	"github.com/PythonHacker24/linux-acl-management-backend/internal/session/redis"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/redis"
 )
 
 /*
