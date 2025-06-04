@@ -1,35 +1,40 @@
--- name: CreateTransaction :one
+-- name: StoreTransactionPQ :one
 INSERT INTO transactions_archive (
-    id, session_id, status, output, created_at
+    id, session_id, action, resource, permissions, status, error, output, created_at
 ) VALUES (
-    $1, $2, $3, $4, $5
+    $1, $2, $3, $4, $5, $6, $7, $8, $9
 ) RETURNING *;
 
--- name: GetTransaction :one
+-- name: GetTransactionPQ :one
 SELECT * FROM transactions_archive 
 WHERE id = $1;
 
--- name: GetTransactionsBySession :many
+-- name: GetTransactionsBySessionPQ :many
 SELECT * FROM transactions_archive 
 WHERE session_id = $1
 ORDER BY created_at DESC;
 
--- name: GetSuccessfulTransactions :many
+-- name: GetSuccessfulTransactionsPQ :many
 SELECT * FROM transactions_archive 
 WHERE session_id = $1 AND status = 'success'
 ORDER BY created_at DESC;
 
--- name: GetFailedTransactions :many
-SELECT * FROM transactions_archive 
-WHERE session_id = $1 AND status = 'failure'
-ORDER BY created_at DESC;
+-- name: GetFailedTransactionsPQ :many
+select * from transactions_archive 
+where session_id = $1 and status = 'failure'
+order by created_at desc;
 
--- name: DeleteTransaction :exec
+-- name: GetPendingTransactionsPQ :many
+select * from transactions_archive 
+where session_id = $1 and status = 'pending'
+order by created_at desc;
+
+-- name: DeleteTransactionPQ :exec
 DELETE FROM transactions_archive WHERE id = $1;
 
--- name: DeleteTransactionsBySession :exec
+-- name: DeleteTransactionsBySessionPQ :exec
 DELETE FROM transactions_archive WHERE session_id = $1;
 
--- name: CountTransactionsByStatus :one
+-- name: CountTransactionsByStatusPQ :one
 SELECT COUNT(*) FROM transactions_archive 
 WHERE session_id = $1 AND status = $2;
