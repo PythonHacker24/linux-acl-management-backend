@@ -15,11 +15,15 @@ CREATE TABLE sessions_archive (
 );
 
 CREATE TABLE transactions_archive (
-    id           UUID PRIMARY KEY,
-    session_id   UUID REFERENCES sessions_archive(id) ON DELETE CASCADE,
-    status       TEXT CHECK (status IN ('success', 'failure')) NOT NULL,
-    output       TEXT,
-    created_at   TIMESTAMP NOT NULL
+    id            UUID PRIMARY KEY,
+    session_id    UUID REFERENCES sessions_archive(id) ON DELETE CASCADE,
+    action        TEXT NOT NULL,
+    resource      TEXT NOT NULL,
+    permissions   TEXT NOT NULL,
+    status        TEXT CHECK (status IN ('success', 'failure', 'pending')) NOT NULL,
+    error         TEXT,
+    output        TEXT,
+    created_at    TIMESTAMP NOT NULL
 );
 
 -- indexes
