@@ -1,28 +1,82 @@
 package types
 
+import (
+    "time"
+
+    "github.com/google/uuid"
+)
+
 /*
 	contains shared definations where compete modulation was not possible
 	Eg. session and transprocesser need same transaction structure and updating seperate definations
 	needs rewriting same code multiple times.
 */
 
-/* Note: currently in development - just dummy fields */
+/* represents the result of the transaction */
+type TxnStatus string
 
-/* transaction represents a permission management transaction */
-type Transaction struct {
-	ID          string
-	UserID      string
-	Action      string
-	Resource    string
-	Permissions string
-	Status      string
-	Timestamp   string
+/* defining transactions status types */
+const (
+    StatusPending   TxnStatus = "pending"
+    StatusSuccess   TxnStatus = "success"
+    StatusFailed    TxnStatus = "failed"
+)
+
+/* represents what kind of ACL operation was performed */
+type OperationType string
+
+/* defining operating types */
+const (
+    OperationGetACL OperationType = "getfacl"
+    OperationSetACL OperationType = "setfacl"
+)
+
+/* represents an individual ACL rule attempted to be changed */
+type ACLEntry struct {
+	/* e.g., "user", "group", "mask", "other" */
+    EntityType string   `json:"entityType"`
+
+	/* username, group name, or blank for "other"/"mask" */
+    Entity     string   `json:"entity"`
+
+	/* e.g., "rwx", "rw-", etc. */
+    Permissions string  `json:"permissions"`
+
+	/* e.g., "add", "modify", "remove" */
+    Action      string  `json:"action"`
+
+	/* only set if failed */
+	Error       string `json:"error,omitempty"` 
+    Success     bool   `json:"success"`
 }
 
-/* represents the result of a processed transaction */
-type TransactionResult struct {
-	Transaction Transaction
-	Success     bool
-	Error       string
-	Timestamp   string
+/* holds the full state of a permission change operation */
+type Transaction struct {
+    ID          uuid.UUID         `json:"id"`
+    SessionID   uuid.UUID         `json:"sessionId"`
+    Timestamp   time.Time         `json:"timestamp"`
+
+	/* getfacl/setfacl */
+    Operation   OperationType     `json:"operation"` 
+
+	/* File/directory affected */
+    TargetPath  string            `json:"targetPath"` 
+
+	/* ACL entries involved */
+    Entries     []ACLEntry        `json:"entries"` 
+
+	/* success/failure/pending */
+    Status      TxnStatus		  `json:"status"` 
+
+	/* set if failed */
+    ErrorMsg    string            `json:"errorMsg,omitempty"` 
+
+	/* stdout or stderr captured */
+    Output      string            `json:"output"`
+
+	/* user who triggered this */
+    ExecutedBy  string            `json:"executedBy"` 
+
+	/* execution duration in ms */
+    DurationMs  int64             `json:"durationMs"`
 }
