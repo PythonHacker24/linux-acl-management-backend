@@ -48,7 +48,11 @@ func (m *Manager) CreateSession(username, ipAddress, userAgent string) error {
 	element := 	m.sessionOrder.PushBack(session)
 	session.listElem = element
 
+	/* store session into the manager */
 	m.sessionsMap[username] = session
+
+	/* store session to Redis */
+	m.saveSessionRedis(username)
 
 	return nil
 }
@@ -73,7 +77,10 @@ func (m *Manager) ExpireSession(username string) {
 		m.sessionOrder.Remove(session.listElem)
 	}
 
-	/* TODO: Add expired session to REDIS for persistent logging */
+	/* set session status of Redis to Expired */
+	m.updateSessionStatusRedis(username, StatusExpired)
+
+	/* store session to archive pending */
 
 	/* remove session from sessionsMap */
 	delete(m.sessionsMap, username)
@@ -97,6 +104,8 @@ func (m *Manager) AddTransaction(username string, txn interface{}) error {
 
 	/* push transaction into the queue from back */
 	session.TransactionQueue.PushBack(txn)
+
+	/* log adding of the transaction */
 
 	return nil
 }
@@ -130,6 +139,8 @@ func (m *Manager) refreshTimer(username string) error {
 	session.Timer = time.AfterFunc(time.Duration(config.BackendConfig.AppInfo.SessionTimeout) * time.Hour,
 			func() { m.ExpireSession(username) },
 		) 
+
+	/* update Redis for session */
 
 	return nil
 }
