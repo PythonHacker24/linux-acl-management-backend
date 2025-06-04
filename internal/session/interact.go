@@ -2,12 +2,14 @@ package session
 
 import (
 	"container/list"
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 )
 
 /* for creating a session for user - used by HTTP HANDLERS */
@@ -69,18 +71,44 @@ func (m *Manager) ExpireSession(username string) {
 		return
 	}
 
-	/* mark the session as expired */
-	session.Status = StatusExpired
+	/*
+		delete the session from Redis 
+		check if any transactions are remaining in the queue
+		if yes, label transactions and sessions pending 
+		if no, label session expired 
+		push session and transactions to archive
+	*/
+
+	/* check if transactions are remaining in the session queue */
+	if session.TransactionQueue.Len() != 0 {
+		/* transactions are pending, mark them pending */	
+		for node := session.TransactionQueue.Front(); node != nil; node = node.Next() {
+			/* work on transaction structure for *list.List() */
+			txResult, ok := node.Value.(types.Transaction)
+			if !ok {
+				continue
+			}
+			txResult.Status = string(StatusPending)
+			/* TODO: Push this all into PostgreSQL */
+		}
+	} else {
+		/* no empty transactions; mark the session as expired */
+		session.Status = StatusExpired
+	}
 
 	/* remove session from sessionOrder Linked List */
 	if session.listElem != nil {
 		m.sessionOrder.Remove(session.listElem)
 	}
+	
+	/* convert all session parameters to PostgreSQL compatible parameters */
+	archive, err := ConvertSessionToStoreParams(session)
+	if err != nil {
+		return	
+	}
 
-	/* set session status of Redis to Expired */
-	m.updateSessionStatusRedis(username, StatusExpired)
-
-	/* store session to archive pending */
+	/* store session to the archive */
+	m.archivalPQ.StoreSessionPQ(context.Background(), *archive)
 
 	/* remove session from sessionsMap */
 	delete(m.sessionsMap, username)
@@ -95,7 +123,7 @@ func (m *Manager) AddTransaction(username string, txn interface{}) error {
 	/* get the session from sessions map with O(1) runtime */
 	session, exists := m.sessionsMap[username]
 	if !exists {
-		return fmt.Errorf("Session not found")
+		return fmt.Errorf("session not found")
 	}
 
 	/* thread safety for the session */
@@ -104,8 +132,6 @@ func (m *Manager) AddTransaction(username string, txn interface{}) error {
 
 	/* push transaction into the queue from back */
 	session.TransactionQueue.PushBack(txn)
-
-	/* log adding of the transaction */
 
 	return nil
 }
@@ -119,7 +145,7 @@ func (m *Manager) refreshTimer(username string) error {
 	/* get session from sessionMap */
 	session, exists := m.sessionsMap[username]
 	if !exists {
-		return fmt.Errorf("Session not found")
+		return fmt.Errorf("session not found")
 	}
 
 	/* thread safety for the session */
@@ -145,7 +171,7 @@ func (m *Manager) refreshTimer(username string) error {
 	return nil
 }
 
-/* TODO: toDashoardView must be completed changes to fetch data from Redis only */
+/* TODO: toDashoardView must be changed to fetch data from Redis only */
 
 /* convert session information into frontend safe structure */
 func (m *Manager) toDashboardView(username string) (SessionView, error) {
@@ -156,7 +182,7 @@ func (m *Manager) toDashboardView(username string) (SessionView, error) {
 	/* get session from sessionMap */
 	session, exists := m.sessionsMap[username]
 	if !exists {
-		return SessionView{}, fmt.Errorf("Session not found")
+		return SessionView{}, fmt.Errorf("session not found")
 	}
 
 	/* thread safety for the session */
