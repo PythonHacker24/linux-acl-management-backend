@@ -14,7 +14,7 @@ import (
 /* TODO: make the operations below thread safe with mutexes*/
 
 /* store session into Redis database */
-func (m *Manager) saveSession(username string) error {
+func (m *Manager) saveSessionRedis(username string) error {
 	ctx := context.Background()
 
 	/* thread safety for the manager */
@@ -45,7 +45,7 @@ func (m *Manager) saveSession(username string) error {
 }
 
 /* update expiry time in session */
-func (m *Manager) updateSessionExpiry(username string) error {
+func (m *Manager) updateSessionExpiryRedis(username string) error {
 
 	/*
 		function expects that new expiry time is already set in the session
@@ -82,10 +82,8 @@ func (m *Manager) updateSessionExpiry(username string) error {
 	return nil
 }
 
-/* TODO: Sessions must be marked expired when main.go exits */
-
 /* update status of the session - update and set expired operations will be done with this */
-func (m *Manager) updateSessionStatus(username string, status Status) error {
+func (m *Manager) updateSessionStatusRedis(username string, status Status) error {
 
 	ctx := context.Background()
 
@@ -116,7 +114,7 @@ func (m *Manager) updateSessionStatus(username string, status Status) error {
 }
 
 /* save transaction results to redis */
-func (m *Manager) saveTransactionResults(username string, txResult types.Transaction) error {
+func (m *Manager) saveTransactionResultsRedis(username string, txResult types.Transaction) error {
 
 	ctx := context.Background()
 
@@ -150,7 +148,7 @@ func (m *Manager) saveTransactionResults(username string, txResult types.Transac
 	return m.redis.RPush(ctx, key, resultBytes).Err()
 }
 
-func (m *Manager) getTransactionResults(username string, limit int) ([]types.TransactionResult, error) {
+func (m *Manager) getTransactionResultsRedis(username string, limit int) ([]types.TransactionResult, error) {
 	ctx := context.Background()
 
 	/* thread safety for the manager */
