@@ -21,7 +21,7 @@ import (
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/scheduler"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/scheduler/fcfs"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
-	"github.com/PythonHacker24/linux-acl-management-backend/internal/session/redis"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/redis"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/transprocessor"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/utils"
 )
