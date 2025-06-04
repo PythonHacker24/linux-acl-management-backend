@@ -13,6 +13,7 @@ type Status string
 const (
 	StatusActive  Status = "active"
 	StatusExpired Status = "expired"
+	StatusPending Status = "pending"
 )
 
 /* 
@@ -73,29 +74,4 @@ type SessionView struct {
 	CreatedAt       time.Time `json:"createdAt"`
 	LastActiveAt    time.Time `json:"lastActiveAt"`
 	Expiry          time.Time `json:"expiry"`
-}
-
-/* session information structure in archival database */
-type ArchivedSession struct {
-	ID             string    `db:"id"`
-	Username       string    `db:"username"`
-	IP             string    `db:"ip"`
-	UserAgent      string    `db:"user_agent"`
-	Status         string    `db:"status"`
-	CreatedAt      time.Time `db:"created_at"`
-	LastActiveAt   time.Time `db:"last_active_at"`
-	Expiry         time.Time `db:"expiry"`
-	CompletedCount int       `db:"completed_count"`
-	FailedCount    int       `db:"failed_count"`
-	ArchivedAt     time.Time `db:"archived_at"`
-}
-
-/* NOTE: Still in development */
-/* transaction information structure in archival database */
-type ArchivedTransaction struct {
-	ID        string    `db:"id"`
-	SessionID string    `db:"session_id"`
-	Status    string    `db:"status"`
-	Output    string    `db:"output"`
-	CreatedAt time.Time `db:"created_at"`
 }
