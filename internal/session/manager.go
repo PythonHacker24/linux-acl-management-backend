@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"sync"
 
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/postgresql"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/redis"
 )
 
@@ -20,14 +21,16 @@ type Manager struct {
 	sessionOrder	*list.List
 	mutex 			sync.RWMutex
 	redis 			redis.RedisClient
+	archivalPQ		*postgresql.Queries
 }
 
 /* create a new session manager */
-func NewManager(redis redis.RedisClient) *Manager {
+func NewManager(redis redis.RedisClient, archivalPQ *postgresql.Queries) *Manager {
 	return &Manager{
 		sessionsMap:  make(map[string]*Session),
 		sessionOrder: list.New(),
 		redis:	redis,
+		archivalPQ: archivalPQ,
 	}
 }
 
