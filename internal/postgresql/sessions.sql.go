@@ -12,95 +12,23 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createSession = `-- name: CreateSession :one
-INSERT INTO sessions_archive (
-    id, username, ip, user_agent, status, 
-    created_at, last_active_at, expiry
-) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8
-) RETURNING id, username, ip, user_agent, status, created_at, last_active_at, expiry, completed_count, failed_count, archived_at
-`
-
-type CreateSessionParams struct {
-	ID           uuid.UUID        `json:"id"`
-	Username     string           `json:"username"`
-	Ip           pgtype.Text      `json:"ip"`
-	UserAgent    pgtype.Text      `json:"user_agent"`
-	Status       string           `json:"status"`
-	CreatedAt    pgtype.Timestamp `json:"created_at"`
-	LastActiveAt pgtype.Timestamp `json:"last_active_at"`
-	Expiry       pgtype.Timestamp `json:"expiry"`
-}
-
-func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (SessionsArchive, error) {
-	row := q.db.QueryRow(ctx, createSession,
-		arg.ID,
-		arg.Username,
-		arg.Ip,
-		arg.UserAgent,
-		arg.Status,
-		arg.CreatedAt,
-		arg.LastActiveAt,
-		arg.Expiry,
-	)
-	var i SessionsArchive
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Ip,
-		&i.UserAgent,
-		&i.Status,
-		&i.CreatedAt,
-		&i.LastActiveAt,
-		&i.Expiry,
-		&i.CompletedCount,
-		&i.FailedCount,
-		&i.ArchivedAt,
-	)
-	return i, err
-}
-
-const deleteSession = `-- name: DeleteSession :exec
+const deleteSessionPQ = `-- name: DeleteSessionPQ :exec
 DELETE FROM sessions_archive WHERE id = $1
 `
 
-func (q *Queries) DeleteSession(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteSession, id)
+func (q *Queries) DeleteSessionPQ(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteSessionPQ, id)
 	return err
 }
 
-const getSession = `-- name: GetSession :one
-SELECT id, username, ip, user_agent, status, created_at, last_active_at, expiry, completed_count, failed_count, archived_at FROM sessions_archive 
-WHERE id = $1
-`
-
-func (q *Queries) GetSession(ctx context.Context, id uuid.UUID) (SessionsArchive, error) {
-	row := q.db.QueryRow(ctx, getSession, id)
-	var i SessionsArchive
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Ip,
-		&i.UserAgent,
-		&i.Status,
-		&i.CreatedAt,
-		&i.LastActiveAt,
-		&i.Expiry,
-		&i.CompletedCount,
-		&i.FailedCount,
-		&i.ArchivedAt,
-	)
-	return i, err
-}
-
-const getSessionByUsername = `-- name: GetSessionByUsername :many
+const getSessionByUsernamePQ = `-- name: GetSessionByUsernamePQ :many
 SELECT id, username, ip, user_agent, status, created_at, last_active_at, expiry, completed_count, failed_count, archived_at FROM sessions_archive 
 WHERE username = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) GetSessionByUsername(ctx context.Context, username string) ([]SessionsArchive, error) {
-	rows, err := q.db.Query(ctx, getSessionByUsername, username)
+func (q *Queries) GetSessionByUsernamePQ(ctx context.Context, username string) ([]SessionsArchive, error) {
+	rows, err := q.db.Query(ctx, getSessionByUsernamePQ, username)
 	if err != nil {
 		return nil, err
 	}
@@ -129,4 +57,76 @@ func (q *Queries) GetSessionByUsername(ctx context.Context, username string) ([]
 		return nil, err
 	}
 	return items, nil
+}
+
+const getSessionPQ = `-- name: GetSessionPQ :one
+SELECT id, username, ip, user_agent, status, created_at, last_active_at, expiry, completed_count, failed_count, archived_at FROM sessions_archive 
+WHERE id = $1
+`
+
+func (q *Queries) GetSessionPQ(ctx context.Context, id uuid.UUID) (SessionsArchive, error) {
+	row := q.db.QueryRow(ctx, getSessionPQ, id)
+	var i SessionsArchive
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Ip,
+		&i.UserAgent,
+		&i.Status,
+		&i.CreatedAt,
+		&i.LastActiveAt,
+		&i.Expiry,
+		&i.CompletedCount,
+		&i.FailedCount,
+		&i.ArchivedAt,
+	)
+	return i, err
+}
+
+const storeSessionPQ = `-- name: StoreSessionPQ :one
+INSERT INTO sessions_archive (
+    id, username, ip, user_agent, status, 
+    created_at, last_active_at, expiry
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7, $8
+) RETURNING id, username, ip, user_agent, status, created_at, last_active_at, expiry, completed_count, failed_count, archived_at
+`
+
+type StoreSessionPQParams struct {
+	ID           uuid.UUID        `json:"id"`
+	Username     string           `json:"username"`
+	Ip           pgtype.Text      `json:"ip"`
+	UserAgent    pgtype.Text      `json:"user_agent"`
+	Status       string           `json:"status"`
+	CreatedAt    pgtype.Timestamp `json:"created_at"`
+	LastActiveAt pgtype.Timestamp `json:"last_active_at"`
+	Expiry       pgtype.Timestamp `json:"expiry"`
+}
+
+func (q *Queries) StoreSessionPQ(ctx context.Context, arg StoreSessionPQParams) (SessionsArchive, error) {
+	row := q.db.QueryRow(ctx, storeSessionPQ,
+		arg.ID,
+		arg.Username,
+		arg.Ip,
+		arg.UserAgent,
+		arg.Status,
+		arg.CreatedAt,
+		arg.LastActiveAt,
+		arg.Expiry,
+	)
+	var i SessionsArchive
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Ip,
+		&i.UserAgent,
+		&i.Status,
+		&i.CreatedAt,
+		&i.LastActiveAt,
+		&i.Expiry,
+		&i.CompletedCount,
+		&i.FailedCount,
+		&i.ArchivedAt,
+	)
+	return i, err
 }

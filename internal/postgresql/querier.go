@@ -11,18 +11,19 @@ import (
 )
 
 type Querier interface {
-	CountTransactionsByStatus(ctx context.Context, arg CountTransactionsByStatusParams) (int64, error)
-	CreateSession(ctx context.Context, arg CreateSessionParams) (SessionsArchive, error)
-	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (TransactionsArchive, error)
-	DeleteSession(ctx context.Context, id uuid.UUID) error
-	DeleteTransaction(ctx context.Context, id uuid.UUID) error
-	DeleteTransactionsBySession(ctx context.Context, sessionID uuid.UUID) error
-	GetFailedTransactions(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error)
-	GetSession(ctx context.Context, id uuid.UUID) (SessionsArchive, error)
-	GetSessionByUsername(ctx context.Context, username string) ([]SessionsArchive, error)
-	GetSuccessfulTransactions(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error)
-	GetTransaction(ctx context.Context, id uuid.UUID) (TransactionsArchive, error)
-	GetTransactionsBySession(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error)
+	CountTransactionsByStatusPQ(ctx context.Context, arg CountTransactionsByStatusPQParams) (int64, error)
+	DeleteSessionPQ(ctx context.Context, id uuid.UUID) error
+	DeleteTransactionPQ(ctx context.Context, id uuid.UUID) error
+	DeleteTransactionsBySessionPQ(ctx context.Context, sessionID uuid.UUID) error
+	GetFailedTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error)
+	GetPendingTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error)
+	GetSessionByUsernamePQ(ctx context.Context, username string) ([]SessionsArchive, error)
+	GetSessionPQ(ctx context.Context, id uuid.UUID) (SessionsArchive, error)
+	GetSuccessfulTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error)
+	GetTransactionPQ(ctx context.Context, id uuid.UUID) (TransactionsArchive, error)
+	GetTransactionsBySessionPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error)
+	StoreSessionPQ(ctx context.Context, arg StoreSessionPQParams) (SessionsArchive, error)
+	StoreTransactionPQ(ctx context.Context, arg StoreTransactionPQParams) (TransactionsArchive, error)
 }
 
 var _ Querier = (*Queries)(nil)

@@ -12,44 +12,236 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const countTransactionsByStatus = `-- name: CountTransactionsByStatus :one
+const countTransactionsByStatusPQ = `-- name: CountTransactionsByStatusPQ :one
 SELECT COUNT(*) FROM transactions_archive 
 WHERE session_id = $1 AND status = $2
 `
 
-type CountTransactionsByStatusParams struct {
+type CountTransactionsByStatusPQParams struct {
 	SessionID uuid.UUID `json:"session_id"`
 	Status    string    `json:"status"`
 }
 
-func (q *Queries) CountTransactionsByStatus(ctx context.Context, arg CountTransactionsByStatusParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countTransactionsByStatus, arg.SessionID, arg.Status)
+func (q *Queries) CountTransactionsByStatusPQ(ctx context.Context, arg CountTransactionsByStatusPQParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countTransactionsByStatusPQ, arg.SessionID, arg.Status)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
 }
 
-const createTransaction = `-- name: CreateTransaction :one
-INSERT INTO transactions_archive (
-    id, session_id, status, output, created_at
-) VALUES (
-    $1, $2, $3, $4, $5
-) RETURNING id, session_id, status, output, created_at
+const deleteTransactionPQ = `-- name: DeleteTransactionPQ :exec
+DELETE FROM transactions_archive WHERE id = $1
 `
 
-type CreateTransactionParams struct {
-	ID        uuid.UUID        `json:"id"`
-	SessionID uuid.UUID        `json:"session_id"`
-	Status    string           `json:"status"`
-	Output    pgtype.Text      `json:"output"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
+func (q *Queries) DeleteTransactionPQ(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteTransactionPQ, id)
+	return err
 }
 
-func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (TransactionsArchive, error) {
-	row := q.db.QueryRow(ctx, createTransaction,
+const deleteTransactionsBySessionPQ = `-- name: DeleteTransactionsBySessionPQ :exec
+DELETE FROM transactions_archive WHERE session_id = $1
+`
+
+func (q *Queries) DeleteTransactionsBySessionPQ(ctx context.Context, sessionID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteTransactionsBySessionPQ, sessionID)
+	return err
+}
+
+const getFailedTransactionsPQ = `-- name: GetFailedTransactionsPQ :many
+select id, session_id, action, resource, permissions, status, error, output, created_at from transactions_archive 
+where session_id = $1 and status = 'failure'
+order by created_at desc
+`
+
+func (q *Queries) GetFailedTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error) {
+	rows, err := q.db.Query(ctx, getFailedTransactionsPQ, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TransactionsArchive{}
+	for rows.Next() {
+		var i TransactionsArchive
+		if err := rows.Scan(
+			&i.ID,
+			&i.SessionID,
+			&i.Action,
+			&i.Resource,
+			&i.Permissions,
+			&i.Status,
+			&i.Error,
+			&i.Output,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPendingTransactionsPQ = `-- name: GetPendingTransactionsPQ :many
+select id, session_id, action, resource, permissions, status, error, output, created_at from transactions_archive 
+where session_id = $1 and status = 'pending'
+order by created_at desc
+`
+
+func (q *Queries) GetPendingTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error) {
+	rows, err := q.db.Query(ctx, getPendingTransactionsPQ, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TransactionsArchive{}
+	for rows.Next() {
+		var i TransactionsArchive
+		if err := rows.Scan(
+			&i.ID,
+			&i.SessionID,
+			&i.Action,
+			&i.Resource,
+			&i.Permissions,
+			&i.Status,
+			&i.Error,
+			&i.Output,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSuccessfulTransactionsPQ = `-- name: GetSuccessfulTransactionsPQ :many
+SELECT id, session_id, action, resource, permissions, status, error, output, created_at FROM transactions_archive 
+WHERE session_id = $1 AND status = 'success'
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetSuccessfulTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error) {
+	rows, err := q.db.Query(ctx, getSuccessfulTransactionsPQ, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TransactionsArchive{}
+	for rows.Next() {
+		var i TransactionsArchive
+		if err := rows.Scan(
+			&i.ID,
+			&i.SessionID,
+			&i.Action,
+			&i.Resource,
+			&i.Permissions,
+			&i.Status,
+			&i.Error,
+			&i.Output,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTransactionPQ = `-- name: GetTransactionPQ :one
+SELECT id, session_id, action, resource, permissions, status, error, output, created_at FROM transactions_archive 
+WHERE id = $1
+`
+
+func (q *Queries) GetTransactionPQ(ctx context.Context, id uuid.UUID) (TransactionsArchive, error) {
+	row := q.db.QueryRow(ctx, getTransactionPQ, id)
+	var i TransactionsArchive
+	err := row.Scan(
+		&i.ID,
+		&i.SessionID,
+		&i.Action,
+		&i.Resource,
+		&i.Permissions,
+		&i.Status,
+		&i.Error,
+		&i.Output,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getTransactionsBySessionPQ = `-- name: GetTransactionsBySessionPQ :many
+SELECT id, session_id, action, resource, permissions, status, error, output, created_at FROM transactions_archive 
+WHERE session_id = $1
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetTransactionsBySessionPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error) {
+	rows, err := q.db.Query(ctx, getTransactionsBySessionPQ, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TransactionsArchive{}
+	for rows.Next() {
+		var i TransactionsArchive
+		if err := rows.Scan(
+			&i.ID,
+			&i.SessionID,
+			&i.Action,
+			&i.Resource,
+			&i.Permissions,
+			&i.Status,
+			&i.Error,
+			&i.Output,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const storeTransactionPQ = `-- name: StoreTransactionPQ :one
+INSERT INTO transactions_archive (
+    id, session_id, action, resource, permissions, status, error, output, created_at
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7, $8, $9
+) RETURNING id, session_id, action, resource, permissions, status, error, output, created_at
+`
+
+type StoreTransactionPQParams struct {
+	ID          uuid.UUID        `json:"id"`
+	SessionID   uuid.UUID        `json:"session_id"`
+	Action      string           `json:"action"`
+	Resource    string           `json:"resource"`
+	Permissions string           `json:"permissions"`
+	Status      string           `json:"status"`
+	Error       pgtype.Text      `json:"error"`
+	Output      pgtype.Text      `json:"output"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+}
+
+func (q *Queries) StoreTransactionPQ(ctx context.Context, arg StoreTransactionPQParams) (TransactionsArchive, error) {
+	row := q.db.QueryRow(ctx, storeTransactionPQ,
 		arg.ID,
 		arg.SessionID,
+		arg.Action,
+		arg.Resource,
+		arg.Permissions,
 		arg.Status,
+		arg.Error,
 		arg.Output,
 		arg.CreatedAt,
 	)
@@ -57,141 +249,13 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 	err := row.Scan(
 		&i.ID,
 		&i.SessionID,
+		&i.Action,
+		&i.Resource,
+		&i.Permissions,
 		&i.Status,
+		&i.Error,
 		&i.Output,
 		&i.CreatedAt,
 	)
 	return i, err
-}
-
-const deleteTransaction = `-- name: DeleteTransaction :exec
-DELETE FROM transactions_archive WHERE id = $1
-`
-
-func (q *Queries) DeleteTransaction(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteTransaction, id)
-	return err
-}
-
-const deleteTransactionsBySession = `-- name: DeleteTransactionsBySession :exec
-DELETE FROM transactions_archive WHERE session_id = $1
-`
-
-func (q *Queries) DeleteTransactionsBySession(ctx context.Context, sessionID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteTransactionsBySession, sessionID)
-	return err
-}
-
-const getFailedTransactions = `-- name: GetFailedTransactions :many
-SELECT id, session_id, status, output, created_at FROM transactions_archive 
-WHERE session_id = $1 AND status = 'failure'
-ORDER BY created_at DESC
-`
-
-func (q *Queries) GetFailedTransactions(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error) {
-	rows, err := q.db.Query(ctx, getFailedTransactions, sessionID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []TransactionsArchive{}
-	for rows.Next() {
-		var i TransactionsArchive
-		if err := rows.Scan(
-			&i.ID,
-			&i.SessionID,
-			&i.Status,
-			&i.Output,
-			&i.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getSuccessfulTransactions = `-- name: GetSuccessfulTransactions :many
-SELECT id, session_id, status, output, created_at FROM transactions_archive 
-WHERE session_id = $1 AND status = 'success'
-ORDER BY created_at DESC
-`
-
-func (q *Queries) GetSuccessfulTransactions(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error) {
-	rows, err := q.db.Query(ctx, getSuccessfulTransactions, sessionID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []TransactionsArchive{}
-	for rows.Next() {
-		var i TransactionsArchive
-		if err := rows.Scan(
-			&i.ID,
-			&i.SessionID,
-			&i.Status,
-			&i.Output,
-			&i.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getTransaction = `-- name: GetTransaction :one
-SELECT id, session_id, status, output, created_at FROM transactions_archive 
-WHERE id = $1
-`
-
-func (q *Queries) GetTransaction(ctx context.Context, id uuid.UUID) (TransactionsArchive, error) {
-	row := q.db.QueryRow(ctx, getTransaction, id)
-	var i TransactionsArchive
-	err := row.Scan(
-		&i.ID,
-		&i.SessionID,
-		&i.Status,
-		&i.Output,
-		&i.CreatedAt,
-	)
-	return i, err
-}
-
-const getTransactionsBySession = `-- name: GetTransactionsBySession :many
-SELECT id, session_id, status, output, created_at FROM transactions_archive 
-WHERE session_id = $1
-ORDER BY created_at DESC
-`
-
-func (q *Queries) GetTransactionsBySession(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error) {
-	rows, err := q.db.Query(ctx, getTransactionsBySession, sessionID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []TransactionsArchive{}
-	for rows.Next() {
-		var i TransactionsArchive
-		if err := rows.Scan(
-			&i.ID,
-			&i.SessionID,
-			&i.Status,
-			&i.Output,
-			&i.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
