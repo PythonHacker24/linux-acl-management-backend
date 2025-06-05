@@ -14,9 +14,18 @@ server:
 # databases for operations
 database:
   transaction_log_redis: 
-    address: redis   # Docker service name, not localhost
-    password: ${LACLM_TRANS_REDIS_PASSWORD}
+    # address: redis   # Docker service name, not localhost
+    address: localhost:6379
+    # password: ${LACLM_TRANS_REDIS_PASSWORD}
+    password:
     db: 1
+  archival_postgres:
+    host: 127.0.0.1 
+    port: 5432
+    user: "adityapatil"
+    password:
+    dbname: "postgres"
+    sslmode: disable
 
 # logging configurations
 logging:
