@@ -11,7 +11,9 @@ import (
 )
 
 type Querier interface {
+	CountTransactionsByOperationPQ(ctx context.Context, arg CountTransactionsByOperationPQParams) (int64, error)
 	CountTransactionsByStatusPQ(ctx context.Context, arg CountTransactionsByStatusPQParams) (int64, error)
+	CreateTransactionPQ(ctx context.Context, arg CreateTransactionPQParams) (TransactionsArchive, error)
 	DeleteSessionPQ(ctx context.Context, id uuid.UUID) error
 	DeleteTransactionPQ(ctx context.Context, id uuid.UUID) error
 	DeleteTransactionsBySessionPQ(ctx context.Context, sessionID uuid.UUID) error
@@ -21,9 +23,12 @@ type Querier interface {
 	GetSessionPQ(ctx context.Context, id uuid.UUID) (SessionsArchive, error)
 	GetSuccessfulTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error)
 	GetTransactionPQ(ctx context.Context, id uuid.UUID) (TransactionsArchive, error)
+	GetTransactionStatsPQ(ctx context.Context, sessionID uuid.UUID) (GetTransactionStatsPQRow, error)
+	GetTransactionsByOperationPQ(ctx context.Context, arg GetTransactionsByOperationPQParams) ([]TransactionsArchive, error)
+	GetTransactionsByPathPQ(ctx context.Context, arg GetTransactionsByPathPQParams) ([]TransactionsArchive, error)
 	GetTransactionsBySessionPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error)
 	StoreSessionPQ(ctx context.Context, arg StoreSessionPQParams) (SessionsArchive, error)
-	StoreTransactionPQ(ctx context.Context, arg StoreTransactionPQParams) (TransactionsArchive, error)
+	UpdateTransactionStatusPQ(ctx context.Context, arg UpdateTransactionStatusPQParams) (TransactionsArchive, error)
 }
 
 var _ Querier = (*Queries)(nil)

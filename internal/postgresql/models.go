@@ -24,13 +24,16 @@ type SessionsArchive struct {
 }
 
 type TransactionsArchive struct {
-	ID          uuid.UUID        `json:"id"`
-	SessionID   uuid.UUID        `json:"session_id"`
-	Action      string           `json:"action"`
-	Resource    string           `json:"resource"`
-	Permissions string           `json:"permissions"`
-	Status      string           `json:"status"`
-	Error       pgtype.Text      `json:"error"`
-	Output      pgtype.Text      `json:"output"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	ID         uuid.UUID          `json:"id"`
+	SessionID  uuid.UUID          `json:"session_id"`
+	Timestamp  pgtype.Timestamptz `json:"timestamp"`
+	Operation  string             `json:"operation"`
+	TargetPath string             `json:"target_path"`
+	Entries    []byte             `json:"entries"`
+	Status     string             `json:"status"`
+	ErrorMsg   pgtype.Text        `json:"error_msg"`
+	Output     pgtype.Text        `json:"output"`
+	ExecutedBy string             `json:"executed_by"`
+	DurationMs pgtype.Int8        `json:"duration_ms"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 }
