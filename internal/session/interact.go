@@ -88,8 +88,14 @@ func (m *Manager) ExpireSession(username string) {
 			if !ok {
 				continue
 			}
-			txResult.Status = string(StatusPending)
+			txResult.Status = types.StatusPending 
 			/* TODO: Push this all into PostgreSQL */
+			txnPQ, err := ConvertTransactiontoStoreParams(txResult)
+			if err != nil { 
+				/* error is conversion, continue the loop in good faith */
+				/* need to handle these errors later */
+			}
+			if err == nil { m.archivalPQ.CreateTransactionPQ(context.Background(), txnPQ) }
 		}
 	} else {
 		/* no empty transactions; mark the session as expired */
@@ -104,11 +110,12 @@ func (m *Manager) ExpireSession(username string) {
 	/* convert all session parameters to PostgreSQL compatible parameters */
 	archive, err := ConvertSessionToStoreParams(session)
 	if err != nil {
-		return	
+		/* session conversion failed, leave it in good faith */
+		/* handle err later */
 	}
 
 	/* store session to the archive */
-	m.archivalPQ.StoreSessionPQ(context.Background(), *archive)
+	if err == nil { m.archivalPQ.StoreSessionPQ(context.Background(), *archive) }
 
 	/* remove session from sessionsMap */
 	delete(m.sessionsMap, username)
