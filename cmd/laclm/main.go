@@ -133,10 +133,19 @@ func run(ctx context.Context) error {
 		zap.L().Fatal("Failed to connect to Redis", zap.Error(err))
 	}
 
-	connPQ, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	pqDB := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
+		config.BackendConfig.Database.ArchivalPQ.User,
+		config.BackendConfig.Database.ArchivalPQ.Password,
+		config.BackendConfig.Database.ArchivalPQ.Host,
+		config.BackendConfig.Database.ArchivalPQ.Port,
+		config.BackendConfig.Database.ArchivalPQ.DBName,
+		config.BackendConfig.Database.ArchivalPQ.SSLMode,
+	)
+
+	connPQ, err := pgx.Connect(context.Background(), pqDB)
     if err != nil {
-            fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-            os.Exit(1)
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
     }
 
 	archivalPQ := postgresql.New(connPQ)
