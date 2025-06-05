@@ -148,7 +148,7 @@ func (m *Manager) saveTransactionResultsRedis(username string, txResult types.Tr
 	return m.redis.RPush(ctx, key, resultBytes).Err()
 }
 
-func (m *Manager) getTransactionResultsRedis(username string, limit int) ([]types.TransactionResult, error) {
+func (m *Manager) getTransactionResultsRedis(username string, limit int) ([]types.Transaction, error) {
 	ctx := context.Background()
 
 	/* thread safety for the manager */
@@ -178,9 +178,9 @@ func (m *Manager) getTransactionResultsRedis(username string, limit int) ([]type
 	}
 
 	/* converts each JSON string back into a TransactionResult */
-	results := make([]types.TransactionResult, 0, len(values))
+	results := make([]types.Transaction, 0, len(values))
 	for _, val := range values {
-		var result types.TransactionResult
+		var result types.Transaction
 		if err := json.Unmarshal([]byte(val), &result); err != nil {
 			/* skip malformed results */
 			continue
