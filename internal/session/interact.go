@@ -54,7 +54,7 @@ func (m *Manager) CreateSession(username, ipAddress, userAgent string) error {
 	m.sessionsMap[username] = session
 
 	/* store session to Redis */
-	m.saveSessionRedis(username)
+	m.saveSessionRedis(session)
 
 	return nil
 }
@@ -116,6 +116,12 @@ func (m *Manager) ExpireSession(username string) {
 
 	/* store session to the archive */
 	if err == nil { m.archivalPQ.StoreSessionPQ(context.Background(), *archive) }
+
+	key := fmt.Sprintf("session:%s", session.ID)
+	if err := m.redis.Del(context.Background(), key).Err(); err != nil {
+		/* session deletion from redis failed, leave it in good faith */
+		/* handle err later */
+	}
 
 	/* remove session from sessionsMap */
 	delete(m.sessionsMap, username)
