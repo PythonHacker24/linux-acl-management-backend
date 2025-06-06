@@ -235,6 +235,14 @@ func run(ctx context.Context) error {
 
 	/* after the http server is stopped, rest of the components can be shutdown */
 
+	usernames := sessionManager.GetAllUsernames()
+	for _, username := range usernames {
+		sessionManager.ExpireSession(username)
+		zap.L().Info("Session forced expired for: ",
+			zap.String("username", username),	
+		)
+	}
+
 	wg.Wait()
 
 	/* close archival database connection */
