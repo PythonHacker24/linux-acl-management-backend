@@ -3,6 +3,7 @@ package transprocessor
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -44,6 +45,10 @@ func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session
 			localprocessor -> handles permissions on local system (where this backend is deployed)
 		*/
 		_ = transaction
+
+		/* for testing purposes only */
+		time.Sleep(5 * time.Second)
+		zap.L().Info("Completed Transaction")
 	}
 
 	return nil
