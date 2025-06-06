@@ -14,17 +14,15 @@ server:
 # databases for operations
 database:
   transaction_log_redis: 
-    # address: redis   # Docker service name, not localhost
-    address: localhost:6379
-    # password: ${LACLM_TRANS_REDIS_PASSWORD}
-    password:
-    db: 1
+    address: host.docker.internal:6379
+    password: ${LACLM_TRANS_REDIS_PASSWORD}
+    db: 0
   archival_postgres:
-    host: 127.0.0.1 
+    host: host.docker.internal 
     port: 5432
-    user: "adityapatil"
+    user: adityapatil
     password:
-    dbname: "postgres"
+    dbname: postgres
     sslmode: disable
 
 # logging configurations
@@ -40,17 +38,17 @@ filesystem_servers:
   - path: /mnt/beegfs-1
     method: remote
     remote:
-      host: host.docker.internal  # allows container to access host network
+      host: host.docker.internal
       port: 4444
 
 # authentication information
 authentication:
   ldap:
     tls: false
-    address: "ldap://openldap:389"  # Use the service name from docker-compose
+    address: "ldap://openldap:389"
     admin_dn: ${LACLM_LDAP_ADMIN_DN}
     admin_password: ${LACLM_LDAP_ADMIN_PASSWORD}
-    search_base: "dc=example,dc=org"
+    search_base: "cn=Pearson Specter Litt,dc=myorg,dc=local"
 
 backend_security:
   jwt_secret_token: ${JWT_SECRET_TOKEN}
