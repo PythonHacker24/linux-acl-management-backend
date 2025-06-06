@@ -14,18 +14,8 @@ import (
 /* TODO: make the operations below thread safe with mutexes*/
 
 /* store session into Redis database */
-func (m *Manager) saveSessionRedis(username string) error {
+func (m *Manager) saveSessionRedis(session *Session) error {
 	ctx := context.Background()
-
-	/* thread safety for the manager */
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-
-	/* find the session in session map */
-	session, ok := m.sessionsMap[username]
-	if !ok {
-		return fmt.Errorf("username not found in session")
-	}
 
 	/* thread safety for the session */
 	session.Mutex.Lock()
@@ -37,6 +27,7 @@ func (m *Manager) saveSessionRedis(username string) error {
 	/* serialize the session with relevant information */
 	sessionSerialized := session.serializeSessionForRedis()
 
+	/* hset the session to redis */
 	if err := m.redis.HSet(ctx, key, sessionSerialized).Err(); err != nil {
 		return fmt.Errorf("failed to save session to Redis: %w", err)
 	}
@@ -45,23 +36,13 @@ func (m *Manager) saveSessionRedis(username string) error {
 }
 
 /* update expiry time in session */
-func (m *Manager) updateSessionExpiryRedis(username string) error {
+func (m *Manager) updateSessionExpiryRedis(session *Session) error {
 
 	/*
 		function expects that new expiry time is already set in the session
 	*/
 
 	ctx := context.Background()
-
-	/* thread safety for the manager */
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-
-	/* find the session in session map */
-	session, ok := m.sessionsMap[username]
-	if !ok {
-		return fmt.Errorf("username not found in session")
-	}
 
 	/* thread safety for the session */
 	session.Mutex.Lock()
@@ -83,19 +64,9 @@ func (m *Manager) updateSessionExpiryRedis(username string) error {
 }
 
 /* update status of the session - update and set expired operations will be done with this */
-func (m *Manager) updateSessionStatusRedis(username string, status Status) error {
+func (m *Manager) updateSessionStatusRedis(session *Session, status Status) error {
 
 	ctx := context.Background()
-
-	/* thread safety for the manager */
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-
-	/* find the session in session map */
-	session, ok := m.sessionsMap[username]
-	if !ok {
-		return fmt.Errorf("username not found in session")
-	}
 
 	/* thread safety for the session */
 	session.Mutex.Lock()
@@ -114,19 +85,9 @@ func (m *Manager) updateSessionStatusRedis(username string, status Status) error
 }
 
 /* save transaction results to redis */
-func (m *Manager) saveTransactionResultsRedis(username string, txResult types.Transaction) error {
+func (m *Manager) saveTransactionResultsRedis(session *Session, txResult types.Transaction) error {
 
 	ctx := context.Background()
-
-	/* thread safety for the manager */
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-
-	/* find the session in session map */
-	session, ok := m.sessionsMap[username]
-	if !ok {
-		return fmt.Errorf("username not found in session")
-	}
 
 	/* thread safety for the session */
 	session.Mutex.Lock()
@@ -148,18 +109,8 @@ func (m *Manager) saveTransactionResultsRedis(username string, txResult types.Tr
 	return m.redis.RPush(ctx, key, resultBytes).Err()
 }
 
-func (m *Manager) getTransactionResultsRedis(username string, limit int) ([]types.Transaction, error) {
+func (m *Manager) getTransactionResultsRedis(session *Session, limit int) ([]types.Transaction, error) {
 	ctx := context.Background()
-
-	/* thread safety for the manager */
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-
-	/* find the session in session map */
-	session, ok := m.sessionsMap[username]
-	if !ok {
-		return nil, fmt.Errorf("username not found in session")
-	}
 
 	/* thread safety for the session */
 	session.Mutex.Lock()
