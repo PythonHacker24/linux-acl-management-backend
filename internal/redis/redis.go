@@ -12,6 +12,7 @@ import (
 type RedisClient interface {
 	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error
 	Get(ctx context.Context, key string) (string, error)
+	Del(ctx context.Context, keys ...string) *redis.IntCmd
 	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
 	RPush(ctx context.Context, key string, value interface{}) *redis.IntCmd
 	LRange(ctx context.Context, key string, start, stop int64) *redis.StringSliceCmd
@@ -48,6 +49,11 @@ func (r *redisClient) Set(ctx context.Context, key string, value interface{}, ex
 /* retrieves a value by key from Redis */
 func (r *redisClient) Get(ctx context.Context, key string) (string, error) {
 	return r.client.Get(ctx, key).Result()
+}
+
+/* deletes a redis entry */
+func (r *redisClient) Del(ctx context.Context, keys ...string) *redis.IntCmd {
+	return r.client.Del(ctx, keys...)
 }
 
 /* for pushing multiple elements in Redis */
