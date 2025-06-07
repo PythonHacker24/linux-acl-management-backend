@@ -1,4 +1,4 @@
-package redis 
+package redis
 
 import (
 	"context"
@@ -16,6 +16,7 @@ type RedisClient interface {
 	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
 	RPush(ctx context.Context, key string, value interface{}) *redis.IntCmd
 	LRange(ctx context.Context, key string, start, stop int64) *redis.StringSliceCmd
+	FlushAll(ctx context.Context) error
 }
 
 /* redisClient implementation */
@@ -33,7 +34,7 @@ func NewRedisClient(address, password string, db int) (RedisClient, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	
+
 	if err := rdb.Ping(ctx).Err(); err != nil {
 		return nil, fmt.Errorf("could not connect to Redis: %w", err)
 	}
@@ -69,4 +70,9 @@ func (r *redisClient) LRange(ctx context.Context, key string, start, stop int64)
 /* hash set for redis */
 func (r *redisClient) HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd {
 	return r.client.HSet(ctx, key, values...)
+}
+
+/* flush all data from Redis */
+func (r *redisClient) FlushAll(ctx context.Context) error {
+	return r.client.FlushAll(ctx).Err()
 }
