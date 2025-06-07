@@ -29,7 +29,7 @@ func ConvertSessionToStoreParams(session *Session) (*postgresql.StoreSessionPQPa
 	}
 
 	return &postgresql.StoreSessionPQParams{
-		ID:           uuid.MustParse(session.ID),
+		ID:           uuid.MustParse(session.ID.String()),
 		Username:     session.Username,
 		Ip:           pgtype.Text{String: session.IP, Valid: true},
 		UserAgent:    pgtype.Text{String: session.UserAgent, Valid: true},
