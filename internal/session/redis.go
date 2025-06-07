@@ -18,8 +18,8 @@ func (m *Manager) saveSessionRedis(session *Session) error {
 	ctx := context.Background()
 
 	/* thread safety for the session */
-	session.Mutex.Lock()
-	defer session.Mutex.Unlock()
+	// session.Mutex.Lock()
+	// defer session.Mutex.Unlock()
 
 	/* session key for redis */
 	key := fmt.Sprintf("session:%s", session.ID)
@@ -45,8 +45,8 @@ func (m *Manager) updateSessionExpiryRedis(session *Session) error {
 	ctx := context.Background()
 
 	/* thread safety for the session */
-	session.Mutex.Lock()
-	defer session.Mutex.Unlock()
+	// session.Mutex.Lock()
+	// defer session.Mutex.Unlock()
 
 	/* create a key for Redis operation */
 	key := fmt.Sprintf("session:%s", session.ID)
@@ -69,8 +69,8 @@ func (m *Manager) updateSessionStatusRedis(session *Session, status Status) erro
 	ctx := context.Background()
 
 	/* thread safety for the session */
-	session.Mutex.Lock()
-	defer session.Mutex.Unlock()
+	// session.Mutex.Lock()
+	// defer session.Mutex.Unlock()
 
 	/* create a key for Redis operation */
 	key := fmt.Sprintf("session:%s", session.ID)
@@ -90,8 +90,8 @@ func (m *Manager) saveTransactionResultsRedis(session *Session, txResult types.T
 	ctx := context.Background()
 
 	/* thread safety for the session */
-	session.Mutex.Lock()
-	defer session.Mutex.Unlock()
+	// session.Mutex.Lock()
+	// defer session.Mutex.Unlock()
 
 	/* get the session ID */
 	sessionID := session.ID
@@ -113,8 +113,8 @@ func (m *Manager) getTransactionResultsRedis(session *Session, limit int) ([]typ
 	ctx := context.Background()
 
 	/* thread safety for the session */
-	session.Mutex.Lock()
-	defer session.Mutex.Unlock()
+	// session.Mutex.Lock()
+	// defer session.Mutex.Unlock()
 
 	/* get the session ID */
 	sessionID := session.ID
