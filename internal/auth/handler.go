@@ -8,6 +8,7 @@ import (
 
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/token"
 )
 
 /* Handles user login and creates a session */
@@ -54,7 +55,7 @@ func LoginHandler(sessionManager *session.Manager) http.HandlerFunc {
 		}
 
 		/* generate JWT for user interaction */
-		token, err := GenerateJWT(user.Username)
+		token, err := token.GenerateJWT(user.Username)
 		if err != nil {
 			zap.L().Error("Error generating token",
 				zap.Error(err),
