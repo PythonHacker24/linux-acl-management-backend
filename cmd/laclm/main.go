@@ -118,11 +118,11 @@ func exec() error {
 func run(ctx context.Context) error {
 	var (
 		err error
-		wg sync.WaitGroup
+		wg  sync.WaitGroup
 	)
 
 	/* RULE: complete backend system must initiate before http server starts */
-	
+
 	/* DATABASE CONNECTIONS MUST BE MADE BEFORE SCHEDULER STARTS */
 	logRedisClient, err := redis.NewRedisClient(
 		config.BackendConfig.Database.TransactionLogRedis.Address,
@@ -143,15 +143,15 @@ func run(ctx context.Context) error {
 	)
 
 	connPQ, err := pgx.Connect(context.Background(), pqDB)
-    if err != nil {
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
-    }
+	}
 
 	archivalPQ := postgresql.New(connPQ)
 
-	/* 
-		initializing schedular 
+	/*
+		initializing schedular
 		scheduler uses context to quit - part of waitgroup
 		propogates error through error channel
 	*/
@@ -205,7 +205,7 @@ func run(ctx context.Context) error {
 	case <-ctx.Done():
 		zap.L().Info("Shutdown process initiated")
 	case err = <-errCh:
-	
+
 		/* context done can be called here (optional for now) */
 
 		zap.L().Error("Fatal Error from schedular",
@@ -239,14 +239,21 @@ func run(ctx context.Context) error {
 	for _, username := range usernames {
 		sessionManager.ExpireSession(username)
 		zap.L().Info("Session forced expired for: ",
-			zap.String("username", username),	
+			zap.String("username", username),
 		)
 	}
 
 	wg.Wait()
 
+	/* flush Redis data before closing */
+	if err := logRedisClient.FlushAll(context.Background()); err != nil {
+		zap.L().Error("Failed to flush Redis data during shutdown",
+			zap.Error(err),
+		)
+	}
+
 	/* close archival database connection */
-    connPQ.Close(context.Background())
+	connPQ.Close(context.Background())
 
 	zap.L().Info("All background processes closed gracefully")
 
