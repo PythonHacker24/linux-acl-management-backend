@@ -12,6 +12,13 @@ import (
 	needs rewriting same code multiple times.
 */
 
+/* request body for scheduling transaction */
+type ScheduleTransactionRequest struct {
+	Operation  OperationType `json:"operation"`
+	TargetPath string        `json:"targetPath"`
+	Entries    []ACLEntry    `json:"entries"`
+}
+
 /* represents the result of the transaction */
 type TxnStatus string
 
