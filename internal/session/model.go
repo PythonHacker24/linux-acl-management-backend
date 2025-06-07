@@ -4,6 +4,8 @@ import (
 	"container/list"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 /* defining Status type for sessions */
@@ -29,7 +31,7 @@ type Session struct {
 	Status			 Status 
 
 	/* unique ID of session [will be associated with the user forever in logs] */
-	ID 				  string
+	ID 				 uuid.UUID
 
 	/* username of the user */
 	Username          string
