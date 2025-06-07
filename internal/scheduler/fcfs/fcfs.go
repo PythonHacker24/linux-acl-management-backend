@@ -15,11 +15,11 @@ import (
 func NewFCFSScheduler(sm *session.Manager, processor transprocessor.TransactionProcessor) *FCFSScheduler {
 	/* calculate max workers */
 	maxProcs := runtime.GOMAXPROCS(0)
-	maxWorkers := config.BackendConfig.AppInfo.MaxWorkers 
+	maxWorkers := config.BackendConfig.AppInfo.MaxWorkers
 
-	/* 
-		incase of maxWorkers set less than or equal to 0, 
-		use 75% of GOMAXPROCS to prevent starvation to other processes 
+	/*
+		incase of maxWorkers set less than or equal to 0,
+		use 75% of GOMAXPROCS to prevent starvation to other processes
 	*/
 	if maxWorkers <= 0 {
 		maxWorkers = int(float64(maxProcs) * 0.75)
@@ -32,9 +32,9 @@ func NewFCFSScheduler(sm *session.Manager, processor transprocessor.TransactionP
 
 	return &FCFSScheduler{
 		curSessionManager: sm,
-		maxWorkers: maxWorkers,
-		semaphore: make(chan struct{}, maxWorkers),
-		processor: processor,
+		maxWorkers:        maxWorkers,
+		semaphore:         make(chan struct{}, maxWorkers),
+		processor:         processor,
 	}
 }
 
@@ -50,14 +50,14 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 		/* in case default is working hard - ctx is passed here so it must attempt to quit */
 		default:
 			/* RULE: ctx is propogates all over the coming functions */
-			
+
 			/* get next session in the queue (round robin manner) */
 			curSession := f.curSessionManager.GetNextSession()
 			if curSession == nil {
 				/* might need a delay of 10 ms */
 				continue
 			}
-			
+
 			/* check if transaction queue of the session is empty */
 			curSession.Mutex.Lock()
 			if curSession.TransactionQueue.Len() == 0 {
@@ -77,18 +77,18 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 				/* defer clearing the semaphore channel */
 				defer func() { <-f.semaphore }()
 
-				/* 
-					process the transaction 
+				/*
+					process the transaction
 					* processTransaction handles transaction processing completely
 					* now it is responsible now responsible to execute it
 					* role of scheduler in handling transactions ends here
 				*/
 				if err := f.processor.Process(ctx, curSession, transaction); err != nil {
-					zap.L().Error("Faild to process transaction", 
+					zap.L().Error("Failed to process transaction",
 						zap.Error(err),
 					)
 				}
 			}(curSession, transaction)
 		}
-	}	
+	}
 }
