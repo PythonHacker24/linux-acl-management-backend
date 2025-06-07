@@ -5,6 +5,7 @@ app:
   debug_mode: true
   session_timeout: 24
   base_path: /mnt
+  max_workers: 5
 
 # backend server deployment configs
 server:
