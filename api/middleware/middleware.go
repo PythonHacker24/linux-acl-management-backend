@@ -1,10 +1,11 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"time"
 
-	"github.com/PythonHacker24/linux-acl-management-backend/internal/auth"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/token"
 	"go.uber.org/zap"
 )
 
@@ -34,9 +35,8 @@ func LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 /* authentication middleware for http requests */
 func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		/* authenticate the request through JWT */
-		username, err := auth.ExtractUsernameFromRequest(r)
+		username, err := token.ExtractUsernameFromRequest(r)
 		if err != nil {
 			zap.L().Error("Error during authentication",
 				zap.Error(err),
@@ -47,7 +47,10 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		/* set the header with the username */
 		r.Header.Set("X-User", username)
 
+		/* pass username as context */
+		ctx := context.WithValue(r.Context(), "username", username)
+
 		/* return the handler */
-		next(w, r)
+		next(w, r.WithContext(ctx))
 	})
 }
