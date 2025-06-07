@@ -29,4 +29,11 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 			middleware.AuthenticationMiddleware(traversal.ListFilesInDirectory),
 		),
 	))
+
+	/* for scheduling a transaction */
+	mux.Handle("POST /transactions/schedule", http.HandlerFunc(
+		middleware.LoggingMiddleware(
+			middleware.AuthenticationMiddleware(sessionManager.IssueTransaction),
+		),
+	))
 }
