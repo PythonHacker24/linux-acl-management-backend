@@ -49,7 +49,7 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 
 		/* in case default is working hard - ctx is passed here so it must attempt to quit */
 		default:
-			/* RULE: ctx is propogates all over the coming functions */
+			/* RULE: ctx is propagated all over the coming functions */
 
 			/* get next session in the queue (round robin manner) */
 			curSession := f.curSessionManager.GetNextSession()
