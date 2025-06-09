@@ -112,10 +112,6 @@ func (m *Manager) saveTransactionResultsRedis(session *Session, txResult types.T
 func (m *Manager) getTransactionResultsRedis(session *Session, limit int) ([]types.Transaction, error) {
 	ctx := context.Background()
 
-	/* thread safety for the session */
-	// session.Mutex.Lock()
-	// defer session.Mutex.Unlock()
-
 	/* get the session ID */
 	sessionID := session.ID
 
