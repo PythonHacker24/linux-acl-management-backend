@@ -12,8 +12,10 @@ import (
 )
 
 /* instanciate new permission processor */
-func NewPermProcessor() *PermProcessor {
-	return &PermProcessor{}
+func NewPermProcessor(errCh chan<-error) *PermProcessor {
+	return &PermProcessor{
+		errCh: errCh,
+	}
 }
 
 /* processor for permissions manager */
@@ -48,7 +50,9 @@ func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session
 
 		/* for testing purposes only */
 		time.Sleep(5 * time.Second)
-		zap.L().Info("Completed Transaction")
+		zap.L().Info("Completed Transaction", 
+			zap.String("ID", transaction.ID.String()),
+		)
 	}
 
 	return nil
