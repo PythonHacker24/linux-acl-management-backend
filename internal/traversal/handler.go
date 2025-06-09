@@ -19,7 +19,7 @@ import (
 func ListFilesInDirectory(w http.ResponseWriter, r *http.Request) {
 
 	/* extracting userID from request */
-	userID, err := auth.ExtractUsernameFromRequest(r)
+	username, _, err := auth.ExtractDataFromRequest(r)
 	if err != nil {
 		zap.L().Error("Error during getting username in HandleListFiles handler",
 			zap.Error(err),
@@ -36,7 +36,7 @@ func ListFilesInDirectory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	/* list all the files in given filepath */
-	entries, err := ListFiles(listRequest.FilePath, userID)
+	entries, err := ListFiles(listRequest.FilePath, username)
 	if err != nil {
 		zap.L().Warn("File listing error",
 			zap.Error(err),
