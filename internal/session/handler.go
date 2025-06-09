@@ -11,7 +11,7 @@ import (
 
 /*
 	TODO: watchdog for session
-	Live sessions and transactions can be montired through Redis and PostgreSQL
+	Live sessions and transactions can be monitored through Redis and PostgreSQL
 	the watchdog here shows the processing happening, which needs to be done in the
 	later stages of development
 */
@@ -64,3 +64,27 @@ func (m *Manager) IssueTransaction(w http.ResponseWriter, r *http.Request) {
 		"txn_id":  tx.ID.String(),
 	})
 }
+
+/* 
+	get single session data 
+	requires user authentication from middleware
+	user/
+*/
+
+/*
+	get user transactions information
+	requires user authentication from middleware
+	user/
+*/
+
+/*
+	get all sessions in the system
+	requires admin authentication from middleware
+	admin/
+*/
+
+/*
+	get all transaction in the system
+	requires admin authentication from middleware
+	admin/
+*/
