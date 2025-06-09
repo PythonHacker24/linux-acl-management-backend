@@ -22,15 +22,17 @@ type Manager struct {
 	mutex 			sync.RWMutex
 	redis 			redis.RedisClient
 	archivalPQ		*postgresql.Queries
+	errCh 			chan<-error
 }
 
 /* create a new session manager */
-func NewManager(redis redis.RedisClient, archivalPQ *postgresql.Queries) *Manager {
+func NewManager(redis redis.RedisClient, archivalPQ *postgresql.Queries, errCh chan<-error) *Manager {
 	return &Manager{
 		sessionsMap:  make(map[string]*Session),
 		sessionOrder: list.New(),
 		redis:	redis,
 		archivalPQ: archivalPQ,
+		errCh: errCh,
 	}
 }
 
