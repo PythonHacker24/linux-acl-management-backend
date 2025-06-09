@@ -13,6 +13,13 @@ import (
 
 /* converts project session struct into PostgreSQL supported format */
 func ConvertSessionToStoreParams(session *Session) (*postgresql.StoreSessionPQParams, error) {
+	// Validate status
+	status := string(session.Status)
+	if status != string(StatusActive) && status != string(StatusExpired) && status != string(StatusPending) {
+		return nil, fmt.Errorf("invalid session status: %q, must be one of: %q, %q, %q",
+			status, StatusActive, StatusExpired, StatusPending)
+	}
+
 	createdAt := pgtype.Timestamp{}
 	if err := createdAt.Scan(session.CreatedAt); err != nil {
 		return nil, err
@@ -28,15 +35,20 @@ func ConvertSessionToStoreParams(session *Session) (*postgresql.StoreSessionPQPa
 		return nil, err
 	}
 
+	completedCount := pgtype.Int4{Int32: int32(session.CompletedCount), Valid: true}
+	failedCount := pgtype.Int4{Int32: int32(session.FailedCount), Valid: true}
+
 	return &postgresql.StoreSessionPQParams{
-		ID:           uuid.MustParse(session.ID.String()),
-		Username:     session.Username,
-		Ip:           pgtype.Text{String: session.IP, Valid: true},
-		UserAgent:    pgtype.Text{String: session.UserAgent, Valid: true},
-		Status:       string(session.Status),
-		CreatedAt:    createdAt,
-		LastActiveAt: lastActiveAt,
-		Expiry:       expiry,
+		ID:             uuid.MustParse(session.ID.String()),
+		Username:       session.Username,
+		Ip:             pgtype.Text{String: session.IP, Valid: true},
+		UserAgent:      pgtype.Text{String: session.UserAgent, Valid: true},
+		Status:         status,
+		CreatedAt:      createdAt,
+		LastActiveAt:   lastActiveAt,
+		Expiry:         expiry,
+		CompletedCount: completedCount,
+		FailedCount:    failedCount,
 	}, nil
 }
 
