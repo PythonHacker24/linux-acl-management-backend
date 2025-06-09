@@ -7,6 +7,6 @@ import (
 )
 
 /* extract username from http request */
-func ExtractUsernameFromRequest(r *http.Request) (string, error) {
-	return token.ExtractUsernameFromRequest(r)
+func ExtractDataFromRequest(r *http.Request) (string, string, error) {
+	return token.ExtractDataFromRequest(r)
 }
