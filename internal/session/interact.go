@@ -101,10 +101,19 @@ func (m *Manager) ExpireSession(username string) {
 				continue
 			}
 
-			/* store transaction in PostgreSQL */
-			if _, err := m.archivalPQ.CreateTransactionPQ(context.Background(), txnPQ); err != nil {
-				/* log error but continue processing other transactions */
-				fmt.Printf("Failed to archive transaction %s: %v\n", txResult.ID, err)
+			/* store transaction in PostgreSQL with retries */
+			var storeErr error
+			for retries := 0; retries < 3; retries++ {
+				if _, err := m.archivalPQ.CreateTransactionPQ(context.Background(), txnPQ); err != nil {
+					storeErr = err
+					time.Sleep(time.Second * time.Duration(retries+1))
+					continue
+				}
+				storeErr = nil
+				break
+			}
+			if storeErr != nil {
+				fmt.Printf("Failed to archive transaction %s after retries: %v\n", txResult.ID, storeErr)
 				continue
 			}
 		}
@@ -121,6 +130,9 @@ func (m *Manager) ExpireSession(username string) {
 		m.sessionOrder.Remove(session.listElem)
 	}
 
+	/* for debugging */
+	fmt.Printf("Archiving session ID=%s with status=%q\n", session.ID, session.Status)
+
 	/* convert all session parameters to PostgreSQL compatible parameters */
 	archive, err := ConvertSessionToStoreParams(session)
 	if err != nil {
@@ -130,9 +142,23 @@ func (m *Manager) ExpireSession(username string) {
 		return
 	}
 
-	/* store session to the archive */
-	if _, err := m.archivalPQ.StoreSessionPQ(context.Background(), *archive); err != nil {
-		fmt.Printf("Failed to archive session: %v\n", err)
+	/* debug print the archive parameters */
+	fmt.Printf("Archive parameters - ID: %s, Status: %q, Username: %s\n",
+		archive.ID, archive.Status, archive.Username)
+
+	/* store session to the archive with retries */
+	var storeErr error
+	for retries := 0; retries < 3; retries++ {
+		if _, err := m.archivalPQ.StoreSessionPQ(context.Background(), *archive); err != nil {
+			storeErr = err
+			time.Sleep(time.Second * time.Duration(retries+1))
+			continue
+		}
+		storeErr = nil
+		break
+	}
+	if storeErr != nil {
+		fmt.Printf("Failed to archive session after retries: %v\n", storeErr)
 		return
 	}
 
