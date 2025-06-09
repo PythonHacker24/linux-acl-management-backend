@@ -45,7 +45,7 @@ func LoginHandler(sessionManager *session.Manager) http.HandlerFunc {
 		}
 
 		/* create session for the user */
-		err = sessionManager.CreateSession(user.Username, r.RemoteAddr, r.UserAgent())
+		sessionID, err := sessionManager.CreateSession(user.Username, r.RemoteAddr, r.UserAgent())
 		if err != nil {
 			zap.L().Error("Error creating session",
 				zap.Error(err),
@@ -55,7 +55,7 @@ func LoginHandler(sessionManager *session.Manager) http.HandlerFunc {
 		}
 
 		/* generate JWT for user interaction */
-		token, err := token.GenerateJWT(user.Username)
+		token, err := token.GenerateJWT(user.Username, sessionID)
 		if err != nil {
 			zap.L().Error("Error generating token",
 				zap.Error(err),
