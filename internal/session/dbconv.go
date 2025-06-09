@@ -43,7 +43,7 @@ func ConvertSessionToStoreParams(session *Session) (*postgresql.StoreSessionPQPa
 		Username:       session.Username,
 		Ip:             pgtype.Text{String: session.IP, Valid: true},
 		UserAgent:      pgtype.Text{String: session.UserAgent, Valid: true},
-		Status:         status,
+		Status:         string(session.Status),
 		CreatedAt:      createdAt,
 		LastActiveAt:   lastActiveAt,
 		Expiry:         expiry,
