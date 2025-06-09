@@ -62,12 +62,12 @@ func exec() error {
 		}
 	)
 
-	/* adding --config arguement */
+	/* adding --config argument */
 	rootCmd.PersistentFlags().StringVar(&configPath, "config", "", "Path to config file")
 
 	/* Execute the command */
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Printf("arguements error: %s", err.Error())
+		fmt.Printf("arguments error: %s", err.Error())
 		os.Exit(1)
 	}
 
@@ -96,7 +96,7 @@ func exec() error {
 
 	/* calculate max procs accurately (runtime.GOMAXPROCS(0)) */
 	if _, err := maxprocs.Set(); err != nil {
-		zap.L().Error("automaxproces: failed to set GOMAXPROCS",
+		zap.L().Error("automaxprocs: failed to set GOMAXPROCS",
 			zap.Error(err),
 		)
 	}
@@ -151,23 +151,49 @@ func run(ctx context.Context) error {
 	archivalPQ := postgresql.New(connPQ)
 
 	/*
-		initializing schedular
+		initializing scheduler
 		scheduler uses context to quit - part of waitgroup
-		propogates error through error channel
+		propagates error through error channel
 	*/
-	errCh := make(chan error, 1)
+	errChShed := make(chan error, 1)
+	errChLog := make(chan error, 1)
 
 	/* create a session manager */
-	sessionManager := session.NewManager(logRedisClient, archivalPQ)
+	sessionManager := session.NewManager(logRedisClient, archivalPQ, errChLog)
 
 	/* create a permissions processor */
-	permProcessor := transprocessor.NewPermProcessor()
+	permProcessor := transprocessor.NewPermProcessor(errChLog)
+
+	/* handle session and processor errors */
+	wg.Add(1)
+	go func(ctx context.Context) {
+		defer wg.Done()
+		zap.L().Info("log error handler started")
+		for {
+			select {
+			case err, ok := <-errChLog:
+				if !ok {
+					zap.L().Info("log error channel closed")
+					return
+				}
+				if err != nil {
+					zap.L().Error("log error occurred",
+						zap.Error(err),
+						zap.Time("timestamp", time.Now()),
+					)
+				}
+			case <-ctx.Done():
+				zap.L().Info("log error handler shutting down")
+				return
+			}
+		}
+	}(ctx)
 
 	/* currently FCFS scheduler */
 	transSched := fcfs.NewFCFSScheduler(sessionManager, permProcessor)
 
 	/* initialize the scheduler */
-	scheduler.InitSchedular(ctx, transSched, &wg, errCh)
+	scheduler.InitScheduler(ctx, transSched, &wg, errChShed)
 
 	/* setting up http mux and routes */
 	mux := http.NewServeMux()
@@ -201,14 +227,19 @@ func run(ctx context.Context) error {
 		all the functions called must be async here and ready for graceful shutdowns
 	*/
 
+	/*
+		scheduler is a core feature of the application
+		when an error occurs in the scheduler, the system needs to be shutdown
+		since nothing can work without the scheduler
+	*/
 	select {
 	case <-ctx.Done():
 		zap.L().Info("Shutdown process initiated")
-	case err = <-errCh:
+	case err = <-errChShed:
 
 		/* context done can be called here (optional for now) */
 
-		zap.L().Error("Fatal Error from schedular",
+		zap.L().Error("Fatal Error from scheduler",
 			zap.Error(err),
 		)
 		return err
