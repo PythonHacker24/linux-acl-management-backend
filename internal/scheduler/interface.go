@@ -2,7 +2,7 @@ package scheduler
 
 import "context"
 
-/* schedular interface */
+/* scheduler interface */
 type Scheduler interface {
 	Run(ctx context.Context) error
 }
