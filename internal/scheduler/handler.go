@@ -1,5 +1,5 @@
 package scheduler
 
-/* contains handlers related to monitoring the schedular */
+/* contains handlers related to monitoring the scheduler */
 
 /* TODO: Implementing a watchdog */
