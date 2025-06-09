@@ -13,7 +13,7 @@ import (
 )
 
 /* for creating a session for user - used by HTTP HANDLERS */
-func (m *Manager) CreateSession(username, ipAddress, userAgent string) error {
+func (m *Manager) CreateSession(username, ipAddress, userAgent string) (uuid.UUID, error) {
 
 	/* lock the ActiveSessions mutex till the function ends */
 	m.mutex.Lock()
@@ -21,7 +21,7 @@ func (m *Manager) CreateSession(username, ipAddress, userAgent string) error {
 
 	/* check if session exists */
 	if _, exists := m.sessionsMap[username]; exists {
-		return fmt.Errorf("user already exists in active sessions")
+		return uuid.Nil, fmt.Errorf("user already exists in active sessions")
 	}
 
 	/* Generate session metadata */
@@ -39,7 +39,12 @@ func (m *Manager) CreateSession(username, ipAddress, userAgent string) error {
 		CreatedAt:    now,
 		LastActiveAt: now,
 		Timer: time.AfterFunc(time.Duration(config.BackendConfig.AppInfo.SessionTimeout)*time.Hour,
-			func() { m.ExpireSession(username) },
+			func() {
+				err := m.ExpireSession(username)
+				if err != nil {
+					m.errCh <- err
+				}
+			},
 		),
 		CompletedCount:   0,
 		FailedCount:      0,
@@ -56,11 +61,11 @@ func (m *Manager) CreateSession(username, ipAddress, userAgent string) error {
 	/* store session to Redis */
 	m.saveSessionRedis(session)
 
-	return nil
+	return sessionID, nil
 }
 
 /* for expiring a session */
-func (m *Manager) ExpireSession(username string) {
+func (m *Manager) ExpireSession(username string) error {
 	/* thread safety for the manager */
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
@@ -68,7 +73,7 @@ func (m *Manager) ExpireSession(username string) {
 	/* check if user exists in active sessions */
 	session, ok := m.sessionsMap[username]
 	if !ok {
-		return
+		return fmt.Errorf("active user session not found")
 	}
 
 	session.Mutex.Lock()
@@ -86,18 +91,16 @@ func (m *Manager) ExpireSession(username string) {
 	if session.TransactionQueue.Len() != 0 {
 		/* transactions are pending, mark them pending */
 		for node := session.TransactionQueue.Front(); node != nil; node = node.Next() {
-			/* work on transaction structure for *list.List() */
 			txResult, ok := node.Value.(*types.Transaction)
 			if !ok {
 				continue
 			}
 			txResult.Status = types.StatusPending
 
+			/* convert transactions into PostgreSQL compatible parameters */
 			txnPQ, err := ConvertTransactiontoStoreParams(*txResult)
 			if err != nil {
-				/* error is conversion, continue the loop in good faith */
-				/* need to handle these errors later */
-				fmt.Printf("Failed to convert transaction to archive format: %v\n", err)
+				m.errCh<-fmt.Errorf("failed to convert transaction to archive format: %w", err)
 				continue
 			}
 
@@ -113,7 +116,7 @@ func (m *Manager) ExpireSession(username string) {
 				break
 			}
 			if storeErr != nil {
-				fmt.Printf("Failed to archive transaction %s after retries: %v\n", txResult.ID, storeErr)
+				m.errCh<-fmt.Errorf("failed to archive transaction %s after retries: %w", txResult.ID, storeErr)
 				continue
 			}
 		}
@@ -130,36 +133,26 @@ func (m *Manager) ExpireSession(username string) {
 		m.sessionOrder.Remove(session.listElem)
 	}
 
-	/* for debugging */
-	fmt.Printf("Archiving session ID=%s with status=%q\n", session.ID, session.Status)
-
 	/* convert all session parameters to PostgreSQL compatible parameters */
 	archive, err := ConvertSessionToStoreParams(session)
-	if err != nil {
-		/* session conversion failed, leave it in good faith */
-		/* handle err later */
-		fmt.Printf("Failed to convert session to archive format: %v\n", err)
-		return
-	}
-
-	/* debug print the archive parameters */
-	fmt.Printf("Archive parameters - ID: %s, Status: %q, Username: %s\n",
-		archive.ID, archive.Status, archive.Username)
-
-	/* store session to the archive with retries */
-	var storeErr error
-	for retries := 0; retries < 3; retries++ {
-		if _, err := m.archivalPQ.StoreSessionPQ(context.Background(), *archive); err != nil {
-			storeErr = err
-			time.Sleep(time.Second * time.Duration(retries+1))
-			continue
+	if err == nil {
+		/* store session to the archive with retries */
+		var storeErr error
+		for retries := 0; retries < 3; retries++ {
+			if _, err := m.archivalPQ.StoreSessionPQ(context.Background(), *archive); err != nil {
+				storeErr = err
+				time.Sleep(time.Second * time.Duration(retries+1))
+				continue
+			}
+			storeErr = nil
+			break
 		}
-		storeErr = nil
-		break
-	}
-	if storeErr != nil {
-		fmt.Printf("Failed to archive session after retries: %v\n", storeErr)
-		return
+		if storeErr != nil {
+			m.errCh<-fmt.Errorf("failed to archive session after retries: %w", storeErr)
+		}
+	} else {
+		/* handle err */
+		m.errCh<-fmt.Errorf("failed to convert session to archive format: %w", err)
 	}
 
 	/* delete both session and transaction results from Redis */
@@ -167,15 +160,13 @@ func (m *Manager) ExpireSession(username string) {
 	txResultsKey := fmt.Sprintf("session:%s:txresults", session.ID)
 	result := m.redis.Del(context.Background(), sessionKey, txResultsKey)
 	if result.Err() != nil {
-		fmt.Printf("Failed to delete session from Redis: %v\n", result.Err())
-	} else {
-		// Log the number of keys deleted
-		deleted, _ := result.Result()
-		fmt.Printf("Successfully deleted %d keys from Redis for session %s\n", deleted, session.ID)
+		m.errCh<-fmt.Errorf("Failed to delete session from Redis: %w", result.Err())
 	}
 
 	/* remove session from sessionsMap */
 	delete(m.sessionsMap, username)
+
+	return nil
 }
 
 /* add transaction to a session - assumes caller holds necessary locks */
