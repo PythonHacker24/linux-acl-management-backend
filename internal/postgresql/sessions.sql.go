@@ -86,21 +86,24 @@ func (q *Queries) GetSessionPQ(ctx context.Context, id uuid.UUID) (SessionsArchi
 const storeSessionPQ = `-- name: StoreSessionPQ :one
 INSERT INTO sessions_archive (
     id, username, ip, user_agent, status, 
-    created_at, last_active_at, expiry
+    created_at, last_active_at, expiry,
+    completed_count, failed_count
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
 ) RETURNING id, username, ip, user_agent, status, created_at, last_active_at, expiry, completed_count, failed_count, archived_at
 `
 
 type StoreSessionPQParams struct {
-	ID           uuid.UUID        `json:"id"`
-	Username     string           `json:"username"`
-	Ip           pgtype.Text      `json:"ip"`
-	UserAgent    pgtype.Text      `json:"user_agent"`
-	Status       string           `json:"status"`
-	CreatedAt    pgtype.Timestamp `json:"created_at"`
-	LastActiveAt pgtype.Timestamp `json:"last_active_at"`
-	Expiry       pgtype.Timestamp `json:"expiry"`
+	ID             uuid.UUID        `json:"id"`
+	Username       string           `json:"username"`
+	Ip             pgtype.Text      `json:"ip"`
+	UserAgent      pgtype.Text      `json:"user_agent"`
+	Status         string           `json:"status"`
+	CreatedAt      pgtype.Timestamp `json:"created_at"`
+	LastActiveAt   pgtype.Timestamp `json:"last_active_at"`
+	Expiry         pgtype.Timestamp `json:"expiry"`
+	CompletedCount pgtype.Int4      `json:"completed_count"`
+	FailedCount    pgtype.Int4      `json:"failed_count"`
 }
 
 func (q *Queries) StoreSessionPQ(ctx context.Context, arg StoreSessionPQParams) (SessionsArchive, error) {
@@ -113,6 +116,8 @@ func (q *Queries) StoreSessionPQ(ctx context.Context, arg StoreSessionPQParams) 
 		arg.CreatedAt,
 		arg.LastActiveAt,
 		arg.Expiry,
+		arg.CompletedCount,
+		arg.FailedCount,
 	)
 	var i SessionsArchive
 	err := row.Scan(
