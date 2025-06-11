@@ -16,6 +16,8 @@ type RedisClient interface {
 	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
 	RPush(ctx context.Context, key string, value interface{}) *redis.IntCmd
 	LRange(ctx context.Context, key string, start, stop int64) *redis.StringSliceCmd
+	PSubscribe(ctx context.Context, patterns ...string) (*redis.PubSub, error)
+	HGetAll(ctx context.Context, key string) *redis.MapStringStringCmd
 	FlushAll(ctx context.Context) error
 }
 
@@ -70,6 +72,21 @@ func (r *redisClient) LRange(ctx context.Context, key string, start, stop int64)
 /* hash set for redis */
 func (r *redisClient) HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd {
 	return r.client.HSet(ctx, key, values...)
+}
+
+/* subscribe to redis keyspace notifications */
+func (r *redisClient) PSubscribe(ctx context.Context, patterns ...string) (*redis.PubSub, error) {
+	pubsub := r.client.PSubscribe(ctx, patterns...)
+	_, err := pubsub.Receive(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to subscribe to patterns: %w", err)
+	}
+	return pubsub, nil
+}
+
+/* hash get all the data associated with the key */
+func (r *redisClient) HGetAll(ctx context.Context, key string) *redis.MapStringStringCmd {
+	return r.client.HGetAll(ctx, key)
 }
 
 /* flush all data from Redis */
