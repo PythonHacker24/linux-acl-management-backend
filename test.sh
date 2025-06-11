@@ -15,6 +15,8 @@ if [ -z "$token" ] || [ "$token" == "null" ]; then
   exit 1
 fi
 
+echo $token
+
 while true; do 
     # Step 3: Use the token in the authorized request
     curl -X POST http://localhost:8080/transactions/schedule \
