@@ -36,4 +36,10 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 			middleware.AuthenticationMiddleware(sessionManager.IssueTransaction),
 		),
 	))
+
+	mux.Handle("/users/session", http.HandlerFunc(
+		middleware.LoggingMiddleware(
+			middleware.AuthenticationMiddleware(sessionManager.StreamUserSession),
+		),
+	))
 }
