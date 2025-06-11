@@ -77,3 +77,10 @@ type SessionView struct {
 	LastActiveAt    time.Time `json:"lastActiveAt"`
 	Expiry          time.Time `json:"expiry"`
 }
+
+/* websocket stream message */
+type StreamMessage struct {
+	Type      string      `json:"type"`
+	Data      interface{} `json:"data"`
+	Timestamp time.Time   `json:"timestamp"`
+}
