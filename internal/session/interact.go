@@ -220,36 +220,3 @@ func (m *Manager) refreshTimer(username string) error {
 
 	return nil
 }
-
-/* TODO: toDashoardView must be changed to fetch data from Redis only */
-
-/* convert session information into frontend safe structure */
-func (m *Manager) toDashboardView(username string) (SessionView, error) {
-	/* thread safety for the manager */
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-
-	/* get session from sessionMap */
-	session, exists := m.sessionsMap[username]
-	if !exists {
-		return SessionView{}, fmt.Errorf("session not found")
-	}
-
-	/* thread safety for the session */
-	session.Mutex.Lock()
-	defer session.Mutex.Unlock()
-
-	/* can be directly served as JSON in handler */
-	return SessionView{
-		ID:             session.ID.String(),
-		Username:       session.Username,
-		IP:             session.IP,
-		UserAgent:      session.UserAgent,
-		CreatedAt:      session.CreatedAt,
-		LastActiveAt:   session.LastActiveAt,
-		Expiry:         session.Expiry,
-		CompletedCount: session.CompletedCount,
-		FailedCount:    session.FailedCount,
-		PendingCount:   session.TransactionQueue.Len(),
-	}, nil
-}
