@@ -6,6 +6,7 @@ import (
 
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/postgresql"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/redis"
+	"github.com/gorilla/websocket"
 )
 
 /*
@@ -23,6 +24,7 @@ type Manager struct {
 	redis 			redis.RedisClient
 	archivalPQ		*postgresql.Queries
 	errCh 			chan<-error
+	upgrader		websocket.Upgrader
 }
 
 /* create a new session manager */
