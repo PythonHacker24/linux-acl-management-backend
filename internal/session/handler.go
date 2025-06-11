@@ -1,12 +1,16 @@
 package session
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 	"github.com/google/uuid"
+
+	"github.com/PythonHacker24/linux-acl-management-backend/api/middleware"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 )
 
 /*
@@ -19,7 +23,7 @@ import (
 /* frontend safe handler for issuing transaction */
 func (m *Manager) IssueTransaction(w http.ResponseWriter, r *http.Request) {
 	/* extract username from JWT Token */
-	username := r.Context().Value("username")
+	username := r.Context().Value(middleware.ContextKeyUsername)
 
 	/* acquire manager lock to access sessions map */
 	m.mutex.Lock()
@@ -65,26 +69,102 @@ func (m *Manager) IssueTransaction(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-/* 
-	get single session data 
-	requires user authentication from middleware
-	user/
-*/
+type handlerCtxKey string
+
+const (
+	StreamUserSession      handlerCtxKey = "stream_user_session"
+	StreamUserTransactions handlerCtxKey = "stream_user_transactions"
+	StreamAllSessions      handlerCtxKey = "stream_all_sessions"
+	StreamAllTransactions  handlerCtxKey = "stream_all_transactions"
+)
 
 /*
-	get user transactions information
-	requires user authentication from middleware
-	user/
+get single session data
+requires user authentication from middleware
+user/
 */
+func (m *Manager) StreamUserSession(w http.ResponseWriter, r *http.Request) {
+
+	/* username := r.Context().Value(middleware.ContextKeyUsername) */
+	sessionID := r.Context().Value(middleware.ContextKeySessionID)
+
+	/* add a check for sessionID belongs to user */
+	conn, err := m.upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		m.errCh <- fmt.Errorf("websocket upgrade error: %w", err)
+		return
+	}
+	defer conn.Close()
+
+	/* context with cancel for web socket handlers */
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	/* sending initial session data */
+	if err := m.sendCurrentSession(conn, sessionID); err != nil {
+		// log.Printf("Error sending initial session: %v", err)
+		m.errCh <- fmt.Errorf("error sending initial session: %w", err)
+		return
+	}
+
+	/* stream changes in session made in Redis */
+	go m.listenForSessionChanges(ctx, conn, sessionID)
+
+	ctxVal := context.WithValue(ctx, "type", StreamUserSession)
+
+	/* handle web socket instructions from client */
+	m.handleWebSocketCommands(conn, ctxVal, cancel)
+}
 
 /*
-	get all sessions in the system
-	requires admin authentication from middleware
-	admin/
+get user transactions information
+requires user authentication from middleware
+user/
 */
+func (m *Manager) StreamUserTransactions(w http.ResponseWriter, r *http.Request) {
+	/* username := r.Context().Value(middleware.ContextKeyUsername) */
+	sessionID := r.Context().Value(middleware.ContextKeySessionID)
+
+	/* add a check for sessionID belongs to user */
+	conn, err := m.upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		m.errCh <- fmt.Errorf("websocket upgrade error: %w", err)
+		return
+	}
+	defer conn.Close()
+
+	/* context with cancel for web socket handlers */
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	/* sending initial list of transactions data */
+	if err := m.sendCurrentTransactions(conn, sessionID); err != nil {
+		// log.Printf("Error sending initial session: %v", err)
+		m.errCh <- fmt.Errorf("error sending initial session: %w", err)
+		return
+	}
+
+	/* stream changes in transactions made in Redis */
+	go m.listenForTransactionsChanges(ctx, conn, sessionID)
+
+	/* handle web socket instructions from client */
+	m.handleWebSocketCommands(conn, cancel)
+}
 
 /*
-	get all transaction in the system
-	requires admin authentication from middleware
-	admin/
+get all sessions in the system
+requires admin authentication from middleware
+admin/
 */
+func (m *Manager) StreamAllSessions(w http.ResponseWriter, r *http.Request) {
+
+}
+
+/*
+get all transaction in the system
+requires admin authentication from middleware
+admin/
+*/
+func (m *Manager) StreamAllTransactions(w http.ResponseWriter, r *http.Request) {
+
+}
