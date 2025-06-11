@@ -86,7 +86,7 @@ user/
 func (m *Manager) StreamUserSession(w http.ResponseWriter, r *http.Request) {
 
 	/* username := r.Context().Value(middleware.ContextKeyUsername) */
-	sessionID := r.Context().Value(middleware.ContextKeySessionID)
+	sessionID := r.Context().Value(middleware.ContextKeySessionID).(string)
 
 	/* add a check for sessionID belongs to user */
 	conn, err := m.upgrader.Upgrade(w, r, nil)
@@ -96,13 +96,16 @@ func (m *Manager) StreamUserSession(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	/* context with cancel for web socket handlers */
+	/* 
+		context with cancel for web socket handlers 
+		this is the official context for a websocket connection
+		cancelling this means closing components of the websocket handler
+	*/
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	/* sending initial session data */
 	if err := m.sendCurrentSession(conn, sessionID); err != nil {
-		// log.Printf("Error sending initial session: %v", err)
 		m.errCh <- fmt.Errorf("error sending initial session: %w", err)
 		return
 	}
@@ -110,61 +113,62 @@ func (m *Manager) StreamUserSession(w http.ResponseWriter, r *http.Request) {
 	/* stream changes in session made in Redis */
 	go m.listenForSessionChanges(ctx, conn, sessionID)
 
+	/* specify the handler context */
 	ctxVal := context.WithValue(ctx, "type", StreamUserSession)
 
 	/* handle web socket instructions from client */
-	m.handleWebSocketCommands(conn, ctxVal, cancel)
+	m.handleWebSocketCommands(conn, sessionID, ctxVal, cancel)
 }
 
 /*
-get user transactions information
-requires user authentication from middleware
-user/
-*/
-func (m *Manager) StreamUserTransactions(w http.ResponseWriter, r *http.Request) {
-	/* username := r.Context().Value(middleware.ContextKeyUsername) */
-	sessionID := r.Context().Value(middleware.ContextKeySessionID)
-
-	/* add a check for sessionID belongs to user */
-	conn, err := m.upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		m.errCh <- fmt.Errorf("websocket upgrade error: %w", err)
-		return
-	}
-	defer conn.Close()
-
-	/* context with cancel for web socket handlers */
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	/* sending initial list of transactions data */
-	if err := m.sendCurrentTransactions(conn, sessionID); err != nil {
-		// log.Printf("Error sending initial session: %v", err)
-		m.errCh <- fmt.Errorf("error sending initial session: %w", err)
-		return
-	}
-
-	/* stream changes in transactions made in Redis */
-	go m.listenForTransactionsChanges(ctx, conn, sessionID)
-
-	/* handle web socket instructions from client */
-	m.handleWebSocketCommands(conn, cancel)
-}
-
-/*
-get all sessions in the system
-requires admin authentication from middleware
-admin/
-*/
-func (m *Manager) StreamAllSessions(w http.ResponseWriter, r *http.Request) {
-
-}
-
-/*
-get all transaction in the system
-requires admin authentication from middleware
-admin/
-*/
-func (m *Manager) StreamAllTransactions(w http.ResponseWriter, r *http.Request) {
-
-}
+// get user transactions information
+// requires user authentication from middleware
+// user/
+// */
+// func (m *manager) streamusertransactions(w http.responsewriter, r *http.request) {
+// 	/* username := r.context().value(middleware.contextkeyusername) */
+// 	sessionid := r.context().value(middleware.contextkeysessionid)
+//
+// 	/* add a check for sessionid belongs to user */
+// 	conn, err := m.upgrader.upgrade(w, r, nil)
+// 	if err != nil {
+// 		m.errch <- fmt.errorf("websocket upgrade error: %w", err)
+// 		return
+// 	}
+// 	defer conn.close()
+//
+// 	/* context with cancel for web socket handlers */
+// 	ctx, cancel := context.withcancel(context.background())
+// 	defer cancel()
+//
+// 	/* sending initial list of transactions data */
+// 	if err := m.sendcurrenttransactions(conn, sessionid); err != nil {
+// 		// log.printf("error sending initial session: %v", err)
+// 		m.errch <- fmt.errorf("error sending initial session: %w", err)
+// 		return
+// 	}
+//
+// 	/* stream changes in transactions made in redis */
+// 	go m.listenfortransactionschanges(ctx, conn, sessionid)
+//
+// 	/* handle web socket instructions from client */
+// 	m.handlewebsocketcommands(conn, cancel)
+// }
+//
+// /*
+// get all sessions in the system
+// requires admin authentication from middleware
+// admin/
+// */
+// func (m *manager) streamallsessions(w http.responsewriter, r *http.request) {
+//
+// }
+//
+// /*
+// get all transaction in the system
+// requires admin authentication from middleware
+// admin/
+// */
+// func (m *manager) streamalltransactions(w http.responsewriter, r *http.request) {
+//
+// }
