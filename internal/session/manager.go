@@ -2,12 +2,19 @@ package session
 
 import (
 	"container/list"
+	"net/http"
 	"sync"
 
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/postgresql"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/redis"
 	"github.com/gorilla/websocket"
 )
+
+var customupgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true // Allow all connections; customize as needed
+	},
+}
 
 /*
 	session manager
@@ -24,8 +31,9 @@ type Manager struct {
 	redis 			redis.RedisClient
 	archivalPQ		*postgresql.Queries
 	errCh 			chan<-error
-	upgrader		websocket.Upgrader
+	upgrader		websocket.Upgrader	
 }
+
 
 /* create a new session manager */
 func NewManager(redis redis.RedisClient, archivalPQ *postgresql.Queries, errCh chan<-error) *Manager {
@@ -35,6 +43,7 @@ func NewManager(redis redis.RedisClient, archivalPQ *postgresql.Queries, errCh c
 		redis:	redis,
 		archivalPQ: archivalPQ,
 		errCh: errCh,
+		upgrader: customupgrader,
 	}
 }
 
