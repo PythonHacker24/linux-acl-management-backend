@@ -9,7 +9,7 @@ import (
 )
 
 /* handle websocket commands from clients */
-func (m *Manager)handleWebSocketCommands(conn *websocket.Conn, ctxVal context.Context, cancel context.CancelFunc) {
+func (m *Manager) handleWebSocketCommands(conn *websocket.Conn, sessionID string, ctxVal context.Context, cancel context.CancelFunc) {
 	defer cancel()
 
 	/* infinite loop */
@@ -47,6 +47,9 @@ func (m *Manager)handleWebSocketCommands(conn *websocket.Conn, ctxVal context.Co
 				switch val {
 				case StreamUserSession:
 					/* push user session */
+					if err := m.sendCurrentSession(conn, sessionID); err != nil {
+						m.errCh<-fmt.Errorf("failed to send current transaction on command: %w", err)
+					}
 				case StreamUserTransactions:
 					/* push user transactions */
 				case StreamAllSessions:
