@@ -17,10 +17,6 @@ import (
 func (m *Manager) saveSessionRedis(session *Session) error {
 	ctx := context.Background()
 
-	/* thread safety for the session */
-	// session.Mutex.Lock()
-	// defer session.Mutex.Unlock()
-
 	/* session key for redis */
 	key := fmt.Sprintf("session:%s", session.ID)
 
