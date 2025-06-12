@@ -18,49 +18,49 @@ const (
 	StatusPending Status = "pending"
 )
 
-/* 
-	session struct for a user 
-	appropriate fields must always be updated when any request is made
+/*
+session struct for a user
+appropriate fields must always be updated when any request is made
 */
 type Session struct {
 	/* keep count of completed and failed transactions */
-	CompletedCount    int
-	FailedCount       int
+	CompletedCount int
+	FailedCount    int
 
 	/* session status: active: 1 / expired: 0 */
-	Status			 Status 
+	Status Status
 
 	/* unique ID of session [will be associated with the user forever in logs] */
-	ID 				 uuid.UUID
+	ID uuid.UUID
 
 	/* username of the user */
-	Username          string
+	Username string
 
-	/* 
+	/*
 		IP and UserAgent for security logs
-		also can be used for blacklisting and whitelistings 
+		also can be used for blacklisting and whitelistings
 		illegal useragents can be caught as well as unauthorized IP addresses
 	*/
-	IP 				  string
-	UserAgent		  string
+	IP        string
+	UserAgent string
 
 	/* for logging user activity */
-	CreatedAt		  time.Time
-	LastActiveAt      time.Time
-	Expiry            time.Time
-	Timer             *time.Timer
+	CreatedAt    time.Time
+	LastActiveAt time.Time
+	Expiry       time.Time
+	Timer        *time.Timer
 
 	/* transactions issued by the user */
-	TransactionQueue  *list.List
+	TransactionQueue *list.List
 
-	/* 
-		listElem stores it's node address in sessionOrder 
+	/*
+		listElem stores it's node address in sessionOrder
 		this is done to maintain O(1) runtime performance while deleting session
 	*/
-	listElem 		  *list.Element
+	listElem *list.Element
 
 	/* mutex for thread safety */
-	Mutex             sync.Mutex
+	Mutex sync.Mutex
 }
 
 /* SessionStreamData is a frontend-safe representation of a session that goes through websocket */
@@ -82,4 +82,29 @@ type StreamMessage struct {
 	Type      string      `json:"type"`
 	Data      interface{} `json:"data"`
 	Timestamp time.Time   `json:"timestamp"`
+}
+
+/* TransactionStreamData is a frontend-safe representation of a transaction sent via websocket */
+type TransactionStreamData struct {
+	ID         string           `json:"id"`
+	SessionID  string           `json:"sessionId"`
+	Timestamp  time.Time        `json:"timestamp"`
+	Operation  string           `json:"operation"`
+	TargetPath string           `json:"targetPath"`
+	Entries    []ACLEntryStream `json:"entries"`
+	Status     string           `json:"status"`
+	ErrorMsg   string           `json:"errorMsg,omitempty"`
+	Output     string           `json:"output"`
+	ExecutedBy string           `json:"executedBy"`
+	DurationMs int64            `json:"durationMs"`
+}
+
+/* ACLEntryStream is a frontend-safe version of an individual ACL entry */
+type ACLEntryStream struct {
+	EntityType  string `json:"entityType"`
+	Entity      string `json:"entity"`
+	Permissions string `json:"permissions"`
+	Action      string `json:"action"`
+	Success     bool   `json:"success"`
+	Error       string `json:"error,omitempty"`
 }
