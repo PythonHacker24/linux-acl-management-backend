@@ -9,7 +9,7 @@ import (
 )
 
 /* handle websocket commands from clients */
-func (m *Manager) handleWebSocketCommands(conn *websocket.Conn, sessionID string, ctxVal context.Context, cancel context.CancelFunc) {
+func (m *Manager) handleWebSocketCommands(conn *websocket.Conn, username, sessionID string, ctxVal context.Context, cancel context.CancelFunc) {
 	defer cancel()
 
 	/* infinite loop */
@@ -18,15 +18,15 @@ func (m *Manager) handleWebSocketCommands(conn *websocket.Conn, sessionID string
 		err := conn.ReadJSON(&msg)
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				m.errCh<-fmt.Errorf("websocket error: %w", err)	
+				m.errCh <- fmt.Errorf("websocket error: %w", err)
 			}
 			break
-		}	
+		}
 
 		/* handle commands from clients */
 		if msgType, ok := msg["type"].(string); ok {
 			switch msgType {
-			
+
 			/* ping echo test */
 			case "ping":
 				pongMsg := StreamMessage{
@@ -35,7 +35,7 @@ func (m *Manager) handleWebSocketCommands(conn *websocket.Conn, sessionID string
 					Timestamp: time.Now(),
 				}
 				if err := conn.WriteJSON(pongMsg); err != nil {
-					m.errCh<-fmt.Errorf("failed to send pong: %w", err)
+					m.errCh <- fmt.Errorf("failed to send pong: %w", err)
 					return
 				}
 
@@ -45,16 +45,19 @@ func (m *Manager) handleWebSocketCommands(conn *websocket.Conn, sessionID string
 				val := ctxVal.Value("type")
 
 				switch val {
-				case StreamUserSession:
+				case CtxStreamUserSession:
 					/* push user session */
 					if err := m.sendCurrentSession(conn, sessionID); err != nil {
-						m.errCh<-fmt.Errorf("failed to send current transaction on command: %w", err)
+						m.errCh <- fmt.Errorf("failed to send current session on command: %w", err)
 					}
-				case StreamUserTransactions:
+				case CtxStreamUserTransactions:
 					/* push user transactions */
-				case StreamAllSessions:
+					if err := m.sendCurrentUserTransactions(conn, username, sessionID, 100); err != nil {
+						m.errCh <- fmt.Errorf("failed to send current list of transactions on command: %w", err)
+					}
+				case CtxStreamAllSessions:
 					/* push all sessions */
-				case StreamAllTransactions:
+				case CtxStreamAllTransactions:
 					/* push all transactions */
 				}
 			}
