@@ -29,7 +29,7 @@ func InitLogger(isProduction bool) {
 			Filename:   config.BackendConfig.Logging.File,
 			MaxSize:    config.BackendConfig.Logging.MaxSize, // MB
 			MaxBackups: config.BackendConfig.Logging.MaxBackups,
-			MaxAge:     config.BackendConfig.Logging.MaxBackups, // days
+			MaxAge:     config.BackendConfig.Logging.MaxAge, // days
 			Compress:   config.BackendConfig.Logging.Compress,
 		})
 	} else {
