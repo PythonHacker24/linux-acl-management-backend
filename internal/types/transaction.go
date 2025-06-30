@@ -43,7 +43,10 @@ type ACLEntry struct {
 	/* e.g., "user", "group", "mask", "other" */
     EntityType string   `json:"entityType"`
 
-	/* username, group name, or blank for "other"/"mask" */
+	/* 	
+		username, group name, or blank
+		blank means it applies to the current owner/group (e.g., user::, group::, other::, mask::) 
+	*/
     Entity     string   `json:"entity"`
 
 	/* e.g., "rwx", "rw-", etc. */
@@ -51,6 +54,9 @@ type ACLEntry struct {
 
 	/* e.g., "add", "modify", "remove" */
     Action      string  `json:"action"`
+
+	/* whether this is a default ACL (i.e., applies to new files/subdirs) */
+	IsDefault bool `json:"isDefault"`
 
 	/* only set if failed */
 	Error       string `json:"error,omitempty"` 
