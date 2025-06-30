@@ -9,6 +9,7 @@ import (
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/transprocessor"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 )
 
 /* spawns a new FCFS scheduler */
@@ -73,7 +74,7 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 			f.semaphore <- struct{}{}
 
 			/* go routine is available to be spawned */
-			go func(curSession *session.Session, transaction interface{}) {
+			go func(curSession *session.Session, transaction types.Transaction) {
 				/* defer clearing the semaphore channel */
 				defer func() { <-f.semaphore }()
 
@@ -88,7 +89,7 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 						zap.Error(err),
 					)
 				}
-			}(curSession, transaction)
+			}(curSession, transaction.(types.Transaction))
 		}
 	}
 }
