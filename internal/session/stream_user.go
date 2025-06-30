@@ -116,27 +116,31 @@ func (m *Manager) handleSessionChangeEvent(conn *websocket.Conn, sessionID strin
 
 /* ==== User Transaction List ==== */
 
-/* sends list of current transactions of the user */
+/* send current user transactions */
 func (m *Manager) sendCurrentUserTransactions(conn *websocket.Conn, username, sessionID string, limit int) error {
-	/* get session from manager */
-	m.mutex.RLock()
-	session, exists := m.sessionsMap[username]
-	m.mutex.RUnlock()
-
-	/* return if session doesn't exist */
-	if !exists {
-		return fmt.Errorf("session not found")
-	}
+	ctx := context.Background()
 
 	/* get latest transactions from Redis */
-	transactions, err := m.getTransactionResultsRedis(session, limit)
+	key := fmt.Sprintf("session:%s:txresults", sessionID)
+	values, err := m.redis.LRange(ctx, key, int64(-limit), -1).Result()
 	if err != nil {
-		return fmt.Errorf("failed to fetch transaction results from Redis: %w", err)
+		return fmt.Errorf("failed to get transaction results: %w", err)
 	}
 
-	/* create message payload for websocket */
+	/* convert each JSON string back into a Transaction */
+	transactions := make([]types.Transaction, 0, len(values))
+	for _, val := range values {
+		var tx types.Transaction
+		if err := json.Unmarshal([]byte(val), &tx); err != nil {
+			/* skip malformed results */
+			continue
+		}
+		transactions = append(transactions, tx)
+	}
+
+	/* prepare the message payload */
 	message := StreamMessage{
-		Type: "user_transactions",
+		Type: "transaction_update",
 		Data: map[string]interface{}{
 			"session_id":   sessionID,
 			"transactions": transactions,
@@ -144,6 +148,7 @@ func (m *Manager) sendCurrentUserTransactions(conn *websocket.Conn, username, se
 		Timestamp: time.Now(),
 	}
 
+	/* send the message to the client */
 	return conn.WriteJSON(message)
 }
 
@@ -178,6 +183,11 @@ func (m *Manager) listenForTransactionsChanges(ctx context.Context, conn *websoc
 		}
 	}
 }
+
+/*
+	currently, handleTransactionChangeEvent sends the complete JSON package whenever anything is updated. 
+	The whole frontend will be updated even if one transaction changes it's state (for example, setting active to expired).
+*/
 
 /* handle transaction change event */
 func (m *Manager) handleTransactionChangeEvent(conn *websocket.Conn, sessionID string, msg *redis.Message) error {
