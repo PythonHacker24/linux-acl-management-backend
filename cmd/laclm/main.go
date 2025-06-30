@@ -16,9 +16,13 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/automaxprocs/maxprocs"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
 
 	"github.com/PythonHacker24/linux-acl-management-backend/api/routes"
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/grpcpool"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/postgresql"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/redis"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/scheduler"
@@ -101,6 +105,7 @@ func exec() error {
 		)
 	}
 
+	/* preparing graceful shutdown for CTRL+C and docker */
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -120,6 +125,9 @@ func run(ctx context.Context) error {
 		err error
 		wg  sync.WaitGroup
 	)
+
+	
+
 
 	/* RULE: complete backend system must initiate before http server starts */
 
@@ -142,6 +150,7 @@ func run(ctx context.Context) error {
 		config.BackendConfig.Database.ArchivalPQ.SSLMode,
 	)
 
+	/* connect to PostgreSQL database */
 	connPQ, err := pgx.Connect(context.Background(), pqDB)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
@@ -150,13 +159,57 @@ func run(ctx context.Context) error {
 
 	archivalPQ := postgresql.New(connPQ)
 
+	/* create a error channel */
+	errChLog := make(chan error, 1)
+
+	/* create the client pool for daemons (via gRPC) */
+	/* unsecure for now */
+
+	/* attempting to keep connections alive all the time even with no activity */
+	var kacp = keepalive.ClientParameters{
+		/* send pings every 10 seconds if there is no activity */
+		Time:                10 * time.Second, 
+
+		/* wait 2 second for ping ack before considering the connection dead */
+		Timeout:             2 * time.Second,      
+
+		/* send pings even without active streams */
+		PermitWithoutStream: true,             
+	}
+
+	pool := grpcpool.NewClientPool(
+		grpc.WithTransportCredentials(insecure.NewCredentials()), 
+		grpc.WithKeepaliveParams(kacp),
+	)
+
+	for _, system := range config.BackendConfig.FileSystemServers {
+		/* check if system is remote */
+		if system.Remote != nil {
+			address := fmt.Sprintf("%s:%d", system.Remote.Host, system.Remote.Port)
+			go func (addr string, errCh chan<-error) {
+				_, err := pool.GetConn(addr, errCh)
+            	if err != nil {
+                	zap.L().Error("Failed to get connect with a daemon", 
+						zap.String("Address", addr), 
+						zap.Error(err),
+					)
+            	}
+
+				/* now test for connections */
+				zap.L().Info("Connected to",
+					zap.String("address", addr),
+				)
+
+			}(address, errChLog)
+		}
+	}	
+
 	/*
 		initializing scheduler
 		scheduler uses context to quit - part of waitgroup
 		propagates error through error channel
 	*/
 	errChShed := make(chan error, 1)
-	errChLog := make(chan error, 1)
 
 	/* create a session manager */
 	sessionManager := session.NewManager(logRedisClient, archivalPQ, errChLog)
@@ -187,7 +240,8 @@ func run(ctx context.Context) error {
 				return
 			}
 		}
-	}(ctx)
+	/* update this to use different ctx called essentialctx which ends after everything is shutdown */
+	}(ctx) 
 
 	/* currently FCFS scheduler */
 	transSched := fcfs.NewFCFSScheduler(sessionManager, permProcessor)
@@ -201,6 +255,7 @@ func run(ctx context.Context) error {
 	/* routes declared in /api/routes.go */
 	routes.RegisterRoutes(mux, sessionManager)
 
+	/* create a http server */
 	server := &http.Server{
 		Addr: fmt.Sprintf("%s:%d",
 			config.BackendConfig.Server.Host,
@@ -276,6 +331,9 @@ func run(ctx context.Context) error {
 
 	wg.Wait()
 
+	/* close connections with daemon */
+	pool.CloseAll(errChLog)
+
 	/* flush Redis data before closing */
 	if err := logRedisClient.FlushAll(context.Background()); err != nil {
 		zap.L().Error("Failed to flush Redis data during shutdown",
@@ -285,6 +343,8 @@ func run(ctx context.Context) error {
 
 	/* close archival database connection */
 	connPQ.Close(context.Background())
+
+	/* essentialctx must be closed here */
 
 	zap.L().Info("All background processes closed gracefully")
 
