@@ -49,7 +49,7 @@ func (m *Manager) IssueTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx := &types.Transaction{
+	tx := types.Transaction{
 		ID:         uuid.New(),
 		SessionID:  session.ID,
 		Timestamp:  time.Now(),
@@ -92,12 +92,14 @@ user/
 */
 func (m *Manager) StreamUserSession(w http.ResponseWriter, r *http.Request) {
 
+	/* get the username */
 	username, ok := r.Context().Value(middleware.ContextKeyUsername).(string)
 	if !ok {
 		http.Error(w, "Invalid user context", http.StatusInternalServerError)
 		return
 	}
 
+	/* get the session id */
 	sessionID, ok := r.Context().Value(middleware.ContextKeySessionID).(string)
 	if !ok {
 		http.Error(w, "Invalid session context", http.StatusInternalServerError)
@@ -113,7 +115,7 @@ func (m *Manager) StreamUserSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/* add a check for sessionID belongs to user */
+	/* user exists and verified, upgrade the websocket connection */
 	conn, err := m.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		m.errCh <- fmt.Errorf("websocket upgrade error: %w", err)
@@ -151,12 +153,15 @@ requires user authentication from middleware
 user/
 */
 func (m *Manager) StreamUserTransactions(w http.ResponseWriter, r *http.Request) {
+
+	/* get the username */
 	username, ok := r.Context().Value(middleware.ContextKeyUsername).(string)
 	if !ok {
 		http.Error(w, "Invalid user context", http.StatusInternalServerError)
 		return
 	}
 
+	/* get the session id */
 	sessionID, ok := r.Context().Value(middleware.ContextKeySessionID).(string)
 	if !ok {
 		http.Error(w, "Invalid session ID context", http.StatusInternalServerError)
@@ -172,7 +177,7 @@ func (m *Manager) StreamUserTransactions(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	/* add a check for sessionid belongs to user */
+	/* user exists and verified, upgrade the websocket connection */
 	conn, err := m.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		m.errCh <- fmt.Errorf("websocket upgrade error: %w", err)
@@ -209,8 +214,40 @@ func (m *Manager) StreamUserTransactions(w http.ResponseWriter, r *http.Request)
 // requires admin authentication from middleware
 // admin/
 // */
-// func (m *manager) streamallsessions(w http.responsewriter, r *http.request) {
+// func (m *Manager) StreamAllSessions(w http.ResponseWriter, r *http.Request) {
 //
+// 	/* check if the user is admin */
+//
+// 	/* upgrade the connection if user is admin */
+// 	conn, err := m.upgrader.Upgrade(w, r, nil)
+// 	if err != nil {
+// 		m.errCh <- fmt.Errorf("websocket upgrade error: %w", err)
+// 		return
+// 	}
+// 	defer conn.Close()
+//
+// 	/*
+// 		context with cancel for web socket handlers
+// 		this is the official context for a websocket connection
+// 		cancelling this means closing components of the websocket handler
+// 	*/
+// 	ctx, cancel := context.WithCancel(context.Background())
+// 	defer cancel()
+//
+// 	/* sending initial list of all sessions */
+// 	if err := m.sendListofAllSessions(conn, 100); err != nil {
+// 		m.errCh <- fmt.Errorf("error sending initial list of all sessions: %w", err)
+// 		return
+// 	}
+//
+// 	/* stream changes in transactions made in redis */
+// 	go m.listenForAllSessionsChanges(ctx, conn)
+//
+// 	/* specify the handler context */
+// 	ctxVal := context.WithValue(ctx, "type", CtxStreamAllSessions)
+//
+// 	/* handle web socket instructions from client */
+// 	m.handleWebSocketCommands(conn, ctxVal, cancel)
 // }
 //
 // /*
@@ -218,6 +255,38 @@ func (m *Manager) StreamUserTransactions(w http.ResponseWriter, r *http.Request)
 // requires admin authentication from middleware
 // admin/
 // */
-// func (m *manager) streamalltransactions(w http.responsewriter, r *http.request) {
+// func (m *Manager) StreamAllTransactions(w http.ResponseWriter, r *http.Request) {
 //
+// 	/* check if the user is admin */
+//
+// 	/* upgrade the connection if user is admin */
+// 	conn, err := m.upgrader.Upgrade(w, r, nil)
+// 	if err != nil {
+// 		m.errCh <- fmt.Errorf("websocket upgrade error: %w", err)
+// 		return
+// 	}
+// 	defer conn.Close()
+//
+// 	/*
+// 		context with cancel for web socket handlers
+// 		this is the official context for a websocket connection
+// 		cancelling this means closing components of the websocket handler
+// 	*/
+// 	ctx, cancel := context.WithCancel(context.Background())
+// 	defer cancel()
+//
+// 	/* sending initial list of all sessions */
+// 	if err := m.sendListofAllTransactions(conn, 100); err != nil {
+// 		m.errCh <- fmt.Errorf("error sending initial list of all transactions: %w", err)
+// 		return
+// 	}
+//
+// 	/* stream changes in transactions made in redis */
+// 	go m.listenForAllTransactionsChanges(ctx, conn)
+//
+// 	/* specify the handler context */
+// 	ctxVal := context.WithValue(ctx, "type", CtxStreamAllTransactions)
+//
+// 	/* handle web socket instructions from client */
+// 	m.handleWebSocketCommands(conn, ctxVal, cancel)
 // }
