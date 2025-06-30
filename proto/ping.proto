@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package protos;
+
+option go_package = 'github.com/PythonHacker24/linux-acl-management-aclapi/internal/grpcserver/protos;protos';
+
+service PingService {
+  rpc Ping (PingRequest) returns (PingResponse);
+}
+
+message PingRequest {}
+
+message PingResponse {
+  string message = 1;
+}
