@@ -39,8 +39,8 @@ filesystem_servers:
   - path: /mnt/beegfs-1
     method: remote
     remote:
-      host: host.docker.internal
-      port: 4444
+      host: 165.232.178.211 
+      port: 6593
 
 # authentication information
 authentication:
@@ -49,7 +49,7 @@ authentication:
     address: "ldap://openldap:389"
     admin_dn: ${LACLM_LDAP_ADMIN_DN}
     admin_password: ${LACLM_LDAP_ADMIN_PASSWORD}
-    search_base: "cn=Pearson Specter Litt,dc=myorg,dc=local"
+    search_base: "cn=Princeton Plainsboro Hospital ,dc=myorg,dc=local"
 
 backend_security:
   jwt_secret_token: ${JWT_SECRET_TOKEN}
