@@ -182,6 +182,7 @@ func run(ctx context.Context) error {
 		grpc.WithKeepaliveParams(kacp),
 	)
 
+	/* THIS CODE IS SAFE TO BE REMOVED */
 	for _, system := range config.BackendConfig.FileSystemServers {
 		/* check if system is remote */
 		if system.Remote != nil {
@@ -215,7 +216,7 @@ func run(ctx context.Context) error {
 	sessionManager := session.NewManager(logRedisClient, archivalPQ, errChLog)
 
 	/* create a permissions processor */
-	permProcessor := transprocessor.NewPermProcessor(errChLog)
+	permProcessor := transprocessor.NewPermProcessor(pool, errChLog)
 
 	/* handle session and processor errors */
 	wg.Add(1)
