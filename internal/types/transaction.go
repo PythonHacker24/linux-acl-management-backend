@@ -16,7 +16,7 @@ import (
 type ScheduleTransactionRequest struct {
 	Operation  OperationType `json:"operation"`
 	TargetPath string        `json:"targetPath"`
-	Entries    []ACLEntry    `json:"entries"`
+	Entries    ACLEntry      `json:"entries"`
 }
 
 /* represents the result of the transaction */
@@ -76,10 +76,13 @@ type Transaction struct {
     TargetPath  string            `json:"targetPath"` 
 
 	/* ACL entries involved */
-    Entries     []ACLEntry        `json:"entries"` 
+    Entries     ACLEntry          `json:"entries"` 
 
 	/* success/failure/pending */
     Status      TxnStatus		  `json:"status"` 
+
+	/* execution status */
+	ExecStatus 	bool 			  `json:"execStatus"`
 
 	/* set if failed */
     ErrorMsg    string            `json:"errorMsg,omitempty"` 
