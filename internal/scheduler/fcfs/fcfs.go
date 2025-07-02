@@ -67,14 +67,14 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 			}
 
 			/* get a transaction from the session to process */
-			transaction := curSession.TransactionQueue.Remove(curSession.TransactionQueue.Front())
+			transaction := curSession.TransactionQueue.Remove(curSession.TransactionQueue.Front()).(*types.Transaction)
 			curSession.Mutex.Unlock()
 
 			/* block if all workers are busy */
 			f.semaphore <- struct{}{}
 
 			/* go routine is available to be spawned */
-			go func(curSession *session.Session, transaction types.Transaction) {
+			go func(curSession *session.Session, transaction *types.Transaction) {
 				/* defer clearing the semaphore channel */
 				defer func() { <-f.semaphore }()
 
@@ -89,7 +89,11 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 						zap.Error(err),
 					)
 				}
-			}(curSession, transaction.(types.Transaction))
+
+				/* we assume the transaction has been processed -> updated Redis */
+				transaction.Status = types.StatusSuccess
+				f.curSessionManager.SaveTransactionResultsRedis(curSession, transaction, "txresults")
+			}(curSession, transaction)
 		}
 	}
 }
