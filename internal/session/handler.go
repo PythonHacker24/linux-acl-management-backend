@@ -61,7 +61,7 @@ func (m *Manager) IssueTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	/* add transaction to session - session lock is already held */
-	if err := m.AddTransaction(session, tx); err != nil {
+	if err := m.AddTransaction(session, &tx); err != nil {
 		http.Error(w, "Failed to add transaction", http.StatusInternalServerError)
 		return
 	}
