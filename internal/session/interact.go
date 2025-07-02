@@ -170,7 +170,7 @@ func (m *Manager) ExpireSession(username string) error {
 }
 
 /* add transaction to a session - assumes caller holds necessary locks */
-func (m *Manager) AddTransaction(session *Session, txn types.Transaction) error {
+func (m *Manager) AddTransaction(session *Session, txn *types.Transaction) error {
 	/* push transaction into the queue from back */
 	session.TransactionQueue.PushBack(txn)
 
@@ -178,7 +178,7 @@ func (m *Manager) AddTransaction(session *Session, txn types.Transaction) error 
 	// if tx, ok := txn.(*types.Transaction); ok {
 
 	// *tx was used here
-		if err := m.saveTransactionResultsRedis(session, txn); err != nil {
+		if err := m.SaveTransactionResultsRedis(session, txn, "txpending"); err != nil {
 			return fmt.Errorf("failed to save transaction to Redis: %w", err)
 		}
 
