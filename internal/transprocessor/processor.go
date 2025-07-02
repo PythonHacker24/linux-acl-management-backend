@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 )
 
 /*
@@ -16,5 +17,5 @@ import (
 
 /* transaction processor - pluggable to any scheduler */
 type TransactionProcessor interface {
-	Process(ctx context.Context, curSession *session.Session, transaction interface{}) error
+	Process(ctx context.Context, curSession *session.Session, transaction *types.Transaction) error
 }
