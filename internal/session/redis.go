@@ -40,10 +40,6 @@ func (m *Manager) updateSessionExpiryRedis(session *Session) error {
 
 	ctx := context.Background()
 
-	/* thread safety for the session */
-	// session.Mutex.Lock()
-	// defer session.Mutex.Unlock()
-
 	/* create a key for Redis operation */
 	key := fmt.Sprintf("session:%s", session.ID)
 
@@ -64,10 +60,6 @@ func (m *Manager) updateSessionStatusRedis(session *Session, status Status) erro
 
 	ctx := context.Background()
 
-	/* thread safety for the session */
-	// session.Mutex.Lock()
-	// defer session.Mutex.Unlock()
-
 	/* create a key for Redis operation */
 	key := fmt.Sprintf("session:%s", session.ID)
 
@@ -81,19 +73,15 @@ func (m *Manager) updateSessionStatusRedis(session *Session, status Status) erro
 }
 
 /* save transaction results to redis */
-func (m *Manager) saveTransactionResultsRedis(session *Session, txResult types.Transaction) error {
+func (m *Manager) SaveTransactionResultsRedis(session *Session, txResult *types.Transaction, list string) error {
 
 	ctx := context.Background()
-
-	/* thread safety for the session */
-	// session.Mutex.Lock()
-	// defer session.Mutex.Unlock()
 
 	/* get the session ID */
 	sessionID := session.ID
 
 	/* create a key for Redis operation */
-	key := fmt.Sprintf("session:%s:txresults", sessionID)
+	key := fmt.Sprintf("session:%s:%s", sessionID, list)
 
 	/* marshal transaction result to JSON */
 	resultBytes, err := json.Marshal(txResult)
@@ -104,6 +92,8 @@ func (m *Manager) saveTransactionResultsRedis(session *Session, txResult types.T
 	/* push the transaction result in the back of the list */
 	return m.redis.RPush(ctx, key, resultBytes).Err()
 }
+
+func (m *Manager) UpdateTransactionStatusRedis(session *Session, txResult types.Transaction) {}
 
 func (m *Manager) getTransactionResultsRedis(session *Session, limit int) ([]types.Transaction, error) {
 	ctx := context.Background()
