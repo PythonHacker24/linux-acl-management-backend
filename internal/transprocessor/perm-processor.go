@@ -2,28 +2,25 @@ package transprocessor
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"go.uber.org/zap"
 
+	"github.com/PythonHacker24/linux-acl-management-backend/config"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/grpcpool"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 )
 
 /* instanciate new permission processor */
-func NewPermProcessor(errCh chan<-error) *PermProcessor {
+func NewPermProcessor(gRPCPool *grpcpool.ClientPool, errCh chan<-error) *PermProcessor {
 	return &PermProcessor{
+		gRPCPool: gRPCPool,
 		errCh: errCh,
 	}
 }
 
 /* processor for permissions manager */
-func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session, tx interface{}) error {
-	transaction, ok := tx.(*types.Transaction)
-	if !ok {
-		return fmt.Errorf("invalid transaction type")
-	}
+func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session, txn *types.Transaction) error {
 
 	/* add complete information here + persistent logging in database */
 	zap.L().Info("Processing Transaction",
@@ -32,10 +29,7 @@ func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session
 
 	select {
 	case <-ctx.Done():
-		/*
-			store this into persistent storage too!
-			make sure database connections are closed after scheduler shutsdown
-		*/
+		/* close the processor */
 		zap.L().Warn("Transaction process stopped due to shutdown",
 			zap.String("user", curSession.Username),
 		)
@@ -46,12 +40,25 @@ func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session
 			remoteprocessor -> handles permissions on remote servers
 			localprocessor -> handles permissions on local system (where this backend is deployed)
 		*/
-		_ = transaction
 
-		/* for testing purposes only */
-		time.Sleep(5 * time.Second)
+		isRemote, host, port, found, absolutePath := FindServerFromPath(config.BackendConfig.FileSystemServers, txn.TargetPath)
+
+		if !found {
+			/* filepath is invalid, filesystem doesn't exist */
+			txn.ErrorMsg = "filesystem of given path doesn't exist"
+		} else {
+			if isRemote {
+				/* handle through daemons */
+				p.HandleRemoteTransaction(host, port, txn, absolutePath)
+			} else {
+				/* handle locally */
+
+				/* HandleLocalTransactions(txn) */
+			}
+		}
+
 		zap.L().Info("Completed Transaction", 
-			zap.String("ID", transaction.ID.String()),
+			zap.String("ID", txn.ID.String()),
 		)
 	}
 
