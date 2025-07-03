@@ -10,6 +10,8 @@ import (
 	"go.uber.org/zap"
 )
 
+/* NEED TO ADD DURATION TIME -> EXISTS IN LOCAL */
+
 /* takes a transactions and attempts to execute it via daemons */
 func (p *PermProcessor) HandleRemoteTransaction(host string, port int, txn *types.Transaction, absolutePath string) error {
 
@@ -55,11 +57,6 @@ func (p *PermProcessor) HandleRemoteTransaction(host string, port int, txn *type
 
 	if aclResponse.Success {
 		/* set transaction successful*/
-
-		/* REMOVE THIS */
-		zap.L().Info("Transaction seems successful", 
-			zap.String("transaction ID", txn.ID.String()),
-		)
 
 		txn.Output = "ACL executed successfully on filesystem servers"
 		
