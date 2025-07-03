@@ -54,6 +54,7 @@ func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session
 				/* handle locally */
 
 				/* HandleLocalTransactions(txn) */
+				p.HandleLocalTransaction(txn, absolutePath)
 			}
 		}
 
