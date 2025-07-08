@@ -41,6 +41,7 @@ func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session
 			localprocessor -> handles permissions on local system (where this backend is deployed)
 		*/
 
+		/* this line decides between systems like BeeGFS and NFS due to difference in ACL execution */
 		isRemote, host, port, found, absolutePath := FindServerFromPath(config.BackendConfig.FileSystemServers, txn.TargetPath)
 
 		if !found {
@@ -58,6 +59,7 @@ func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session
 			}
 		}
 
+		/* REMOVE THIS */
 		zap.L().Info("Completed Transaction", 
 			zap.String("ID", txn.ID.String()),
 		)
