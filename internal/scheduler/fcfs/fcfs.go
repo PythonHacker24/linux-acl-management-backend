@@ -92,7 +92,13 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 
 				/* we assume the transaction has been processed -> updated Redis */
 				transaction.Status = types.StatusSuccess
-				f.curSessionManager.SaveTransactionResultsRedis(curSession, transaction, "txresults")
+
+				/* store the result of processed transaction into Redis */
+				f.curSessionManager.SaveTransactionRedisList(curSession, transaction, "txresults")
+
+				/* remove the transaction as pending from Redis */
+				f.curSessionManager.RemovePendingTransaction(curSession, transaction.ID)
+
 			}(curSession, transaction)
 		}
 	}
