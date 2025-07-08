@@ -14,14 +14,29 @@ CREATE TABLE IF NOT EXISTS sessions_archive (
     archived_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS transactions_archive (
+CREATE TABLE IF NOT EXISTS pending_transactions_archive (
     id UUID PRIMARY KEY,
     session_id UUID NOT NULL,
     timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     operation VARCHAR(20) NOT NULL CHECK (operation IN ('getfacl', 'setfacl')),
     target_path TEXT NOT NULL,
     entries JSONB NOT NULL DEFAULT '[]'::jsonb,
-    status TEXT CHECK (status IN ('pending', 'success', 'failed')) NOT NULL,
+    status TEXT CHECK (status IN ('pending')) NOT NULL,
+    error_msg TEXT,
+    output TEXT,
+    executed_by VARCHAR(255) NOT NULL,
+    duration_ms BIGINT,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS results_transactions_archive (
+    id UUID PRIMARY KEY,
+    session_id UUID NOT NULL,
+    timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    operation VARCHAR(20) NOT NULL CHECK (operation IN ('getfacl', 'setfacl')),
+    target_path TEXT NOT NULL,
+    entries JSONB NOT NULL DEFAULT '[]'::jsonb,
+    status TEXT CHECK (status IN ('success', 'failed')) NOT NULL,
     error_msg TEXT,
     output TEXT,
     executed_by VARCHAR(255) NOT NULL,
