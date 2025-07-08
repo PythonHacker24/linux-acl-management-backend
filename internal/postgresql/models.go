@@ -9,21 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type SessionsArchive struct {
-	ID             uuid.UUID        `json:"id"`
-	Username       string           `json:"username"`
-	Ip             pgtype.Text      `json:"ip"`
-	UserAgent      pgtype.Text      `json:"user_agent"`
-	Status         string           `json:"status"`
-	CreatedAt      pgtype.Timestamp `json:"created_at"`
-	LastActiveAt   pgtype.Timestamp `json:"last_active_at"`
-	Expiry         pgtype.Timestamp `json:"expiry"`
-	CompletedCount pgtype.Int4      `json:"completed_count"`
-	FailedCount    pgtype.Int4      `json:"failed_count"`
-	ArchivedAt     pgtype.Timestamp `json:"archived_at"`
-}
-
-type TransactionsArchive struct {
+type PendingTransactionsArchive struct {
 	ID         uuid.UUID          `json:"id"`
 	SessionID  uuid.UUID          `json:"session_id"`
 	Timestamp  pgtype.Timestamptz `json:"timestamp"`
@@ -36,4 +22,33 @@ type TransactionsArchive struct {
 	ExecutedBy string             `json:"executed_by"`
 	DurationMs pgtype.Int8        `json:"duration_ms"`
 	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+}
+
+type ResultsTransactionsArchive struct {
+	ID         uuid.UUID          `json:"id"`
+	SessionID  uuid.UUID          `json:"session_id"`
+	Timestamp  pgtype.Timestamptz `json:"timestamp"`
+	Operation  string             `json:"operation"`
+	TargetPath string             `json:"target_path"`
+	Entries    []byte             `json:"entries"`
+	Status     string             `json:"status"`
+	ErrorMsg   pgtype.Text        `json:"error_msg"`
+	Output     pgtype.Text        `json:"output"`
+	ExecutedBy string             `json:"executed_by"`
+	DurationMs pgtype.Int8        `json:"duration_ms"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+}
+
+type SessionsArchive struct {
+	ID             uuid.UUID        `json:"id"`
+	Username       string           `json:"username"`
+	Ip             pgtype.Text      `json:"ip"`
+	UserAgent      pgtype.Text      `json:"user_agent"`
+	Status         string           `json:"status"`
+	CreatedAt      pgtype.Timestamp `json:"created_at"`
+	LastActiveAt   pgtype.Timestamp `json:"last_active_at"`
+	Expiry         pgtype.Timestamp `json:"expiry"`
+	CompletedCount pgtype.Int4      `json:"completed_count"`
+	FailedCount    pgtype.Int4      `json:"failed_count"`
+	ArchivedAt     pgtype.Timestamp `json:"archived_at"`
 }
