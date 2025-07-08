@@ -11,24 +11,35 @@ import (
 )
 
 type Querier interface {
-	CountTransactionsByOperationPQ(ctx context.Context, arg CountTransactionsByOperationPQParams) (int64, error)
-	CountTransactionsByStatusPQ(ctx context.Context, arg CountTransactionsByStatusPQParams) (int64, error)
-	CreateTransactionPQ(ctx context.Context, arg CreateTransactionPQParams) (TransactionsArchive, error)
+	CountPendingTransactionsByOperationPQ(ctx context.Context, arg CountPendingTransactionsByOperationPQParams) (int64, error)
+	CountPendingTransactionsByStatusPQ(ctx context.Context, arg CountPendingTransactionsByStatusPQParams) (int64, error)
+	CountResultsTransactionsByOperationPQ(ctx context.Context, arg CountResultsTransactionsByOperationPQParams) (int64, error)
+	CountResultsTransactionsByStatusPQ(ctx context.Context, arg CountResultsTransactionsByStatusPQParams) (int64, error)
+	CreatePendingTransactionPQ(ctx context.Context, arg CreatePendingTransactionPQParams) (PendingTransactionsArchive, error)
+	CreateResultsTransactionPQ(ctx context.Context, arg CreateResultsTransactionPQParams) (ResultsTransactionsArchive, error)
+	DeletePendingTransactionPQ(ctx context.Context, id uuid.UUID) error
+	DeletePendingTransactionsBySessionPQ(ctx context.Context, sessionID uuid.UUID) error
+	DeleteResultsTransactionPQ(ctx context.Context, id uuid.UUID) error
+	DeleteResultsTransactionsBySessionPQ(ctx context.Context, sessionID uuid.UUID) error
 	DeleteSessionPQ(ctx context.Context, id uuid.UUID) error
-	DeleteTransactionPQ(ctx context.Context, id uuid.UUID) error
-	DeleteTransactionsBySessionPQ(ctx context.Context, sessionID uuid.UUID) error
-	GetFailedTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error)
-	GetPendingTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error)
+	GetFailedResultsTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]ResultsTransactionsArchive, error)
+	GetPendingTransactionPQ(ctx context.Context, id uuid.UUID) (PendingTransactionsArchive, error)
+	GetPendingTransactionStatsPQ(ctx context.Context, sessionID uuid.UUID) (GetPendingTransactionStatsPQRow, error)
+	GetPendingTransactionsByOperationPQ(ctx context.Context, arg GetPendingTransactionsByOperationPQParams) ([]PendingTransactionsArchive, error)
+	GetPendingTransactionsByPathPQ(ctx context.Context, arg GetPendingTransactionsByPathPQParams) ([]PendingTransactionsArchive, error)
+	GetPendingTransactionsBySessionPQ(ctx context.Context, sessionID uuid.UUID) ([]PendingTransactionsArchive, error)
+	GetPendingTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]PendingTransactionsArchive, error)
+	GetResultsTransactionPQ(ctx context.Context, id uuid.UUID) (ResultsTransactionsArchive, error)
+	GetResultsTransactionStatsPQ(ctx context.Context, sessionID uuid.UUID) (GetResultsTransactionStatsPQRow, error)
+	GetResultsTransactionsByOperationPQ(ctx context.Context, arg GetResultsTransactionsByOperationPQParams) ([]ResultsTransactionsArchive, error)
+	GetResultsTransactionsByPathPQ(ctx context.Context, arg GetResultsTransactionsByPathPQParams) ([]ResultsTransactionsArchive, error)
+	GetResultsTransactionsBySessionPQ(ctx context.Context, sessionID uuid.UUID) ([]ResultsTransactionsArchive, error)
 	GetSessionByUsernamePQ(ctx context.Context, username string) ([]SessionsArchive, error)
 	GetSessionPQ(ctx context.Context, id uuid.UUID) (SessionsArchive, error)
-	GetSuccessfulTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error)
-	GetTransactionPQ(ctx context.Context, id uuid.UUID) (TransactionsArchive, error)
-	GetTransactionStatsPQ(ctx context.Context, sessionID uuid.UUID) (GetTransactionStatsPQRow, error)
-	GetTransactionsByOperationPQ(ctx context.Context, arg GetTransactionsByOperationPQParams) ([]TransactionsArchive, error)
-	GetTransactionsByPathPQ(ctx context.Context, arg GetTransactionsByPathPQParams) ([]TransactionsArchive, error)
-	GetTransactionsBySessionPQ(ctx context.Context, sessionID uuid.UUID) ([]TransactionsArchive, error)
+	GetSuccessfulResultsTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]ResultsTransactionsArchive, error)
 	StoreSessionPQ(ctx context.Context, arg StoreSessionPQParams) (SessionsArchive, error)
-	UpdateTransactionStatusPQ(ctx context.Context, arg UpdateTransactionStatusPQParams) (TransactionsArchive, error)
+	UpdatePendingTransactionStatusPQ(ctx context.Context, arg UpdatePendingTransactionStatusPQParams) (PendingTransactionsArchive, error)
+	UpdateResultsTransactionStatusPQ(ctx context.Context, arg UpdateResultsTransactionStatusPQParams) (ResultsTransactionsArchive, error)
 }
 
 var _ Querier = (*Queries)(nil)
