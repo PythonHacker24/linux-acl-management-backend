@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/MakeNowJust/heredoc"
-	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"go.uber.org/automaxprocs/maxprocs"
@@ -30,6 +29,7 @@ import (
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/transprocessor"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/utils"
+	"github.com/jackc/pgx/v5"
 )
 
 func main() {
@@ -126,12 +126,63 @@ func run(ctx context.Context) error {
 		wg  sync.WaitGroup
 	)
 
-	
+	/* create a context and waitgroup for the logging goroutine */
+	logCtx, logCancel := context.WithCancel(context.Background())
+	var logWg sync.WaitGroup
 
+	/* create a error channel */
+	errChLog := make(chan error, 1)
 
-	/* RULE: complete backend system must initiate before http server starts */
+	/* create the client pool for daemons (via gRPC) */
+	/* unsecure for now */
 
-	/* DATABASE CONNECTIONS MUST BE MADE BEFORE SCHEDULER STARTS */
+	/* attempting to keep connections alive all the time even with no activity */
+	var kacp = keepalive.ClientParameters{
+		/* send pings every 10 seconds if there is no activity */
+		Time: 10 * time.Second,
+
+		/* wait 2 second for ping ack before considering the connection dead */
+		Timeout: 2 * time.Second,
+
+		/* send pings even without active streams */
+		PermitWithoutStream: true,
+	}
+
+	pool := grpcpool.NewClientPool(
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithKeepaliveParams(kacp),
+	)
+
+	/* THIS CODE IS SAFE TO BE REMOVED */
+	for _, system := range config.BackendConfig.FileSystemServers {
+		/* check if system is remote */
+		if system.Remote != nil {
+			address := fmt.Sprintf("%s:%d", system.Remote.Host, system.Remote.Port)
+			go func(addr string, errCh chan<- error) {
+				_, err := pool.GetConn(addr, errCh)
+				if err != nil {
+					zap.L().Error("Failed to get connect with a daemon",
+						zap.String("Address", addr),
+						zap.Error(err),
+					)
+				}
+
+				/* now test for connections */
+				zap.L().Info("Connected to",
+					zap.String("address", addr),
+				)
+
+			}(address, errChLog)
+		}
+	}
+
+	/*
+		initializing scheduler
+		scheduler uses context to quit - part of waitgroup
+		propagates error through error channel
+	*/
+	errChShed := make(chan error, 1)
+
 	logRedisClient, err := redis.NewRedisClient(
 		config.BackendConfig.Database.TransactionLogRedis.Address,
 		config.BackendConfig.Database.TransactionLogRedis.Password,
@@ -150,7 +201,6 @@ func run(ctx context.Context) error {
 		config.BackendConfig.Database.ArchivalPQ.SSLMode,
 	)
 
-	/* connect to PostgreSQL database */
 	connPQ, err := pgx.Connect(context.Background(), pqDB)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
@@ -159,69 +209,16 @@ func run(ctx context.Context) error {
 
 	archivalPQ := postgresql.New(connPQ)
 
-	/* create a error channel */
-	errChLog := make(chan error, 1)
-
-	/* create the client pool for daemons (via gRPC) */
-	/* unsecure for now */
-
-	/* attempting to keep connections alive all the time even with no activity */
-	var kacp = keepalive.ClientParameters{
-		/* send pings every 10 seconds if there is no activity */
-		Time:                10 * time.Second, 
-
-		/* wait 2 second for ping ack before considering the connection dead */
-		Timeout:             2 * time.Second,      
-
-		/* send pings even without active streams */
-		PermitWithoutStream: true,             
-	}
-
-	pool := grpcpool.NewClientPool(
-		grpc.WithTransportCredentials(insecure.NewCredentials()), 
-		grpc.WithKeepaliveParams(kacp),
-	)
-
-	/* THIS CODE IS SAFE TO BE REMOVED */
-	for _, system := range config.BackendConfig.FileSystemServers {
-		/* check if system is remote */
-		if system.Remote != nil {
-			address := fmt.Sprintf("%s:%d", system.Remote.Host, system.Remote.Port)
-			go func (addr string, errCh chan<-error) {
-				_, err := pool.GetConn(addr, errCh)
-            	if err != nil {
-                	zap.L().Error("Failed to get connect with a daemon", 
-						zap.String("Address", addr), 
-						zap.Error(err),
-					)
-            	}
-
-				/* now test for connections */
-				zap.L().Info("Connected to",
-					zap.String("address", addr),
-				)
-
-			}(address, errChLog)
-		}
-	}	
-
-	/*
-		initializing scheduler
-		scheduler uses context to quit - part of waitgroup
-		propagates error through error channel
-	*/
-	errChShed := make(chan error, 1)
-
 	/* create a session manager */
 	sessionManager := session.NewManager(logRedisClient, archivalPQ, errChLog)
 
 	/* create a permissions processor */
 	permProcessor := transprocessor.NewPermProcessor(pool, errChLog)
 
-	/* handle session and processor errors */
-	wg.Add(1)
+	/* start logging goroutine - should be last to exit */
+	logWg.Add(1)
 	go func(ctx context.Context) {
-		defer wg.Done()
+		defer logWg.Done()
 		zap.L().Info("log error handler started")
 		for {
 			select {
@@ -241,8 +238,7 @@ func run(ctx context.Context) error {
 				return
 			}
 		}
-	/* update this to use different ctx called essentialctx which ends after everything is shutdown */
-	}(ctx) 
+	}(logCtx)
 
 	/* currently FCFS scheduler */
 	transSched := fcfs.NewFCFSScheduler(sessionManager, permProcessor)
@@ -345,9 +341,12 @@ func run(ctx context.Context) error {
 	/* close archival database connection */
 	connPQ.Close(context.Background())
 
-	/* essentialctx must be closed here */
-
 	zap.L().Info("All background processes closed gracefully")
+
+	/* close the logging error channel and cancel logging context */
+	close(errChLog)
+	logCancel()
+	logWg.Wait()
 
 	return err
 }
