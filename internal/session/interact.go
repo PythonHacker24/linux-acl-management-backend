@@ -174,17 +174,10 @@ func (m *Manager) AddTransaction(session *Session, txn *types.Transaction) error
 	/* push transaction into the queue from back */
 	session.TransactionQueue.PushBack(txn)
 
-	/* convert transaction to correct type and save to Redis */
-	// if tx, ok := txn.(*types.Transaction); ok {
-
-	// *tx was used here
-		if err := m.SaveTransactionResultsRedis(session, txn, "txpending"); err != nil {
-			return fmt.Errorf("failed to save transaction to Redis: %w", err)
-		}
-
-	// } else {
-	//	return fmt.Errorf("invalid transaction type: expected *types.Transaction")
-	// }
+	/* store transaction to Redis as a pending transaction */
+	if err := m.SaveTransactionResultsRedis(session, txn, "txpending"); err != nil {
+		return fmt.Errorf("failed to save transaction to Redis: %w", err)
+	}
 
 	return nil
 }
