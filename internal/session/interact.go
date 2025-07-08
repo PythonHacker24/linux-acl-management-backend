@@ -95,19 +95,21 @@ func (m *Manager) ExpireSession(username string) error {
 			if !ok {
 				continue
 			}
+
+			/* make sure to set status to pending (shouldn't it be already set?) */
 			txResult.Status = types.StatusPending
 
 			/* convert transactions into PostgreSQL compatible parameters */
-			txnPQ, err := ConvertTransactiontoStoreParams(*txResult)
+			txnPQ, err := ConvertTransactionPendingtoStoreParams(*txResult)
 			if err != nil {
-				m.errCh<-fmt.Errorf("failed to convert transaction to archive format: %w", err)
+				m.errCh <- fmt.Errorf("failed to convert pending transaction to pending archive format: %w", err)
 				continue
 			}
 
 			/* store transaction in PostgreSQL with retries */
 			var storeErr error
 			for retries := 0; retries < 3; retries++ {
-				if _, err := m.archivalPQ.CreateTransactionPQ(context.Background(), txnPQ); err != nil {
+				if _, err := m.archivalPQ.CreatePendingTransactionPQ(context.Background(), txnPQ); err != nil {
 					storeErr = err
 					time.Sleep(time.Second * time.Duration(retries+1))
 					continue
@@ -116,7 +118,7 @@ func (m *Manager) ExpireSession(username string) error {
 				break
 			}
 			if storeErr != nil {
-				m.errCh<-fmt.Errorf("failed to archive transaction %s after retries: %w", txResult.ID, storeErr)
+				m.errCh <- fmt.Errorf("failed to archive transaction %s after retries: %w", txResult.ID, storeErr)
 				continue
 			}
 		}
@@ -126,6 +128,36 @@ func (m *Manager) ExpireSession(username string) error {
 	} else {
 		/* empty transactions queue; mark the session as expired */
 		session.Status = StatusExpired
+	}
+
+	/* get transaction results from Redis */
+	results, err := m.getTransactionResultsRedis(session, 10000)
+	if err != nil {
+		m.errCh <- fmt.Errorf("failed to get transaction results from Redis: %w", err)
+	} else {
+		for _, txResult := range results {
+			if txResult.Status == types.StatusSuccess || txResult.Status == types.StatusFailed {
+				pqParams, err := ConvertTransactionResulttoStoreParams(txResult)
+				if err != nil {
+					m.errCh <- fmt.Errorf("failed to convert transaction result to archive format: %w", err)
+					continue
+				}
+				var storeErr error
+				for retries := 0; retries < 3; retries++ {
+					if _, err := m.archivalPQ.CreateResultsTransactionPQ(context.Background(), pqParams); err != nil {
+						storeErr = err
+						time.Sleep(time.Second * time.Duration(retries+1))
+						continue
+					}
+					storeErr = nil
+					break
+				}
+				if storeErr != nil {
+					m.errCh <- fmt.Errorf("failed to archive transaction result %s after retries: %w", txResult.ID, storeErr)
+					continue
+				}
+			}
+		}
 	}
 
 	/* remove session from sessionOrder Linked List */
@@ -148,11 +180,11 @@ func (m *Manager) ExpireSession(username string) error {
 			break
 		}
 		if storeErr != nil {
-			m.errCh<-fmt.Errorf("failed to archive session after retries: %w", storeErr)
+			m.errCh <- fmt.Errorf("failed to archive session after retries: %w", storeErr)
 		}
 	} else {
 		/* handle err */
-		m.errCh<-fmt.Errorf("failed to convert session to archive format: %w", err)
+		m.errCh <- fmt.Errorf("failed to convert session to archive format: %w", err)
 	}
 
 	/* delete both session and transaction results from Redis */
@@ -160,7 +192,7 @@ func (m *Manager) ExpireSession(username string) error {
 	txResultsKey := fmt.Sprintf("session:%s:txresults", session.ID)
 	result := m.redis.Del(context.Background(), sessionKey, txResultsKey)
 	if result.Err() != nil {
-		m.errCh<-fmt.Errorf("Failed to delete session from Redis: %w", result.Err())
+		m.errCh <- fmt.Errorf("failed to delete session from Redis: %w", result.Err())
 	}
 
 	/* remove session from sessionsMap */
@@ -175,7 +207,7 @@ func (m *Manager) AddTransaction(session *Session, txn *types.Transaction) error
 	session.TransactionQueue.PushBack(txn)
 
 	/* store transaction to Redis as a pending transaction */
-	if err := m.SaveTransactionResultsRedis(session, txn, "txpending"); err != nil {
+	if err := m.SavePendingTransaction(session, txn); err != nil {
 		return fmt.Errorf("failed to save transaction to Redis: %w", err)
 	}
 
