@@ -43,7 +43,7 @@ func (p *ClientPool) GetConn(addr string, errCh chan<-error) (*grpc.ClientConn, 
 	/* create a new client for gRPC server */
 	newConn, err := grpc.NewClient(addr, p.dialOptions...)
     if err != nil {
-        return nil, fmt.Errorf("failed to add new connection", err)
+		return nil, fmt.Errorf("failed to add new connection: %w", err)
     }
 
 	/* add connection to the pool */
