@@ -15,6 +15,7 @@ type RedisClient interface {
 	Del(ctx context.Context, keys ...string) *redis.IntCmd
 	Scan(ctx context.Context, cursor uint64, match string, count int64) *redis.ScanCmd
 	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
+	HDel(ctx context.Context, key string, fields ...string) *redis.IntCmd
 	RPush(ctx context.Context, key string, value interface{}) *redis.IntCmd
 	LRange(ctx context.Context, key string, start, stop int64) *redis.StringSliceCmd
 	PSubscribe(ctx context.Context, patterns ...string) (*redis.PubSub, error)
@@ -78,6 +79,11 @@ func (r *redisClient) LRange(ctx context.Context, key string, start, stop int64)
 /* hash set for redis */
 func (r *redisClient) HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd {
 	return r.client.HSet(ctx, key, values...)
+}
+
+/* hash delete for redis */
+func (r *redisClient) HDel(ctx context.Context, key string, fields ...string) *redis.IntCmd {
+	return r.client.HDel(ctx, key, fields...)
 }
 
 /* subscribe to redis keyspace notifications */
