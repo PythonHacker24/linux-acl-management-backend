@@ -56,8 +56,13 @@ func (p *PermProcessor) HandleRemoteTransaction(host string, port int, txn *type
 	}
 
 	if aclResponse.Success {
-		/* set transaction successful*/
 
+		/* 
+			this is a bit crude for now, let daemon set this 
+			backend should not have control over execution
+		*/
+
+		/* set transaction successful*/
 		txn.Output = "ACL executed successfully on filesystem servers"
 		
 		txn.ExecStatus = true
