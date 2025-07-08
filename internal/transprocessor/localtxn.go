@@ -7,8 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 	"go.uber.org/zap"
+
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 )
 
 /* maintains locks on file which are actively under ACL modifications */
