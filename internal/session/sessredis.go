@@ -2,11 +2,8 @@ package session
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
-
-	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 )
 
 /* TODO: make the operations below thread safe with mutexes*/
@@ -70,23 +67,24 @@ func (m *Manager) updateSessionStatusRedis(session *Session, status Status) erro
 	return nil
 }
 
-/* save transaction results to redis */
-func (m *Manager) SaveTransactionRedisList(session *Session, txResult *types.Transaction, list string) error {
-
+/* increment the failed field of the session in Redis */
+func (m *Manager) IncrementSessionFailedRedis(session *Session) error {
 	ctx := context.Background()
+	key := fmt.Sprintf("session:%s", session.ID)
 
-	/* get the session ID */
-	sessionID := session.ID
-
-	/* create a key for Redis operation */
-	key := fmt.Sprintf("session:%s:%s", sessionID, list)
-
-	/* marshal transaction result to JSON */
-	resultBytes, err := json.Marshal(txResult)
-	if err != nil {
-		return fmt.Errorf("failed to marshal transaction result: %w", err)
+	if err := m.redis.HIncrBy(ctx, key, "failed", 1).Err(); err != nil {
+		return fmt.Errorf("failed to increment failed count in Redis: %w", err)
 	}
+	return nil
+}
 
-	/* push the transaction result in the back of the list */
-	return m.redis.RPush(ctx, key, resultBytes).Err()
+/* increment the completed field of the session in Redis */
+func (m *Manager) IncrementSessionCompletedRedis(session *Session) error {
+	ctx := context.Background()
+	key := fmt.Sprintf("session:%s", session.ID)
+
+	if err := m.redis.HIncrBy(ctx, key, "completed", 1).Err(); err != nil {
+		return fmt.Errorf("failed to increment completed count in Redis: %w", err)
+	}
+	return nil
 }
