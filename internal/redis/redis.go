@@ -21,6 +21,7 @@ type RedisClient interface {
 	PSubscribe(ctx context.Context, patterns ...string) (*redis.PubSub, error)
 	HGetAll(ctx context.Context, key string) *redis.MapStringStringCmd
 	FlushAll(ctx context.Context) error
+	HIncrBy(ctx context.Context, key, field string, incr int64) *redis.IntCmd
 }
 
 /* redisClient implementation */
@@ -104,4 +105,9 @@ func (r *redisClient) HGetAll(ctx context.Context, key string) *redis.MapStringS
 /* flush all data from Redis */
 func (r *redisClient) FlushAll(ctx context.Context) error {
 	return r.client.FlushAll(ctx).Err()
+}
+
+/* increment the value of the field in the hash */
+func (r *redisClient) HIncrBy(ctx context.Context, key, field string, incr int64) *redis.IntCmd {
+	return r.client.HIncrBy(ctx, key, field, incr)
 }
