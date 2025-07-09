@@ -70,3 +70,24 @@ func (m *Manager) getTransactionResultsRedis(session *Session, limit int) ([]typ
 
 	return results, nil
 }
+
+/* save transaction results to redis */
+func (m *Manager) SaveTransactionRedisList(session *Session, txResult *types.Transaction, list string) error {
+
+	ctx := context.Background()
+
+	/* get the session ID */
+	sessionID := session.ID
+
+	/* create a key for Redis operation */
+	key := fmt.Sprintf("session:%s:%s", sessionID, list)
+
+	/* marshal transaction result to JSON */
+	resultBytes, err := json.Marshal(txResult)
+	if err != nil {
+		return fmt.Errorf("failed to marshal transaction result: %w", err)
+	}
+
+	/* push the transaction result in the back of the list */
+	return m.redis.RPush(ctx, key, resultBytes).Err()
+}
