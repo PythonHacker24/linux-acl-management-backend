@@ -93,6 +93,19 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 				/* we assume the transaction has been processed -> updated Redis */
 				transaction.Status = types.StatusSuccess
 
+				/* this whole code snippet should be called "Update Session State after transaction execution" */
+
+				/* update the session's completed/failed count */
+				curSession.Mutex.Lock()
+				if transaction.ExecStatus {
+					curSession.CompletedCount++
+					f.curSessionManager.IncrementSessionCompletedRedis(curSession)
+				} else {
+					curSession.FailedCount++
+					f.curSessionManager.IncrementSessionFailedRedis(curSession)
+				}
+				curSession.Mutex.Unlock()
+
 				/* store the result of processed transaction into Redis */
 				f.curSessionManager.SaveTransactionRedisList(curSession, transaction, "txresults")
 
