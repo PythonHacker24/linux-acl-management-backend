@@ -36,7 +36,7 @@ logging:
 
 # filesystem server that needs management
 filesystem_servers:
-  - path: /mnt/beegfs-1
+  - path: /mnt/nfs-system
     method: remote
     remote:
       host: 165.232.178.211 

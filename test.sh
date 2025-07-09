@@ -28,7 +28,7 @@ while true; do
       -H "Content-Type: application/json" \
       -d '{
         "operation": "setfacl",
-        "targetPath": "/mnt/beegfs-1/home/maverick/linux-acl-management-aclapi/README.md",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
         "entries": {
             "entityType": "user",
             "entity": "tommy",
