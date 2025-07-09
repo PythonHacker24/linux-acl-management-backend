@@ -58,10 +58,11 @@ INSERT INTO pending_transactions_archive (
     error_msg,
     output,
     executed_by,
-    duration_ms
+    duration_ms,
+    ExecStatus
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
-) RETURNING id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+) RETURNING id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at
 `
 
 type CreatePendingTransactionPQParams struct {
@@ -76,6 +77,7 @@ type CreatePendingTransactionPQParams struct {
 	Output     pgtype.Text        `json:"output"`
 	ExecutedBy string             `json:"executed_by"`
 	DurationMs pgtype.Int8        `json:"duration_ms"`
+	Execstatus bool               `json:"execstatus"`
 }
 
 func (q *Queries) CreatePendingTransactionPQ(ctx context.Context, arg CreatePendingTransactionPQParams) (PendingTransactionsArchive, error) {
@@ -91,6 +93,7 @@ func (q *Queries) CreatePendingTransactionPQ(ctx context.Context, arg CreatePend
 		arg.Output,
 		arg.ExecutedBy,
 		arg.DurationMs,
+		arg.Execstatus,
 	)
 	var i PendingTransactionsArchive
 	err := row.Scan(
@@ -105,6 +108,7 @@ func (q *Queries) CreatePendingTransactionPQ(ctx context.Context, arg CreatePend
 		&i.Output,
 		&i.ExecutedBy,
 		&i.DurationMs,
+		&i.Execstatus,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -131,7 +135,7 @@ func (q *Queries) DeletePendingTransactionsBySessionPQ(ctx context.Context, sess
 }
 
 const getPendingTransactionPQ = `-- name: GetPendingTransactionPQ :one
-SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at FROM pending_transactions_archive
+SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM pending_transactions_archive
 WHERE id = $1
 `
 
@@ -150,6 +154,7 @@ func (q *Queries) GetPendingTransactionPQ(ctx context.Context, id uuid.UUID) (Pe
 		&i.Output,
 		&i.ExecutedBy,
 		&i.DurationMs,
+		&i.Execstatus,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -178,7 +183,7 @@ func (q *Queries) GetPendingTransactionStatsPQ(ctx context.Context, sessionID uu
 }
 
 const getPendingTransactionsByOperationPQ = `-- name: GetPendingTransactionsByOperationPQ :many
-SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at FROM pending_transactions_archive
+SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM pending_transactions_archive
 WHERE session_id = $1 AND operation = $2
 ORDER BY timestamp DESC
 `
@@ -209,6 +214,7 @@ func (q *Queries) GetPendingTransactionsByOperationPQ(ctx context.Context, arg G
 			&i.Output,
 			&i.ExecutedBy,
 			&i.DurationMs,
+			&i.Execstatus,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -222,7 +228,7 @@ func (q *Queries) GetPendingTransactionsByOperationPQ(ctx context.Context, arg G
 }
 
 const getPendingTransactionsByPathPQ = `-- name: GetPendingTransactionsByPathPQ :many
-SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at FROM pending_transactions_archive
+SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM pending_transactions_archive
 WHERE session_id = $1 AND target_path = $2
 ORDER BY timestamp DESC
 `
@@ -253,6 +259,7 @@ func (q *Queries) GetPendingTransactionsByPathPQ(ctx context.Context, arg GetPen
 			&i.Output,
 			&i.ExecutedBy,
 			&i.DurationMs,
+			&i.Execstatus,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -266,7 +273,7 @@ func (q *Queries) GetPendingTransactionsByPathPQ(ctx context.Context, arg GetPen
 }
 
 const getPendingTransactionsBySessionPQ = `-- name: GetPendingTransactionsBySessionPQ :many
-SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at FROM pending_transactions_archive
+SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM pending_transactions_archive
 WHERE session_id = $1
 ORDER BY timestamp DESC
 `
@@ -292,6 +299,7 @@ func (q *Queries) GetPendingTransactionsBySessionPQ(ctx context.Context, session
 			&i.Output,
 			&i.ExecutedBy,
 			&i.DurationMs,
+			&i.Execstatus,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -305,7 +313,7 @@ func (q *Queries) GetPendingTransactionsBySessionPQ(ctx context.Context, session
 }
 
 const getPendingTransactionsPQ = `-- name: GetPendingTransactionsPQ :many
-SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at FROM pending_transactions_archive
+SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM pending_transactions_archive
 WHERE session_id = $1 AND status = 'pending'
 ORDER BY timestamp DESC
 `
@@ -331,6 +339,7 @@ func (q *Queries) GetPendingTransactionsPQ(ctx context.Context, sessionID uuid.U
 			&i.Output,
 			&i.ExecutedBy,
 			&i.DurationMs,
+			&i.Execstatus,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -349,9 +358,10 @@ SET
     status = $2,
     error_msg = $3,
     output = $4,
-    duration_ms = $5
+    duration_ms = $5,
+    ExecStatus = $6
 WHERE id = $1
-RETURNING id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at
+RETURNING id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at
 `
 
 type UpdatePendingTransactionStatusPQParams struct {
@@ -360,6 +370,7 @@ type UpdatePendingTransactionStatusPQParams struct {
 	ErrorMsg   pgtype.Text `json:"error_msg"`
 	Output     pgtype.Text `json:"output"`
 	DurationMs pgtype.Int8 `json:"duration_ms"`
+	Execstatus bool        `json:"execstatus"`
 }
 
 func (q *Queries) UpdatePendingTransactionStatusPQ(ctx context.Context, arg UpdatePendingTransactionStatusPQParams) (PendingTransactionsArchive, error) {
@@ -369,6 +380,7 @@ func (q *Queries) UpdatePendingTransactionStatusPQ(ctx context.Context, arg Upda
 		arg.ErrorMsg,
 		arg.Output,
 		arg.DurationMs,
+		arg.Execstatus,
 	)
 	var i PendingTransactionsArchive
 	err := row.Scan(
@@ -383,6 +395,7 @@ func (q *Queries) UpdatePendingTransactionStatusPQ(ctx context.Context, arg Upda
 		&i.Output,
 		&i.ExecutedBy,
 		&i.DurationMs,
+		&i.Execstatus,
 		&i.CreatedAt,
 	)
 	return i, err

@@ -21,6 +21,7 @@ type PendingTransactionsArchive struct {
 	Output     pgtype.Text        `json:"output"`
 	ExecutedBy string             `json:"executed_by"`
 	DurationMs pgtype.Int8        `json:"duration_ms"`
+	Execstatus bool               `json:"execstatus"`
 	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 }
 
@@ -36,6 +37,7 @@ type ResultsTransactionsArchive struct {
 	Output     pgtype.Text        `json:"output"`
 	ExecutedBy string             `json:"executed_by"`
 	DurationMs pgtype.Int8        `json:"duration_ms"`
+	Execstatus bool               `json:"execstatus"`
 	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 }
 

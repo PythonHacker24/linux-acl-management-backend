@@ -58,10 +58,11 @@ INSERT INTO results_transactions_archive (
     error_msg,
     output,
     executed_by,
-    duration_ms
+    duration_ms,
+    ExecStatus
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
-) RETURNING id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+) RETURNING id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at
 `
 
 type CreateResultsTransactionPQParams struct {
@@ -76,6 +77,7 @@ type CreateResultsTransactionPQParams struct {
 	Output     pgtype.Text        `json:"output"`
 	ExecutedBy string             `json:"executed_by"`
 	DurationMs pgtype.Int8        `json:"duration_ms"`
+	Execstatus bool               `json:"execstatus"`
 }
 
 func (q *Queries) CreateResultsTransactionPQ(ctx context.Context, arg CreateResultsTransactionPQParams) (ResultsTransactionsArchive, error) {
@@ -91,6 +93,7 @@ func (q *Queries) CreateResultsTransactionPQ(ctx context.Context, arg CreateResu
 		arg.Output,
 		arg.ExecutedBy,
 		arg.DurationMs,
+		arg.Execstatus,
 	)
 	var i ResultsTransactionsArchive
 	err := row.Scan(
@@ -105,6 +108,7 @@ func (q *Queries) CreateResultsTransactionPQ(ctx context.Context, arg CreateResu
 		&i.Output,
 		&i.ExecutedBy,
 		&i.DurationMs,
+		&i.Execstatus,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -131,7 +135,7 @@ func (q *Queries) DeleteResultsTransactionsBySessionPQ(ctx context.Context, sess
 }
 
 const getFailedResultsTransactionsPQ = `-- name: GetFailedResultsTransactionsPQ :many
-SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at FROM results_transactions_archive
+SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM results_transactions_archive
 WHERE session_id = $1 AND status = 'failed'
 ORDER BY timestamp DESC
 `
@@ -157,6 +161,7 @@ func (q *Queries) GetFailedResultsTransactionsPQ(ctx context.Context, sessionID 
 			&i.Output,
 			&i.ExecutedBy,
 			&i.DurationMs,
+			&i.Execstatus,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -170,7 +175,7 @@ func (q *Queries) GetFailedResultsTransactionsPQ(ctx context.Context, sessionID 
 }
 
 const getResultsTransactionPQ = `-- name: GetResultsTransactionPQ :one
-SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at FROM results_transactions_archive
+SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM results_transactions_archive
 WHERE id = $1
 `
 
@@ -189,6 +194,7 @@ func (q *Queries) GetResultsTransactionPQ(ctx context.Context, id uuid.UUID) (Re
 		&i.Output,
 		&i.ExecutedBy,
 		&i.DurationMs,
+		&i.Execstatus,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -224,7 +230,7 @@ func (q *Queries) GetResultsTransactionStatsPQ(ctx context.Context, sessionID uu
 }
 
 const getResultsTransactionsByOperationPQ = `-- name: GetResultsTransactionsByOperationPQ :many
-SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at FROM results_transactions_archive
+SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM results_transactions_archive
 WHERE session_id = $1 AND operation = $2
 ORDER BY timestamp DESC
 `
@@ -255,6 +261,7 @@ func (q *Queries) GetResultsTransactionsByOperationPQ(ctx context.Context, arg G
 			&i.Output,
 			&i.ExecutedBy,
 			&i.DurationMs,
+			&i.Execstatus,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -268,7 +275,7 @@ func (q *Queries) GetResultsTransactionsByOperationPQ(ctx context.Context, arg G
 }
 
 const getResultsTransactionsByPathPQ = `-- name: GetResultsTransactionsByPathPQ :many
-SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at FROM results_transactions_archive
+SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM results_transactions_archive
 WHERE session_id = $1 AND target_path = $2
 ORDER BY timestamp DESC
 `
@@ -299,6 +306,7 @@ func (q *Queries) GetResultsTransactionsByPathPQ(ctx context.Context, arg GetRes
 			&i.Output,
 			&i.ExecutedBy,
 			&i.DurationMs,
+			&i.Execstatus,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -312,7 +320,7 @@ func (q *Queries) GetResultsTransactionsByPathPQ(ctx context.Context, arg GetRes
 }
 
 const getResultsTransactionsBySessionPQ = `-- name: GetResultsTransactionsBySessionPQ :many
-SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at FROM results_transactions_archive
+SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM results_transactions_archive
 WHERE session_id = $1
 ORDER BY timestamp DESC
 `
@@ -338,6 +346,7 @@ func (q *Queries) GetResultsTransactionsBySessionPQ(ctx context.Context, session
 			&i.Output,
 			&i.ExecutedBy,
 			&i.DurationMs,
+			&i.Execstatus,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -351,7 +360,7 @@ func (q *Queries) GetResultsTransactionsBySessionPQ(ctx context.Context, session
 }
 
 const getSuccessfulResultsTransactionsPQ = `-- name: GetSuccessfulResultsTransactionsPQ :many
-SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at FROM results_transactions_archive
+SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM results_transactions_archive
 WHERE session_id = $1 AND status = 'success'
 ORDER BY timestamp DESC
 `
@@ -377,6 +386,7 @@ func (q *Queries) GetSuccessfulResultsTransactionsPQ(ctx context.Context, sessio
 			&i.Output,
 			&i.ExecutedBy,
 			&i.DurationMs,
+			&i.Execstatus,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -395,9 +405,10 @@ SET
     status = $2,
     error_msg = $3,
     output = $4,
-    duration_ms = $5
+    duration_ms = $5,
+    ExecStatus = $6
 WHERE id = $1
-RETURNING id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, created_at
+RETURNING id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at
 `
 
 type UpdateResultsTransactionStatusPQParams struct {
@@ -406,6 +417,7 @@ type UpdateResultsTransactionStatusPQParams struct {
 	ErrorMsg   pgtype.Text `json:"error_msg"`
 	Output     pgtype.Text `json:"output"`
 	DurationMs pgtype.Int8 `json:"duration_ms"`
+	Execstatus bool        `json:"execstatus"`
 }
 
 func (q *Queries) UpdateResultsTransactionStatusPQ(ctx context.Context, arg UpdateResultsTransactionStatusPQParams) (ResultsTransactionsArchive, error) {
@@ -415,6 +427,7 @@ func (q *Queries) UpdateResultsTransactionStatusPQ(ctx context.Context, arg Upda
 		arg.ErrorMsg,
 		arg.Output,
 		arg.DurationMs,
+		arg.Execstatus,
 	)
 	var i ResultsTransactionsArchive
 	err := row.Scan(
@@ -429,6 +442,7 @@ func (q *Queries) UpdateResultsTransactionStatusPQ(ctx context.Context, arg Upda
 		&i.Output,
 		&i.ExecutedBy,
 		&i.DurationMs,
+		&i.Execstatus,
 		&i.CreatedAt,
 	)
 	return i, err
