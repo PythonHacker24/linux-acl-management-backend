@@ -17,4 +17,4 @@ WHERE username = $1
 ORDER BY created_at DESC;
 
 -- name: DeleteSessionPQ :exec
-DELETE FROM sessions_archive WHERE id = $1;
+DELETE FROM sessions_archive WHERE id = $1

@@ -10,9 +10,10 @@ INSERT INTO results_transactions_archive (
     error_msg,
     output,
     executed_by,
-    duration_ms
+    duration_ms,
+    ExecStatus
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
 ) RETURNING *;
 
 -- name: GetResultsTransactionPQ :one
@@ -50,7 +51,8 @@ SET
     status = $2,
     error_msg = $3,
     output = $4,
-    duration_ms = $5
+    duration_ms = $5,
+    ExecStatus = $6
 WHERE id = $1
 RETURNING *;
 
