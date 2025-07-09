@@ -19,7 +19,9 @@ WORKDIR /app
 COPY --from=builder /app/bin/laclm ./bin/laclm
 
 # Install bash in case needed
-RUN apt-get update && apt-get install -y bash && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y bash && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y bash acl && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8080
 
