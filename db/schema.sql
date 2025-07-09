@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS pending_transactions_archive (
     output TEXT,
     executed_by VARCHAR(255) NOT NULL,
     duration_ms BIGINT,
+    ExecStatus BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
@@ -41,6 +42,7 @@ CREATE TABLE IF NOT EXISTS results_transactions_archive (
     output TEXT,
     executed_by VARCHAR(255) NOT NULL,
     duration_ms BIGINT,
+    ExecStatus BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
