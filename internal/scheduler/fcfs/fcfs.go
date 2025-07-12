@@ -3,6 +3,7 @@ package fcfs
 import (
 	"context"
 	"runtime"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -92,9 +93,12 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 
 				/* we assume the transaction has been processed -> updated Redis */
 				transaction.Status = types.StatusSuccess
+				
+				/* update duration of transaction execution */
+				elapsed := time.Since(transaction.Timestamp)
+				transaction.DurationMs = elapsed.Milliseconds()
 
 				/* this whole code snippet should be called "Update Session State after transaction execution" */
-
 				/* update the session's completed/failed count */
 				curSession.Mutex.Lock()
 				if transaction.ExecStatus {
