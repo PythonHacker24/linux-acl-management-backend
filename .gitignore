@@ -1,10 +1,3 @@
-# Binary files
-/bin/
-
-# mount point for testing
-
-/mnt
-
 # Debug logs
 /logs/
 
