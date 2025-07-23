@@ -4,11 +4,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/PythonHacker24/linux-acl-management-backend/config"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+
+	"github.com/PythonHacker24/linux-acl-management-backend/config"
 )
 
 var (
