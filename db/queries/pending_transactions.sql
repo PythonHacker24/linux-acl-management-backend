@@ -74,3 +74,9 @@ SELECT
     AVG(duration_ms) as avg_duration_ms
 FROM pending_transactions_archive
 WHERE session_id = $1;
+
+-- name: GetPendingTransactionsByUserPaginatedPQ :many
+SELECT * FROM pending_transactions_archive
+WHERE executed_by = $1
+ORDER BY timestamp DESC
+LIMIT $2 OFFSET $3;
