@@ -50,4 +50,18 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 			middleware.AuthenticationMiddleware(sessionManager.StreamUserTransactions),
 		),
 	))
+
+	/* websocket connection for streaming user session data from PostgreSQL database (archived sessions) */
+	mux.Handle("/users/archive/session", http.HandlerFunc(
+		middleware.LoggingMiddleware(
+			middleware.AuthenticationMiddleware(sessionManager.StreamUserArchiveSessions),
+		),
+	))
+
+	/* websocket connection for streaming user transactions data from PostgreSQL database (archived sessions) */
+	mux.Handle("/users/archive/transactions/pending", http.HandlerFunc(
+		middleware.LoggingMiddleware(
+			middleware.AuthenticationMiddleware(sessionManager.StreamUserArchivePendingTransactions),
+		),
+	))
 }
