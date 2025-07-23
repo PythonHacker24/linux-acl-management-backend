@@ -71,7 +71,7 @@ package: clean vendor
 		mkdir -p tmp/$$NAME; \
 		cp -r * tmp/$$NAME; \
 		rm -rf tmp/$$NAME/$(BUILD_DIR) tmp/$$NAME/$(BIN_DIR); \
-		tar --no-xattrs -czf $(BUILD_DIR)/$$TARBALL -C tmp $$NAME; \
+		gtar -czf $(BUILD_DIR)/$$TARBALL -C tmp $$NAME; \
 		rm -rf tmp/$$NAME; \
 	done
 	@rm -rf tmp
