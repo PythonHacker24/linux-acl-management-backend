@@ -11,10 +11,11 @@ INSERT INTO sessions_archive (
 SELECT * FROM sessions_archive 
 WHERE id = $1;
 
--- name: GetSessionByUsernamePQ :many
-SELECT * FROM sessions_archive 
+-- name: GetSessionByUsernamePaginatedPQ :many
+SELECT * FROM sessions_archive
 WHERE username = $1
-ORDER BY created_at DESC;
+ORDER BY created_at DESC
+LIMIT $2 OFFSET $3;
 
 -- name: DeleteSessionPQ :exec
-DELETE FROM sessions_archive WHERE id = $1
+DELETE FROM sessions_archive WHERE id = $1;
