@@ -21,14 +21,21 @@ func (q *Queries) DeleteSessionPQ(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const getSessionByUsernamePQ = `-- name: GetSessionByUsernamePQ :many
-SELECT id, username, ip, user_agent, status, created_at, last_active_at, expiry, completed_count, failed_count, archived_at FROM sessions_archive 
+const getSessionByUsernamePaginatedPQ = `-- name: GetSessionByUsernamePaginatedPQ :many
+SELECT id, username, ip, user_agent, status, created_at, last_active_at, expiry, completed_count, failed_count, archived_at FROM sessions_archive
 WHERE username = $1
 ORDER BY created_at DESC
+LIMIT $2 OFFSET $3
 `
 
-func (q *Queries) GetSessionByUsernamePQ(ctx context.Context, username string) ([]SessionsArchive, error) {
-	rows, err := q.db.Query(ctx, getSessionByUsernamePQ, username)
+type GetSessionByUsernamePaginatedPQParams struct {
+	Username string `json:"username"`
+	Limit    int32  `json:"limit"`
+	Offset   int32  `json:"offset"`
+}
+
+func (q *Queries) GetSessionByUsernamePaginatedPQ(ctx context.Context, arg GetSessionByUsernamePaginatedPQParams) ([]SessionsArchive, error) {
+	rows, err := q.db.Query(ctx, getSessionByUsernamePaginatedPQ, arg.Username, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

@@ -312,6 +312,53 @@ func (q *Queries) GetPendingTransactionsBySessionPQ(ctx context.Context, session
 	return items, nil
 }
 
+const getPendingTransactionsByUserPaginatedPQ = `-- name: GetPendingTransactionsByUserPaginatedPQ :many
+SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM pending_transactions_archive
+WHERE executed_by = $1
+ORDER BY timestamp DESC
+LIMIT $2 OFFSET $3
+`
+
+type GetPendingTransactionsByUserPaginatedPQParams struct {
+	ExecutedBy string `json:"executed_by"`
+	Limit      int32  `json:"limit"`
+	Offset     int32  `json:"offset"`
+}
+
+func (q *Queries) GetPendingTransactionsByUserPaginatedPQ(ctx context.Context, arg GetPendingTransactionsByUserPaginatedPQParams) ([]PendingTransactionsArchive, error) {
+	rows, err := q.db.Query(ctx, getPendingTransactionsByUserPaginatedPQ, arg.ExecutedBy, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PendingTransactionsArchive{}
+	for rows.Next() {
+		var i PendingTransactionsArchive
+		if err := rows.Scan(
+			&i.ID,
+			&i.SessionID,
+			&i.Timestamp,
+			&i.Operation,
+			&i.TargetPath,
+			&i.Entries,
+			&i.Status,
+			&i.ErrorMsg,
+			&i.Output,
+			&i.ExecutedBy,
+			&i.DurationMs,
+			&i.Execstatus,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPendingTransactionsPQ = `-- name: GetPendingTransactionsPQ :many
 SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM pending_transactions_archive
 WHERE session_id = $1 AND status = 'pending'
