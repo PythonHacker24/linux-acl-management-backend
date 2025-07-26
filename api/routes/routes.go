@@ -40,7 +40,8 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 	/* websocket connection for streaming user session data from Redis */
 	mux.Handle("/users/session", http.HandlerFunc(
 		middleware.LoggingMiddleware(
-			middleware.AuthenticationMiddleware(sessionManager.StreamUserSession),
+			/* you need authentication via query parameter */
+			middleware.AuthenticationQueryMiddleware(sessionManager.StreamUserSession),
 		),
 	))
 
