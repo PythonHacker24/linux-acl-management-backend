@@ -130,6 +130,11 @@ func run(ctx context.Context) error {
 	logCtx, logCancel := context.WithCancel(context.Background())
 	var logWg sync.WaitGroup
 
+	defer func() {
+		logCancel()
+		logWg.Wait()
+	}()
+
 	/* create a error channel */
 	errChLog := make(chan error, 1)
 
@@ -345,8 +350,6 @@ func run(ctx context.Context) error {
 
 	/* close the logging error channel and cancel logging context */
 	close(errChLog)
-	logCancel()
-	logWg.Wait()
 
 	return err
 }
