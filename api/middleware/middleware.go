@@ -42,9 +42,49 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		/* authenticate the request through JWT */
 		username, sessionID, err := token.ExtractDataFromRequest(r)
 		if err != nil {
-			zap.L().Error("Error during authentication",
+			zap.L().Info("Error during authentication",
 				zap.Error(err),
 			)
+			http.Error(w, "Authentication Failed", http.StatusInternalServerError)
+			return
+		}
+
+		/* set the header with the username */
+		r.Header.Set("X-User", username)
+
+		/* pass username and sessionID as context */
+		ctx := context.WithValue(r.Context(), ContextKeyUsername, username)
+		ctx = context.WithValue(ctx, ContextKeySessionID, sessionID)
+
+		/* return the handler */
+		next(w, r.WithContext(ctx))
+	})
+}
+
+/* 
+	authentication middleware for http requests with query 
+	return username and sessionID with context
+*/
+func AuthenticationQueryMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		/* get the HTTP query */
+		query := r.URL.Query()
+
+		/* get the token query */
+		tokenQ := query.Get("token")
+        if tokenQ == "" {
+           	zap.L().Info("Query authentication without token value")
+			http.Error(w, "Missing 'token' query parameter value", http.StatusBadRequest)
+			return
+        } 
+
+		/* extract username and sessionID from the token */
+		username, sessionID, err := token.GetDataFromJWT(tokenQ)
+		if err != nil {
+			zap.L().Info("Error during authentication",
+				zap.Error(err),
+			)
+			http.Error(w, "Authentication Failed", http.StatusInternalServerError)
 			return
 		}
 
