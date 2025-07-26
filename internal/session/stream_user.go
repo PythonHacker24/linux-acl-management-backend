@@ -26,7 +26,7 @@ func (m *Manager) sendCurrentSession(conn *websocket.Conn, sessionID string) err
 		if err == redis.Nil {
 			message := StreamMessage{
 				Type: "session_state",
-				Data: map[string]interface{}{
+				Data: map[string]any{
 					"session_id": sessionID,
 					"exists":     false,
 				},
@@ -42,7 +42,7 @@ func (m *Manager) sendCurrentSession(conn *websocket.Conn, sessionID string) err
 	session := convertRedisHashToSession(sessionData)
 	message := StreamMessage{
 		Type: "session_state",
-		Data: map[string]interface{}{
+		Data: map[string]any{
 			"session_id": sessionID,
 			"exists":     true,
 			"session":    session,
@@ -118,7 +118,7 @@ func (m *Manager) handleSessionChangeEvent(conn *websocket.Conn, sessionID strin
 /* ==== User Transaction List ==== */
 
 /* send current user transactions */
-func (m *Manager) sendCurrentUserTransactions(conn *websocket.Conn, username, sessionID string, limit int) error {
+func (m *Manager) sendCurrentUserTransactions(conn *websocket.Conn, sessionID string, limit int) error {
 	ctx := context.Background()
 
 	/* get latest transactions from Redis */
