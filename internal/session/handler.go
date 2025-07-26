@@ -196,7 +196,7 @@ func (m *Manager) StreamUserTransactions(w http.ResponseWriter, r *http.Request)
 	defer cancel()
 
 	/* sending initial list of transactions data */
-	if err := m.sendCurrentUserTransactions(conn, username, sessionID, 100); err != nil {
+	if err := m.sendCurrentUserTransactions(conn, sessionID, 100); err != nil {
 		m.errCh <- fmt.Errorf("error sending initial transactions: %w", err)
 		return
 	}
@@ -338,85 +338,3 @@ func (m *Manager) StreamUserArchivePendingTransactions(w http.ResponseWriter, r 
 	/* handle web socket instructions from client */
 	m.handleWebSocketCommands(conn, username, sessionID, ctxVal, cancel)
 } 
-
-// /*
-// get all sessions in the system
-// requires admin authentication from middleware
-// admin/
-// */
-// func (m *Manager) StreamAllSessions(w http.ResponseWriter, r *http.Request) {
-//
-// 	/* check if the user is admin */
-//
-// 	/* upgrade the connection if user is admin */
-// 	conn, err := m.upgrader.Upgrade(w, r, nil)
-// 	if err != nil {
-// 		m.errCh <- fmt.Errorf("websocket upgrade error: %w", err)
-// 		return
-// 	}
-// 	defer conn.Close()
-//
-// 	/*
-// 		context with cancel for web socket handlers
-// 		this is the official context for a websocket connection
-// 		cancelling this means closing components of the websocket handler
-// 	*/
-// 	ctx, cancel := context.WithCancel(context.Background())
-// 	defer cancel()
-//
-// 	/* sending initial list of all sessions */
-// 	if err := m.sendListofAllSessions(conn, 100); err != nil {
-// 		m.errCh <- fmt.Errorf("error sending initial list of all sessions: %w", err)
-// 		return
-// 	}
-//
-// 	/* stream changes in transactions made in redis */
-// 	go m.listenForAllSessionsChanges(ctx, conn)
-//
-// 	/* specify the handler context */
-// 	ctxVal := context.WithValue(ctx, "type", CtxStreamAllSessions)
-//
-// 	/* handle web socket instructions from client */
-// 	m.handleWebSocketCommands(conn, ctxVal, cancel)
-// }
-//
-// /*
-// get all transaction in the system
-// requires admin authentication from middleware
-// admin/
-// */
-// func (m *Manager) StreamAllTransactions(w http.ResponseWriter, r *http.Request) {
-//
-// 	/* check if the user is admin */
-//
-// 	/* upgrade the connection if user is admin */
-// 	conn, err := m.upgrader.Upgrade(w, r, nil)
-// 	if err != nil {
-// 		m.errCh <- fmt.Errorf("websocket upgrade error: %w", err)
-// 		return
-// 	}
-// 	defer conn.Close()
-//
-// 	/*
-// 		context with cancel for web socket handlers
-// 		this is the official context for a websocket connection
-// 		cancelling this means closing components of the websocket handler
-// 	*/
-// 	ctx, cancel := context.WithCancel(context.Background())
-// 	defer cancel()
-//
-// 	/* sending initial list of all sessions */
-// 	if err := m.sendListofAllTransactions(conn, 100); err != nil {
-// 		m.errCh <- fmt.Errorf("error sending initial list of all transactions: %w", err)
-// 		return
-// 	}
-//
-// 	/* stream changes in transactions made in redis */
-// 	go m.listenForAllTransactionsChanges(ctx, conn)
-//
-// 	/* specify the handler context */
-// 	ctxVal := context.WithValue(ctx, "type", CtxStreamAllTransactions)
-//
-// 	/* handle web socket instructions from client */
-// 	m.handleWebSocketCommands(conn, ctxVal, cancel)
-// }
