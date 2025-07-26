@@ -52,7 +52,7 @@ func (m *Manager) handleWebSocketCommands(conn *websocket.Conn, username, sessio
 					}
 				case CtxStreamUserTransactions:
 					/* push user transactions */
-					if err := m.sendCurrentUserTransactions(conn, username, sessionID, 100); err != nil {
+					if err := m.sendCurrentUserTransactions(conn, sessionID, 100); err != nil {
 						m.errCh <- fmt.Errorf("failed to send current list of transactions on command: %w", err)
 					}
 				case CtxStreamUserArchiveSession:
