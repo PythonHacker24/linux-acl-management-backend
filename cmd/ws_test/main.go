@@ -23,7 +23,9 @@ func main() {
 	header := http.Header{}
 	header.Add("Authorization", "Bearer "+jwt)
 
-	conn, resp, err := websocket.DefaultDialer.Dial(url, header)
+	urlQ := fmt.Sprintf("%s?token=%s", url, jwt)
+
+	conn, resp, err := websocket.DefaultDialer.Dial(urlQ, header)
 	if err != nil {
 		log.Fatalf("Dial failed: %v, response: %+v", err, resp)
 	}
