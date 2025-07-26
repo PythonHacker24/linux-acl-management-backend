@@ -51,7 +51,7 @@ func (p *PermProcessor) HandleRemoteTransaction(host string, port int, txn *type
 
 	aclClient := protos.NewACLServiceClient(conn)
 	aclResponse, err := aclClient.ApplyACLEntry(ctx, request)
-	if err != nil {
+	if err != nil || aclResponse == nil  {
 		p.errCh <- fmt.Errorf("failed to send ACL request to daemon")
 	}
 
