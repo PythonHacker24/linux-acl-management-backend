@@ -47,12 +47,14 @@ func (p *PermProcessor) HandleRemoteTransaction(host string, port int, txn *type
 	}
 
 	/* MAKE IT CONFIGURABLE */
-	ctx, _ := context.WithTimeout(context.Background(), 10 * time.Minute)	
+	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Minute)	
 
 	aclClient := protos.NewACLServiceClient(conn)
 	aclResponse, err := aclClient.ApplyACLEntry(ctx, request)
 	if err != nil || aclResponse == nil  {
 		p.errCh <- fmt.Errorf("failed to send ACL request to daemon")
+		cancel()
+		return err
 	}
 
 	if aclResponse.Success {
@@ -70,5 +72,6 @@ func (p *PermProcessor) HandleRemoteTransaction(host string, port int, txn *type
 		txn.ErrorMsg = "ACL failed to get executed in the filesystem server"
 	}
 
+	cancel()
 	return nil
 }
