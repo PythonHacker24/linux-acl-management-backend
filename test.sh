@@ -22,7 +22,6 @@ fi
 echo $token
 
 while true; do 
-    # Step 3: Use the token in the authorized request
     curl -X POST http://localhost:8080/transactions/schedule \
       -H "Authorization: Bearer $token" \
       -H "Content-Type: application/json" \
