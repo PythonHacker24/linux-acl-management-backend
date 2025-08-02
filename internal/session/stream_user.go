@@ -102,7 +102,7 @@ func (m *Manager) handleSessionChangeEvent(conn *websocket.Conn, sessionID strin
 	/* prepare the message payload */
 	message := StreamMessage{
 		Type: "session_update",
-		Data: map[string]interface{}{
+		Data: map[string]any{
 			"session_id":   sessionID,
 			"session":      session,
 			"event_type":   msg.Payload,
@@ -117,8 +117,8 @@ func (m *Manager) handleSessionChangeEvent(conn *websocket.Conn, sessionID strin
 
 /* ==== User Transaction List ==== */
 
-/* send current user transactions */
-func (m *Manager) sendCurrentUserTransactions(conn *websocket.Conn, sessionID string, limit int) error {
+/* send current user results transactions */
+func (m *Manager) sendCurrentUserTransactionsResults(conn *websocket.Conn, sessionID string, limit int) error {
 	ctx := context.Background()
 
 	/* get latest transactions from Redis */
@@ -142,7 +142,7 @@ func (m *Manager) sendCurrentUserTransactions(conn *websocket.Conn, sessionID st
 	/* prepare the message payload */
 	message := StreamMessage{
 		Type: "transaction_update",
-		Data: map[string]interface{}{
+		Data: map[string]any{
 			"session_id":   sessionID,
 			"transactions": transactions,
 		},
@@ -153,8 +153,44 @@ func (m *Manager) sendCurrentUserTransactions(conn *websocket.Conn, sessionID st
 	return conn.WriteJSON(message)
 }
 
-/* listen for transaction changes in Redis */
-func (m *Manager) listenForTransactionsChanges(ctx context.Context, conn *websocket.Conn, sessionID string) {
+/* send current user pending transactions */
+func (m *Manager) sendCurrentUserTransactionsPending(conn *websocket.Conn, sessionID string, limit int) error {
+	ctx := context.Background()
+
+	/* get latest transactions from Redis */
+	key := fmt.Sprintf("session:%s:txpending", sessionID)
+	values, err := m.redis.LRange(ctx, key, int64(-limit), -1).Result()
+	if err != nil {
+		return fmt.Errorf("failed to get transaction results: %w", err)
+	}
+
+	/* convert each JSON string back into a Transaction */
+	transactions := make([]types.Transaction, 0, len(values))
+	for _, val := range values {
+		var tx types.Transaction
+		if err := json.Unmarshal([]byte(val), &tx); err != nil {
+			/* skip malformed results */
+			continue
+		}
+		transactions = append(transactions, tx)
+	}
+
+	/* prepare the message payload */
+	message := StreamMessage{
+		Type: "transaction_update",
+		Data: map[string]any{
+			"session_id":   sessionID,
+			"transactions": transactions,
+		},
+		Timestamp: time.Now(),
+	}
+
+	/* send the message to the client */
+	return conn.WriteJSON(message)
+}
+
+/* listen for results transaction changes in Redis */
+func (m *Manager) listenForTransactionsChangesResults(ctx context.Context, conn *websocket.Conn, sessionID string) {
 	/* subscribe to both keyspace and keyevent notifications */
 	keyspacePattern := fmt.Sprintf("__keyspace@0__:session:%s:txresults", sessionID)
 	keyeventPattern := fmt.Sprintf("__keyevent@0__:rpush:session:%s:txresults", sessionID)
@@ -178,7 +214,39 @@ func (m *Manager) listenForTransactionsChanges(ctx context.Context, conn *websoc
 			return
 		case msg := <-ch:
 			/* changes in transactions stored in Redis detected; handle the event */
-			if err := m.handleTransactionChangeEvent(conn, sessionID, msg); err != nil {
+			if err := m.handleTransactionChangeEventResults(conn, sessionID, msg); err != nil {
+				m.errCh <- fmt.Errorf("error handling transaction change: %w", err)
+			}
+		}
+	}
+}
+
+/* listen for pending transaction changes in Redis */
+func (m *Manager) listenForTransactionsChangesPending(ctx context.Context, conn *websocket.Conn, sessionID string) {
+	/* subscribe to both keyspace and keyevent notifications */
+	keyspacePattern := fmt.Sprintf("__keyspace@0__:session:%s:txpending", sessionID)
+	keyeventPattern := fmt.Sprintf("__keyevent@0__:rpush:session:%s:txpending", sessionID)
+
+	/* subscribe to Redis keyspace and keyevent */
+	pubsub, err := m.redis.PSubscribe(ctx, keyspacePattern, keyeventPattern)
+	if err != nil {
+		m.errCh <- fmt.Errorf("failed to subscribe to redis events: %w", err)
+		return
+	}
+
+	defer pubsub.Close()
+
+	/* Redis update channel */
+	ch := pubsub.Channel()
+
+	/* handling transaction changes */
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case msg := <-ch:
+			/* changes in transactions stored in Redis detected; handle the event */
+			if err := m.handleTransactionChangeEventPending(conn, sessionID, msg); err != nil {
 				m.errCh <- fmt.Errorf("error handling transaction change: %w", err)
 			}
 		}
@@ -190,8 +258,8 @@ func (m *Manager) listenForTransactionsChanges(ctx context.Context, conn *websoc
 	The whole frontend will be updated even if one transaction changes it's state (for example, setting active to expired).
 */
 
-/* handle transaction change event */
-func (m *Manager) handleTransactionChangeEvent(conn *websocket.Conn, sessionID string, msg *redis.Message) error {
+/* handle transaction results change event */
+func (m *Manager) handleTransactionChangeEventResults(conn *websocket.Conn, sessionID string, msg *redis.Message) error {
 	ctx := context.Background()
 
 	/* get latest transactions */
@@ -215,7 +283,45 @@ func (m *Manager) handleTransactionChangeEvent(conn *websocket.Conn, sessionID s
 	/* prepare the message payload */
 	message := StreamMessage{
 		Type: "transaction_update",
-		Data: map[string]interface{}{
+		Data: map[string]any{
+			"session_id":   sessionID,
+			"transactions": transactions,
+			"event_type":   msg.Payload,
+			"event_source": "redis_keyspace",
+		},
+		Timestamp: time.Now(),
+	}
+
+	/* send the message to the client */
+	return conn.WriteJSON(message)
+}
+
+/* handle transaction pending change event */
+func (m *Manager) handleTransactionChangeEventPending(conn *websocket.Conn, sessionID string, msg *redis.Message) error {
+	ctx := context.Background()
+
+	/* get latest transactions */
+	key := fmt.Sprintf("session:%s:txpending", sessionID)
+	values, err := m.redis.LRange(ctx, key, -100, -1).Result()
+	if err != nil {
+		return fmt.Errorf("failed to get pending transactions: %w", err)
+	}
+
+	/* convert each JSON string back into a Transaction */
+	transactions := make([]types.Transaction, 0, len(values))
+	for _, val := range values {
+		var tx types.Transaction
+		if err := json.Unmarshal([]byte(val), &tx); err != nil {
+			/* skip malformed results */
+			continue
+		}
+		transactions = append(transactions, tx)
+	}
+
+	/* prepare the message payload */
+	message := StreamMessage{
+		Type: "transaction_update",
+		Data: map[string]any{
 			"session_id":   sessionID,
 			"transactions": transactions,
 			"event_type":   msg.Payload,
@@ -253,9 +359,9 @@ func (m *Manager) sendCurrentArchivedSessions(conn *websocket.Conn, username str
 	exists := len(sessions) > 0
 
 	/* convert to plain JSON-compatible slices */
-	var outgoing []map[string]interface{}
+	var outgoing []map[string]any
 	for _, session := range sessions {
-		outgoing = append(outgoing, map[string]interface{}{
+		outgoing = append(outgoing, map[string]any{
 			"id":              session.ID,
 			"username":        session.Username,
 			"ip":              session.Ip.String,
@@ -272,7 +378,7 @@ func (m *Manager) sendCurrentArchivedSessions(conn *websocket.Conn, username str
 
 	message := StreamMessage{
 		Type: "session_state",
-		Data: map[string]interface{}{
+		Data: map[string]any{
 			"username": username,
 			"exists":   exists,
 			"sessions": outgoing,
@@ -308,9 +414,9 @@ func (m *Manager) sendCurrentArchivedPendingTransactions(conn *websocket.Conn, u
 
 	exists := len(transactions) > 0
 
-	var outgoing []map[string]interface{}
+	var outgoing []map[string]any
 	for _, tx := range transactions {
-		outgoing = append(outgoing, map[string]interface{}{
+		outgoing = append(outgoing, map[string]any{
 			"id":           tx.ID,
 			"session_id":   tx.SessionID,
 			"timestamp":    tx.Timestamp,
@@ -329,7 +435,7 @@ func (m *Manager) sendCurrentArchivedPendingTransactions(conn *websocket.Conn, u
 
 	message := StreamMessage{
 		Type: "transactions_state",
-		Data: map[string]interface{}{
+		Data: map[string]any{
 			"username":    username,
 			"exists":      exists,
 			"transactions": outgoing,
