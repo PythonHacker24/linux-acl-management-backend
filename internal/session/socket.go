@@ -50,10 +50,15 @@ func (m *Manager) handleWebSocketCommands(conn *websocket.Conn, username, sessio
 					if err := m.sendCurrentSession(conn, sessionID); err != nil {
 						m.errCh <- fmt.Errorf("failed to send current session on command: %w", err)
 					}
-				case CtxStreamUserTransactions:
-					/* push user transactions */
-					if err := m.sendCurrentUserTransactions(conn, sessionID, 100); err != nil {
-						m.errCh <- fmt.Errorf("failed to send current list of transactions on command: %w", err)
+				case CtxStreamUserTransactionsResults:
+					/* push user transactions results */
+					if err := m.sendCurrentUserTransactionsResults(conn, sessionID, 100); err != nil {
+						m.errCh <- fmt.Errorf("failed to send current list of results transactions on command: %w", err)
+					}
+				case CtxStreamUserTransactionsPending:
+					/* push user transactions pending */
+					if err := m.sendCurrentUserTransactionsPending(conn, sessionID, 100); err != nil {
+						m.errCh <- fmt.Errorf("failed to send current list of results transactions on command: %w", err)
 					}
 				case CtxStreamUserArchiveSession:
 					/* push archived sessions */
