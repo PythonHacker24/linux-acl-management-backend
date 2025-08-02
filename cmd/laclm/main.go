@@ -158,29 +158,6 @@ func run(ctx context.Context) error {
 		grpc.WithKeepaliveParams(kacp),
 	)
 
-	/* THIS CODE IS SAFE TO BE REMOVED */
-	for _, system := range config.BackendConfig.FileSystemServers {
-		/* check if system is remote */
-		if system.Remote != nil {
-			address := fmt.Sprintf("%s:%d", system.Remote.Host, system.Remote.Port)
-			go func(addr string, errCh chan<- error) {
-				_, err := pool.GetConn(addr, errCh)
-				if err != nil {
-					zap.L().Error("Failed to get connect with a daemon",
-						zap.String("Address", addr),
-						zap.Error(err),
-					)
-				}
-
-				/* now test for connections */
-				zap.L().Info("Connected to",
-					zap.String("address", addr),
-				)
-
-			}(address, errChLog)
-		}
-	}
-
 	/*
 		initializing scheduler
 		scheduler uses context to quit - part of waitgroup
