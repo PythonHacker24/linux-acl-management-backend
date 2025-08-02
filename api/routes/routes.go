@@ -13,9 +13,35 @@ import (
 /* all routes for all features are registered here */
 func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 
+	allowedOrigin := []string{"http://localhost:3000"}
+	allowedMethods := []string{"GET", "POST", "OPTIONS"}
+	allowedHeaders := []string{"Content-Type", "Authorization"}
+
 	/* for logging into the backend and creating a session */
 	mux.HandleFunc("POST /login",
-		middleware.LoggingMiddleware(auth.LoginHandler(sessionManager)),
+		middleware.CORSMiddleware(
+			middleware.LoggingMiddleware(
+				auth.LoginHandler(sessionManager),
+			),
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
+	)
+
+	/* handle OPTIONS preflight requests for /login */
+	mux.HandleFunc("OPTIONS /login",
+		middleware.CORSMiddleware(
+			func(w http.ResponseWriter, r *http.Request) {
+				/*
+						This handler will never be called because CORSMiddleware handles OPTIONS
+					 	but we need it for the route to be registered
+				*/
+			},
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
 	)
 
 	/* for monitoring the state of overall server and laclm backend */
@@ -46,11 +72,20 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 	))
 
 	/* websocket connection for streaming user transactions data from Redis */
-	mux.Handle("/users/transactions", http.HandlerFunc(
+	mux.Handle("/users/transactions/results", http.HandlerFunc(
 		middleware.LoggingMiddleware(
-			middleware.AuthenticationMiddleware(sessionManager.StreamUserTransactions),
+			middleware.AuthenticationQueryMiddleware(sessionManager.StreamUserTransactionsResults),
 		),
 	))
+
+	/* websocket connection for streaming user transactions data from Redis */
+	mux.Handle("/users/transactions/pending", http.HandlerFunc(
+		middleware.LoggingMiddleware(
+			middleware.AuthenticationQueryMiddleware(sessionManager.StreamUserTransactionsPending),
+		),
+	))
+
+	/* ARCHIVE WILL BE MADE POST REQUEST */
 
 	/* websocket connection for streaming user session data from PostgreSQL database (archived sessions) */
 	mux.Handle("/users/archive/session", http.HandlerFunc(
