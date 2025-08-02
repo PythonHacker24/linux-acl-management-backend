@@ -79,11 +79,13 @@ func (m *Manager) IssueTransaction(w http.ResponseWriter, r *http.Request) {
 type handlerCtxKey string
 
 const (
-	CtxStreamUserSession      handlerCtxKey = "stream_user_session"
-	CtxStreamUserTransactions handlerCtxKey = "stream_user_transactions"
-	CtxStreamAllSessions      handlerCtxKey = "stream_all_sessions"
-	CtxStreamAllTransactions  handlerCtxKey = "stream_all_transactions"
-	CtxStreamUserArchiveSession handlerCtxKey = "stream_user_archive_sessions"
+	CtxStreamUserSession					handlerCtxKey = "stream_user_session"
+	CtxStreamUserTransactionsResults		handlerCtxKey = "stream_user_transactions_results"
+	CtxStreamUserTransactionsPending		handlerCtxKey = "stream_user_transactions_pending"
+	CtxStreamAllSessions      				handlerCtxKey = "stream_all_sessions"
+	CtxStreamAllTransactions  				handlerCtxKey = "stream_all_transactions"
+	CtxStreamUserArchiveSession 			handlerCtxKey = "stream_user_archive_sessions"
+	CtxStreamUserArchiveResultsTransactions handlerCtxKey = "stream_user_archive_results_transactions"
 	CtxStreamUserArchivePendingTransactions handlerCtxKey = "stream_user_archive_pending_transactions"
 )
 
@@ -150,11 +152,11 @@ func (m *Manager) StreamUserSession(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
-get user transactions information
+get user transactions results information
 requires user authentication from middleware
 user/
 */
-func (m *Manager) StreamUserTransactions(w http.ResponseWriter, r *http.Request) {
+func (m *Manager) StreamUserTransactionsResults(w http.ResponseWriter, r *http.Request) {
 
 	/* get the username */
 	username, ok := r.Context().Value(middleware.ContextKeyUsername).(string)
@@ -196,16 +198,78 @@ func (m *Manager) StreamUserTransactions(w http.ResponseWriter, r *http.Request)
 	defer cancel()
 
 	/* sending initial list of transactions data */
-	if err := m.sendCurrentUserTransactions(conn, sessionID, 100); err != nil {
+	if err := m.sendCurrentUserTransactionsResults(conn, sessionID, 100); err != nil {
 		m.errCh <- fmt.Errorf("error sending initial transactions: %w", err)
 		return
 	}
 
 	/* stream changes in transactions made in redis */
-	go m.listenForTransactionsChanges(ctx, conn, sessionID)
+	go m.listenForTransactionsChangesResults(ctx, conn, sessionID)
 
 	/* specify the handler context */
-	ctxVal := context.WithValue(ctx, "type", CtxStreamUserTransactions)
+	ctxVal := context.WithValue(ctx, "type", CtxStreamUserTransactionsResults)
+
+	/* handle web socket instructions from client */
+	m.handleWebSocketCommands(conn, username, sessionID, ctxVal, cancel)
+}
+
+/*
+get user transactions pending information
+requires user authentication from middleware
+user/
+*/
+func (m *Manager) StreamUserTransactionsPending(w http.ResponseWriter, r *http.Request) {
+
+	/* get the username */
+	username, ok := r.Context().Value(middleware.ContextKeyUsername).(string)
+	if !ok {
+		http.Error(w, "Invalid user context", http.StatusInternalServerError)
+		return
+	}
+
+	/* get the session id */
+	sessionID, ok := r.Context().Value(middleware.ContextKeySessionID).(string)
+	if !ok {
+		http.Error(w, "Invalid session ID context", http.StatusInternalServerError)
+		return
+	}
+
+	m.mutex.RLock()
+	session, exists := m.sessionsMap[username]
+	m.mutex.RUnlock()
+
+	if !exists || session.ID.String() != sessionID {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	/* user exists and verified, upgrade the websocket connection */
+	conn, err := m.upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		m.errCh <- fmt.Errorf("websocket upgrade error: %w", err)
+		return
+	}
+	defer conn.Close()
+
+	/*
+		context with cancel for web socket handlers
+		this is the official context for a websocket connection
+		cancelling this means closing components of the websocket handler
+	*/
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	/* sending initial list of transactions data */
+	if err := m.sendCurrentUserTransactionsPending(conn, sessionID, 100); err != nil {
+		m.errCh <- fmt.Errorf("error sending initial transactions: %w", err)
+		return
+	}
+
+	/* stream changes in transactions made in redis */
+	go m.listenForTransactionsChangesPending(ctx, conn, sessionID)
+
+	/* specify the handler context */
+	ctxVal := context.WithValue(ctx, "type", CtxStreamUserTransactionsPending)
 
 	/* handle web socket instructions from client */
 	m.handleWebSocketCommands(conn, username, sessionID, ctxVal, cancel)
