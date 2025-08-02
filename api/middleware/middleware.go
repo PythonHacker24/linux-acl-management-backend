@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"net/http"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -33,9 +34,9 @@ func LoggingMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	})
 }
 
-/* 
-	authentication middleware for http requests 
-	return username and sessionID with context
+/*
+authentication middleware for http requests
+return username and sessionID with context
 */
 func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -61,9 +62,46 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	})
 }
 
-/* 
-	authentication middleware for http requests with query 
-	return username and sessionID with context
+/*
+handles CORS headers
+*/
+func CORSMiddleware(next http.HandlerFunc, allowedOrigins []string, allowedMethods []string, allowedHeaders []string) http.HandlerFunc {
+	/* select all allowed origins */
+	originMap := make(map[string]bool)
+	for _, o := range allowedOrigins {
+		originMap[o] = true
+	}
+
+	/* extract methods and origin */
+	methods := strings.Join(allowedMethods, ", ")
+	headers := strings.Join(allowedHeaders, ", ")
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		/* get the origin header */
+		origin := r.Header.Get("Origin")
+		/* set appropriate CORS header */
+		if origin != "" && (originMap["*"] || originMap[origin]) {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Vary", "Origin")
+			w.Header().Set("Access-Control-Allow-Methods", methods)
+			w.Header().Set("Access-Control-Allow-Headers", headers)
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+		}
+
+		/* handle preflight (OPTIONS) requests */
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		/* call the next handler for non-OPTIONS requests */
+		next(w, r)
+	})
+}
+
+/*
+authentication middleware for http requests with query
+return username and sessionID with context
 */
 func AuthenticationQueryMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -72,11 +110,11 @@ func AuthenticationQueryMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		/* get the token query */
 		tokenQ := query.Get("token")
-        if tokenQ == "" {
-           	zap.L().Info("Query authentication without token value")
+		if tokenQ == "" {
+			zap.L().Info("Query authentication without token value")
 			http.Error(w, "Missing 'token' query parameter value", http.StatusBadRequest)
 			return
-        } 
+		}
 
 		/* extract username and sessionID from the token */
 		username, sessionID, err := token.GetDataFromJWT(tokenQ)
