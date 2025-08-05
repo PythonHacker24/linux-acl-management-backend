@@ -61,7 +61,8 @@ func AuthenticateUser(username, password, searchbase string) bool {
 
 		/* Searching by username */
 		/* for uid -> fmt.Sprintf("(uid=%s)", username), */
-		fmt.Sprintf("(cn=%s)", username),
+		// fmt.Sprintf("(cn=%s)", username),
+		fmt.Sprintf("(uid=%s)", username),
 
 		/* We only need the DN */
 		[]string{"dn"},
