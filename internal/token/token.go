@@ -14,7 +14,7 @@ import (
 
 /* generating jwt token for user identification with specified configs */
 func GenerateJWT(username string, sessionID uuid.UUID) (string, error) {
-	expiryHours := config.BackendConfig.BackendSecurity.JWTExpiry
+	expiryHours := config.BackendConfig.AppInfo.SessionTimeout
 
 	/* generate JWT token with claims */
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
