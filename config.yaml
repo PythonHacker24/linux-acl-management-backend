@@ -3,7 +3,7 @@ app:
   name: laclm
   version: v1.1
   debug_mode: true
-  session_timeout: 24
+  session_timeout: 1
   base_path: /mnt
   max_workers: 5
 
@@ -15,14 +15,14 @@ server:
 # databases for operations
 database:
   transaction_log_redis: 
-    address: host.docker.internal:6379
+    address: localhost:6379
     password: ${LACLM_TRANS_REDIS_PASSWORD}
     db: 0
   archival_postgres:
-    host: host.docker.internal 
+    host: localhost 
     port: 5432
-    user: adityapatil
-    password:
+    user: postgres
+    password: idontlikepeople
     dbname: postgres
     sslmode: disable
 
@@ -39,14 +39,14 @@ filesystem_servers:
   - path: /mnt/nfs-system
     method: remote
     remote:
-      host: 165.232.178.211 
+      host: localhost 
       port: 6593
 
 # authentication information
 authentication:
   ldap:
     tls: false
-    address: "ldap://openldap:389"
+    address: "ldap://localhost:389"
     admin_dn: ${LACLM_LDAP_ADMIN_DN}
     admin_password: ${LACLM_LDAP_ADMIN_PASSWORD}
     search_base: "cn=Princeton Plainsboro Hospital ,dc=myorg,dc=local"
