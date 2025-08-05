@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"syscall"
+	// "syscall"
 
 	"go.uber.org/zap"
 
@@ -83,7 +83,8 @@ func ListFiles(path string, userID string) ([]FileEntry, error) {
 		}
 
 		/* Open the file with O_NOFOLLOW to prevent symlink races */
-		file, err := os.OpenFile(realEntryPath, os.O_RDONLY|syscall.O_NOFOLLOW, 0)
+		// file, err := os.OpenFile(realEntryPath, os.O_RDONLY|syscall.O_NOFOLLOW, 0)
+		file, err := os.Open(realEntryPath)
 		if err != nil {
 			zap.L().Warn("Failed to open file",
 				zap.String("path", realEntryPath),
