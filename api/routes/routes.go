@@ -6,6 +6,7 @@ import (
 	"github.com/PythonHacker24/linux-acl-management-backend/api/middleware"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/auth"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/health"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/search"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/traversal"
 )
@@ -60,6 +61,13 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 	mux.Handle("POST /transactions/schedule", http.HandlerFunc(
 		middleware.LoggingMiddleware(
 			middleware.AuthenticationMiddleware(sessionManager.IssueTransaction),
+		),
+	))
+
+	/* for fetching list of all users in the LDAP server */
+	mux.Handle("GET /users/ldap/search", http.HandlerFunc(
+		middleware.LoggingMiddleware(
+			middleware.AuthenticationMiddleware(search.SearchUsersHandler),
 		),
 	))
 
