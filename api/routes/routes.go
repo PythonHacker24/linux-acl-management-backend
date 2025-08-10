@@ -14,24 +14,23 @@ import (
 /* all routes for all features are registered here */
 func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 
+	/* move it to config file */
 	allowedOrigin := []string{"http://localhost:3000"}
 	allowedMethods := []string{"GET", "POST", "OPTIONS"}
-	allowedHeaders := []string{"Content-Type", "Authorization"}
+	allowedHeaders := []string{"*"}
 
-	/* for logging into the backend and creating a session */
-	mux.HandleFunc("POST /login",
+	/* for monitoring the state of overall server and laclm backend */
+	mux.Handle("GET /health", http.HandlerFunc(
 		middleware.CORSMiddleware(
-			middleware.LoggingMiddleware(
-				auth.LoginHandler(sessionManager),
-			),
+			middleware.LoggingMiddleware(health.HealthHandler),
 			allowedOrigin,
 			allowedMethods,
 			allowedHeaders,
 		),
-	)
+	))
 
-	/* handle OPTIONS preflight requests for /login */
-	mux.HandleFunc("OPTIONS /login",
+	/* handle OPTIONS preflight requests for /health */
+	mux.HandleFunc("OPTIONS /health",
 		middleware.CORSMiddleware(
 			func(w http.ResponseWriter, r *http.Request) {
 				/*
@@ -45,10 +44,86 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 		),
 	)
 
-	/* for monitoring the state of overall server and laclm backend */
-	mux.Handle("GET /health", http.HandlerFunc(
-		middleware.LoggingMiddleware(health.HealthHandler),
+	/* for logging into the backend and creating a session */
+	mux.HandleFunc("POST /auth/login",
+		middleware.CORSMiddleware(
+			middleware.LoggingMiddleware(
+				auth.LoginHandler(sessionManager),
+			),
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
+	)
+
+	/* handle OPTIONS preflight requests for /auth/login */
+	mux.HandleFunc("OPTIONS /auth/login",
+		middleware.CORSMiddleware(
+			func(w http.ResponseWriter, r *http.Request) {
+				/*
+						This handler will never be called because CORSMiddleware handles OPTIONS
+					 	but we need it for the route to be registered
+				*/
+			},
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
+	)
+
+	/* for logging out of the backend and expiring the session */
+	mux.HandleFunc("GET /auth/logout",
+		middleware.CORSMiddleware(
+			middleware.LoggingMiddleware(
+				auth.LogoutHandler(sessionManager),
+			),
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
+	)
+
+	/* handle OPTIONS preflight requests for /auth/logout */
+	mux.HandleFunc("OPTIONS /auth/logout",
+		middleware.CORSMiddleware(
+			func(w http.ResponseWriter, r *http.Request) {
+				/*
+						This handler will never be called because CORSMiddleware handles OPTIONS
+					 	but we need it for the route to be registered
+				*/
+			},
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
+	)
+
+	/* for verifying if a token is valid or not */
+	mux.Handle("GET /auth/token/validate", http.HandlerFunc(
+		middleware.CORSMiddleware(
+			middleware.LoggingMiddleware(
+				auth.ValidateToken,
+			),
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
 	))
+
+	/* handle OPTIONS preflight requests for /auth/token/validate */
+	mux.HandleFunc("OPTIONS /auth/token/validate",
+		middleware.CORSMiddleware(
+			func(w http.ResponseWriter, r *http.Request) {
+				/*
+						This handler will never be called because CORSMiddleware handles OPTIONS
+					 	but we need it for the route to be registered
+				*/
+			},
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
+	)
 
 	/* for listing files in a directory */
 	mux.Handle("POST /traverse/list-files", http.HandlerFunc(
@@ -64,14 +139,40 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 		),
 	))
 
-	/* for fetching list of all users in the LDAP server */
+	/* 
+		for fetching list of users matching the query in the LDAP server 
+		supports URL params: q (Query)
+	*/
 	mux.Handle("GET /users/ldap/search", http.HandlerFunc(
-		middleware.LoggingMiddleware(
-			middleware.AuthenticationMiddleware(search.SearchUsersHandler),
+		middleware.CORSMiddleware(
+			middleware.LoggingMiddleware(
+				middleware.AuthenticationMiddleware(search.SearchUsersHandler),
+			),
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
 		),
 	))
+	
+	/* handle OPTIONS preflight requests for /users/ldap/search */
+	mux.HandleFunc("OPTIONS /users/ldap/search",
+		middleware.CORSMiddleware(
+			func(w http.ResponseWriter, r *http.Request) {
+				/*
+						This handler will never be called because CORSMiddleware handles OPTIONS
+					 	but we need it for the route to be registered
+				*/
+			},
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
+	)
 
-	/* websocket connection for streaming user session data from Redis */
+	/* 
+		websocket connection for streaming user session data from Redis 
+		supports URL pamars: token (JWT authentication)
+	*/
 	mux.Handle("/users/session", http.HandlerFunc(
 		middleware.LoggingMiddleware(
 			/* you need authentication via query parameter */
@@ -79,33 +180,106 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 		),
 	))
 
-	/* websocket connection for streaming user transactions data from Redis */
+	/* 
+		websocket connection for streaming user transactions data from Redis 
+		supports URL pamars: token (JWT authentication)
+	*/
 	mux.Handle("/users/transactions/results", http.HandlerFunc(
 		middleware.LoggingMiddleware(
 			middleware.AuthenticationQueryMiddleware(sessionManager.StreamUserTransactionsResults),
 		),
 	))
 
-	/* websocket connection for streaming user transactions data from Redis */
+	/* 
+		websocket connection for streaming user transactions data from Redis 
+		supports URL pamars: token (JWT authentication)
+	*/
 	mux.Handle("/users/transactions/pending", http.HandlerFunc(
 		middleware.LoggingMiddleware(
 			middleware.AuthenticationQueryMiddleware(sessionManager.StreamUserTransactionsPending),
 		),
 	))
 
-	/* ARCHIVE WILL BE MADE POST REQUEST */
+	/* ARCHIVE WILL BE MADE POST REQUEST -> Header based Authentication */
 
 	/* websocket connection for streaming user session data from PostgreSQL database (archived sessions) */
-	mux.Handle("/users/archive/session", http.HandlerFunc(
-		middleware.LoggingMiddleware(
-			middleware.AuthenticationMiddleware(sessionManager.StreamUserArchiveSessions),
+	mux.Handle("GET /users/archive/session", http.HandlerFunc(
+		middleware.CORSMiddleware(
+			middleware.LoggingMiddleware(
+				middleware.AuthenticationMiddleware(sessionManager.StreamUserArchiveSessions),
+			),
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
 		),
 	))
 
+	/* handle OPTIONS preflight requests for /users/archive/session */
+	mux.HandleFunc("OPTIONS /users/archive/session",
+		middleware.CORSMiddleware(
+			func(w http.ResponseWriter, r *http.Request) {
+				/*
+						This handler will never be called because CORSMiddleware handles OPTIONS
+					 	but we need it for the route to be registered
+				*/
+			},
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
+	)
+
 	/* websocket connection for streaming user transactions data from PostgreSQL database (archived sessions) */
-	mux.Handle("/users/archive/transactions/pending", http.HandlerFunc(
-		middleware.LoggingMiddleware(
-			middleware.AuthenticationMiddleware(sessionManager.StreamUserArchivePendingTransactions),
+	mux.Handle("GET /users/archive/transactions/results", http.HandlerFunc(
+		middleware.CORSMiddleware(
+			middleware.LoggingMiddleware(
+				middleware.AuthenticationMiddleware(sessionManager.StreamUserArchiveResultsTransactions),
+			),
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
 		),
 	))
+
+		/* handle OPTIONS preflight requests for /users/archive/transactions/results */
+	mux.HandleFunc("OPTIONS /users/archive/transactions/results",
+		middleware.CORSMiddleware(
+			func(w http.ResponseWriter, r *http.Request) {
+				/*
+						This handler will never be called because CORSMiddleware handles OPTIONS
+					 	but we need it for the route to be registered
+				*/
+			},
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
+	)
+
+	/* websocket connection for streaming user transactions data from PostgreSQL database (archived sessions) */
+	mux.Handle("GET /users/archive/transactions/pending", http.HandlerFunc(
+		middleware.CORSMiddleware(
+			middleware.LoggingMiddleware(
+				middleware.AuthenticationMiddleware(sessionManager.StreamUserArchivePendingTransactions),
+			),
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,	
+		),
+	))
+
+	/* handle OPTIONS preflight requests for /users/archive/transactions/pending */
+	mux.HandleFunc("OPTIONS /users/archive/transactions/pending",
+		middleware.CORSMiddleware(
+			func(w http.ResponseWriter, r *http.Request) {
+				/*
+						This handler will never be called because CORSMiddleware handles OPTIONS
+					 	but we need it for the route to be registered
+				*/
+			},
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
+	)
 }
