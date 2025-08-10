@@ -80,7 +80,7 @@ type SessionStreamData struct {
 /* websocket stream message */
 type StreamMessage struct {
 	Type      string      `json:"type"`
-	Data      interface{} `json:"data"`
+	Data      any		  `json:"data"`
 	Timestamp time.Time   `json:"timestamp"`
 }
 
