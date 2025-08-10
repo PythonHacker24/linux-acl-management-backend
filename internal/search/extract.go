@@ -2,6 +2,7 @@ package search
 
 import (
 	"crypto/tls"
+	"fmt"
 
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
 	"github.com/go-ldap/ldap/v3"
@@ -13,8 +14,8 @@ import (
 	Users will be able to add users to blacklist which shouldn't be mentioned to the users.
 */
 
-/* returns all users in LDAP server */
-func GetAllUsersFromLDAP() ([]User, error) {
+/* returns search for query in the pool of all users in LDAP server */
+func GetAllUsersFromLDAP(query string) ([]User, error) {
 	
 	var l *ldap.Conn
 	var err error
@@ -44,10 +45,19 @@ func GetAllUsersFromLDAP() ([]User, error) {
 		return nil, err
 	}
 
+	/* wild card to avoid errors */
+	if query == "" {
+        query = "*" 
+    }
+
+	/* filter for query */
+	// filter := fmt.Sprintf("(|(cn=%s*)(uid=%s*)(mail=%s*))", query, query, query)
+	filter := fmt.Sprintf("(&(objectClass=inetOrgPerson)(|(uid=%s*)(cn=%s*)(mail=%s*)))", query, query, query)
+
 	/* search for users */
     searchRequest := ldap.NewSearchRequest(
 		/* Base DN */
-		config.BackendConfig.Authentication.LDAPConfig.AdminDN,
+		config.BackendConfig.Authentication.LDAPConfig.SearchBase,
         ldap.ScopeWholeSubtree,
         ldap.NeverDerefAliases,
 		/* size limit */
@@ -57,7 +67,7 @@ func GetAllUsersFromLDAP() ([]User, error) {
 		/* types only */
         false, 
 		/* filter */
-        "(objectClass=person)",
+        filter,
 		/* attributes to retrieve */
         []string{"cn", "mail", "sAMAccountName"}, // 
         nil,
