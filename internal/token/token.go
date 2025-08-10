@@ -29,7 +29,7 @@ func GenerateJWT(username string, sessionID uuid.UUID) (string, error) {
 /* validate JWT token and return claims */
 func ValidateJWT(tokenString string) (jwt.MapClaims, error) {
 	/* parse the token */
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method")
 		}
