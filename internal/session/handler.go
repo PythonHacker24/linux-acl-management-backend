@@ -84,9 +84,6 @@ const (
 	CtxStreamUserTransactionsPending		handlerCtxKey = "stream_user_transactions_pending"
 	CtxStreamAllSessions      				handlerCtxKey = "stream_all_sessions"
 	CtxStreamAllTransactions  				handlerCtxKey = "stream_all_transactions"
-	CtxStreamUserArchiveSession 			handlerCtxKey = "stream_user_archive_sessions"
-	CtxStreamUserArchiveResultsTransactions handlerCtxKey = "stream_user_archive_results_transactions"
-	CtxStreamUserArchivePendingTransactions handlerCtxKey = "stream_user_archive_pending_transactions"
 )
 
 /*
@@ -280,125 +277,18 @@ get user archived sessions information
 requires user authentication from middleware
 user/
 */
-func (m *Manager) StreamUserArchiveSessions(w http.ResponseWriter, r *http.Request) {
-	/* get the username */
-	username, ok := r.Context().Value(middleware.ContextKeyUsername).(string)
-	if !ok {
-		http.Error(w, "Invalid user context", http.StatusInternalServerError)
-		return
-	}
+func (m *Manager) StreamUserArchiveSessions(w http.ResponseWriter, r *http.Request) {} 
 
-	/* get the session id */
-	sessionID, ok := r.Context().Value(middleware.ContextKeySessionID).(string)
-	if !ok {
-		http.Error(w, "Invalid session ID context", http.StatusInternalServerError)
-		return
-	}
-
-	m.mutex.RLock()
-	session, exists := m.sessionsMap[username]
-	m.mutex.RUnlock()
-
-	if !exists || session.ID.String() != sessionID {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	/* user exists and verified, upgrade the websocket connection */
-	conn, err := m.upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		m.errCh <- fmt.Errorf("websocket upgrade error: %w", err)
-		return
-	}
-	defer conn.Close()
-
-	/*
-		context with cancel for web socket handlers
-		this is the official context for a websocket connection
-		cancelling this means closing components of the websocket handler
-	*/
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	/* sending initial session data */
-	if err := m.sendCurrentArchivedSessions(conn, username, 1, 1); err != nil {
-		m.errCh <- fmt.Errorf("error sending initial session: %w", err)
-		return
-	}
-
-	/* 
-		don't send updated stream of data
-		archive is updated when session expires
-		so user will have no access to the dashboard and can't see new
-	*/
-
-	/* specify the handler context */
-	ctxVal := context.WithValue(ctx, "type", CtxStreamUserArchiveSession)
-
-	/* handle web socket instructions from client */
-	m.handleWebSocketCommands(conn, username, sessionID, ctxVal, cancel)
-} 
+/*
+get user archived results transactions information
+requires user authentication from middleware
+user/
+*/
+func (m *Manager) StreamUserArchiveResultsTransactions(w http.ResponseWriter, r *http.Request) {}
 
 /*
 get user archived pending transactions information
 requires user authentication from middleware
 user/
 */
-func (m *Manager) StreamUserArchivePendingTransactions(w http.ResponseWriter, r *http.Request) {
-	/* get the username */
-	username, ok := r.Context().Value(middleware.ContextKeyUsername).(string)
-	if !ok {
-		http.Error(w, "Invalid user context", http.StatusInternalServerError)
-		return
-	}
-
-	/* get the session id */
-	sessionID, ok := r.Context().Value(middleware.ContextKeySessionID).(string)
-	if !ok {
-		http.Error(w, "Invalid session ID context", http.StatusInternalServerError)
-		return
-	}
-
-	m.mutex.RLock()
-	session, exists := m.sessionsMap[username]
-	m.mutex.RUnlock()
-
-	if !exists || session.ID.String() != sessionID {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	/* user exists and verified, upgrade the websocket connection */
-	conn, err := m.upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		m.errCh <- fmt.Errorf("websocket upgrade error: %w", err)
-		return
-	}
-	defer conn.Close()
-
-	/*
-		context with cancel for web socket handlers
-		this is the official context for a websocket connection
-		cancelling this means closing components of the websocket handler
-	*/
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	/* sending initial session data */
-	if err := m.sendCurrentArchivedPendingTransactions(conn, username, 1, 10); err != nil {
-		m.errCh <- fmt.Errorf("error sending initial session: %w", err)
-		return
-	}
-
-	/* 
-		don't send updated stream of data
-		archive is updated when session expires
-		so user will have no access to the dashboard and can't see new
-	*/
-
-	/* specify the handler context */
-	ctxVal := context.WithValue(ctx, "type", CtxStreamUserArchivePendingTransactions)
-
-	/* handle web socket instructions from client */
-	m.handleWebSocketCommands(conn, username, sessionID, ctxVal, cancel)
-} 
+func (m *Manager) StreamUserArchivePendingTransactions(w http.ResponseWriter, r *http.Request) {}
