@@ -19,9 +19,10 @@ func (m *Manager) CreateSession(username, ipAddress, userAgent string) (uuid.UUI
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
-	/* check if session exists */
-	if _, exists := m.sessionsMap[username]; exists {
-		return uuid.Nil, fmt.Errorf("user already exists in active sessions")
+	/* check if session exists -> if yes, reset the timer and return the session ID */
+	if session, exists := m.sessionsMap[username]; exists {
+		m.RefreshTimer(username)
+		return session.ID, nil
 	}
 
 	/* Generate session metadata */
@@ -215,11 +216,7 @@ func (m *Manager) AddTransaction(session *Session, txn *types.Transaction) error
 }
 
 /* refresh the session timer */
-func (m *Manager) refreshTimer(username string) error {
-	/* thread safety for the manager */
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-
+func (m *Manager) RefreshTimer(username string) error {
 	/* get session from sessionMap */
 	session, exists := m.sessionsMap[username]
 	if !exists {
@@ -245,6 +242,29 @@ func (m *Manager) refreshTimer(username string) error {
 	)
 
 	/* update Redis for session */
+	m.saveSessionRedis(session)
 
 	return nil
+}
+
+/* check is a session exists for a username */
+func (m *Manager) SessionExistance(username string) (uuid.UUID, bool, error) {
+	/* thread safety for the manager */
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	/* get session from sessionMap */
+	session, exists := m.sessionsMap[username]
+	if exists {
+
+		/* thread safety for the session */
+		session.Mutex.Lock()
+		defer session.Mutex.Unlock()
+
+		if session.Username == username {
+			return session.ID, true, nil
+		}
+	}
+
+	return uuid.Nil, false, nil
 }
