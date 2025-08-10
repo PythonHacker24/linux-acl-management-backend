@@ -1,17 +1,22 @@
 package search
 
 import (
-	"fmt"
-	"net/http"
 	"encoding/json"
+	"net/http"
+
+	"go.uber.org/zap"
 )
 
-/* handler to return list of all users in LDAP server */
+/* handler to return list of users that match the query in LDAP server */
 func SearchUsersHandler(w http.ResponseWriter, r *http.Request) {
 	/* fetch all users from LDAP server */
-    users, err := GetAllUsersFromLDAP()
+	query := r.URL.Query().Get("q")
+    users, err := GetAllUsersFromLDAP(query)
     if err != nil {
-        http.Error(w, fmt.Sprintf("LDAP error: %v", err), http.StatusInternalServerError)
+		zap.L().Error("LDAP error",
+			zap.Error(err),
+		)
+        http.Error(w, "LDAP error", http.StatusInternalServerError)
         return
     }
 
