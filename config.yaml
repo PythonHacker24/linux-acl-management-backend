@@ -15,14 +15,14 @@ server:
 # databases for operations
 database:
   transaction_log_redis: 
-    address: localhost:6379
+    address: host.docker.internal:6379
     password: ${LACLM_TRANS_REDIS_PASSWORD}
     db: 0
   archival_postgres:
-    host: localhost 
+    host: host.docker.internal 
     port: 5432
-    user: postgres
-    password: idontlikepeople
+    user: adityapatil
+    password:
     dbname: postgres
     sslmode: disable
 
@@ -46,7 +46,7 @@ filesystem_servers:
 authentication:
   ldap:
     tls: false
-    address: "ldap://localhost:389"
+    address: "ldap://openldap:389"
     admin_dn: ${LACLM_LDAP_ADMIN_DN}
     admin_password: ${LACLM_LDAP_ADMIN_PASSWORD}
     search_base: "cn=Princeton Plainsboro Hospital ,dc=myorg,dc=local"
