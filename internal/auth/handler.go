@@ -11,7 +11,7 @@ import (
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/token"
 )
 
-/* Handles user login and creates a session */
+/* handles user login and creates a session */
 func LoginHandler(sessionManager *session.Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -44,6 +44,11 @@ func LoginHandler(sessionManager *session.Manager) http.HandlerFunc {
 			return
 		}
 
+		/* 
+			check if the session already exists in the manager.
+			if it exists, refresh it's timer and return a jwt token
+		*/
+
 		/* create session for the user */
 		sessionID, err := sessionManager.CreateSession(user.Username, r.RemoteAddr, r.UserAgent())
 		if err != nil {
@@ -75,4 +80,47 @@ func LoginHandler(sessionManager *session.Manager) http.HandlerFunc {
 			return
 		}
 	}
+}
+
+/* handles user logout and expire session */
+func LogoutHandler(sessionManager *session.Manager) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		
+		/* authenticate the request through JWT */
+		username, _, err := token.ExtractDataFromRequest(r)
+		if err != nil {
+			zap.L().Info("Error during token extraction in logout",
+				zap.Error(err),
+			)
+			http.Error(w, "Error during token extraction in logout", http.StatusInternalServerError)
+			return
+		}
+
+		err = sessionManager.ExpireSession(username)
+		if err != nil {
+			zap.L().Error("Failed to expire session during logout",
+				zap.Error(err),
+			)
+			http.Error(w, "Failed to expire session during logout", http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+/* validate a token */
+func ValidateToken(w http.ResponseWriter, r *http.Request) {
+
+	/* authenticate the request through JWT */
+	_, _, err := token.ExtractDataFromRequest(r)
+	if err != nil {
+		zap.L().Info("Error during authentication",
+			zap.Error(err),
+		)
+		http.Error(w, "Authentication Failed", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
