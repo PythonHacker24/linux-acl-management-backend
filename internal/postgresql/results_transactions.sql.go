@@ -359,6 +359,53 @@ func (q *Queries) GetResultsTransactionsBySessionPQ(ctx context.Context, session
 	return items, nil
 }
 
+const getResultsTransactionsByUserPaginatedPQ = `-- name: GetResultsTransactionsByUserPaginatedPQ :many
+SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM results_transactions_archive
+WHERE executed_by = $1
+ORDER BY timestamp DESC
+LIMIT $2 OFFSET $3
+`
+
+type GetResultsTransactionsByUserPaginatedPQParams struct {
+	ExecutedBy string `json:"executed_by"`
+	Limit      int32  `json:"limit"`
+	Offset     int32  `json:"offset"`
+}
+
+func (q *Queries) GetResultsTransactionsByUserPaginatedPQ(ctx context.Context, arg GetResultsTransactionsByUserPaginatedPQParams) ([]ResultsTransactionsArchive, error) {
+	rows, err := q.db.Query(ctx, getResultsTransactionsByUserPaginatedPQ, arg.ExecutedBy, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ResultsTransactionsArchive{}
+	for rows.Next() {
+		var i ResultsTransactionsArchive
+		if err := rows.Scan(
+			&i.ID,
+			&i.SessionID,
+			&i.Timestamp,
+			&i.Operation,
+			&i.TargetPath,
+			&i.Entries,
+			&i.Status,
+			&i.ErrorMsg,
+			&i.Output,
+			&i.ExecutedBy,
+			&i.DurationMs,
+			&i.Execstatus,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSuccessfulResultsTransactionsPQ = `-- name: GetSuccessfulResultsTransactionsPQ :many
 SELECT id, session_id, timestamp, operation, target_path, entries, status, error_msg, output, executed_by, duration_ms, execstatus, created_at FROM results_transactions_archive
 WHERE session_id = $1 AND status = 'success'

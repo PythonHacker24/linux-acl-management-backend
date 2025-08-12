@@ -35,6 +35,7 @@ type Querier interface {
 	GetResultsTransactionsByOperationPQ(ctx context.Context, arg GetResultsTransactionsByOperationPQParams) ([]ResultsTransactionsArchive, error)
 	GetResultsTransactionsByPathPQ(ctx context.Context, arg GetResultsTransactionsByPathPQParams) ([]ResultsTransactionsArchive, error)
 	GetResultsTransactionsBySessionPQ(ctx context.Context, sessionID uuid.UUID) ([]ResultsTransactionsArchive, error)
+	GetResultsTransactionsByUserPaginatedPQ(ctx context.Context, arg GetResultsTransactionsByUserPaginatedPQParams) ([]ResultsTransactionsArchive, error)
 	GetSessionByUsernamePaginatedPQ(ctx context.Context, arg GetSessionByUsernamePaginatedPQParams) ([]SessionsArchive, error)
 	GetSessionPQ(ctx context.Context, id uuid.UUID) (SessionsArchive, error)
 	GetSuccessfulResultsTransactionsPQ(ctx context.Context, sessionID uuid.UUID) ([]ResultsTransactionsArchive, error)
