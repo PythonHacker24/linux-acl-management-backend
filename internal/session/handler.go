@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/PythonHacker24/linux-acl-management-backend/api/middleware"
+	"github.com/PythonHacker24/linux-acl-management-backend/internal/postgresql"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 )
 
@@ -277,18 +278,195 @@ get user archived sessions information
 requires user authentication from middleware
 user/
 */
-func (m *Manager) StreamUserArchiveSessions(w http.ResponseWriter, r *http.Request) {} 
+func (m *Manager) StreamUserArchiveSessions(w http.ResponseWriter, r *http.Request) {
+	/* get the username */
+	username, ok := r.Context().Value(middleware.ContextKeyUsername).(string)
+	if !ok {
+		http.Error(w, "Invalid user context", http.StatusInternalServerError)
+		return
+	}
+
+	/* get the session id */
+	sessionID, ok := r.Context().Value(middleware.ContextKeySessionID).(string)
+	if !ok {
+		http.Error(w, "Invalid session ID context", http.StatusInternalServerError)
+		return
+	}
+
+	/* extract session from session manager */
+	m.mutex.RLock()
+	session, exists := m.sessionsMap[username]
+	m.mutex.RUnlock()
+
+	/* check if session exists in current session manager (user session in live) */
+	if !exists || session.ID.String() != sessionID {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	
+	/* deserialize archival request */
+	var req ArchivalRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	/* fallback to default values if values are invalid */
+	if req.Limit <= 0 {
+		req.Limit = 10
+	}
+	if req.Offset < 0 {
+		req.Offset = 0
+	}
+
+	/* get archived sessions from PostgreSQL database */
+	sessions, err := m.archivalPQ.GetSessionByUsernamePaginatedPQ(
+		r.Context(),
+		postgresql.GetSessionByUsernamePaginatedPQParams{
+			Username: username,
+			Limit:    req.Limit,
+			Offset:   req.Offset,
+		},
+	)
+	if err != nil {
+		m.errCh <- fmt.Errorf("error fetching archived sessions from postgresql database: %w", err)
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return
+	}
+
+	/* send response with json */
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(sessions)
+} 
 
 /*
 get user archived results transactions information
 requires user authentication from middleware
 user/
 */
-func (m *Manager) StreamUserArchiveResultsTransactions(w http.ResponseWriter, r *http.Request) {}
+func (m *Manager) StreamUserArchiveResultsTransactions(w http.ResponseWriter, r *http.Request) {
+	/* get the username */
+	username, ok := r.Context().Value(middleware.ContextKeyUsername).(string)
+	if !ok {
+		http.Error(w, "Invalid user context", http.StatusInternalServerError)
+		return
+	}
+
+	/* get the session id */
+	sessionID, ok := r.Context().Value(middleware.ContextKeySessionID).(string)
+	if !ok {
+		http.Error(w, "Invalid session ID context", http.StatusInternalServerError)
+		return
+	}
+
+	/* extract session from session manager */
+	m.mutex.RLock()
+	session, exists := m.sessionsMap[username]
+	m.mutex.RUnlock()
+
+	/* check if session exists in current session manager (user session in live) */
+	if !exists || session.ID.String() != sessionID {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	
+	/* deserialize archival request */
+	var req ArchivalRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	/* fallback to default values if values are invalid */
+	if req.Limit <= 0 {
+		req.Limit = 10
+	}
+	if req.Offset < 0 {
+		req.Offset = 0
+	}
+
+	/* get archived transactions results from PostgreSQL database */
+	sessions, err := m.archivalPQ.GetResultsTransactionsByUserPaginatedPQ(
+		r.Context(),
+		postgresql.GetResultsTransactionsByUserPaginatedPQParams{
+			ExecutedBy: username,
+			Limit:    	req.Limit,
+			Offset:   	req.Offset,
+		},
+	)
+	if err != nil {
+		m.errCh <- fmt.Errorf("error fetching archived transaction results from postgresql database: %w", err)
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return
+	}
+
+	/* send response with json */
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(sessions)
+}
 
 /*
 get user archived pending transactions information
 requires user authentication from middleware
 user/
 */
-func (m *Manager) StreamUserArchivePendingTransactions(w http.ResponseWriter, r *http.Request) {}
+func (m *Manager) StreamUserArchivePendingTransactions(w http.ResponseWriter, r *http.Request) {
+	/* get the username */
+	username, ok := r.Context().Value(middleware.ContextKeyUsername).(string)
+	if !ok {
+		http.Error(w, "Invalid user context", http.StatusInternalServerError)
+		return
+	}
+
+	/* get the session id */
+	sessionID, ok := r.Context().Value(middleware.ContextKeySessionID).(string)
+	if !ok {
+		http.Error(w, "Invalid session ID context", http.StatusInternalServerError)
+		return
+	}
+
+	/* extract session from session manager */
+	m.mutex.RLock()
+	session, exists := m.sessionsMap[username]
+	m.mutex.RUnlock()
+
+	/* check if session exists in current session manager (user session in live) */
+	if !exists || session.ID.String() != sessionID {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	
+	/* deserialize archival request */
+	var req ArchivalRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	/* fallback to default values if values are invalid */
+	if req.Limit <= 0 {
+		req.Limit = 10
+	}
+	if req.Offset < 0 {
+		req.Offset = 0
+	}
+
+	/* get archived pending transactions from PostgreSQL database */
+	sessions, err := m.archivalPQ.GetPendingTransactionsByUserPaginatedPQ(
+		r.Context(),
+		postgresql.GetPendingTransactionsByUserPaginatedPQParams{
+			ExecutedBy: username,
+			Limit:    	req.Limit,
+			Offset:   	req.Offset,
+		},
+	)
+	if err != nil {
+		m.errCh <- fmt.Errorf("error fetching archived pending transaction from postgresql database: %w", err)
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return
+	}
+
+	/* send response with json */
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(sessions)
+}
