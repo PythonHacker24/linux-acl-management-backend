@@ -80,3 +80,9 @@ SELECT
     AVG(duration_ms) as avg_duration_ms
 FROM results_transactions_archive
 WHERE session_id = $1;
+
+-- name: GetResultsTransactionsByUserPaginatedPQ :many
+SELECT * FROM results_transactions_archive
+WHERE executed_by = $1
+ORDER BY timestamp DESC
+LIMIT $2 OFFSET $3;
