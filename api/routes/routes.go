@@ -134,10 +134,30 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 
 	/* for scheduling a transaction */
 	mux.Handle("POST /transactions/schedule", http.HandlerFunc(
-		middleware.LoggingMiddleware(
-			middleware.AuthenticationMiddleware(sessionManager.IssueTransaction),
+		middleware.CORSMiddleware(
+			middleware.LoggingMiddleware(
+				middleware.AuthenticationMiddleware(sessionManager.IssueTransaction),
+			),
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
 		),
 	))
+
+	/* handle OPTIONS preflight requests for /transactions/schedule */
+	mux.HandleFunc("OPTIONS /transactions/schedule",
+		middleware.CORSMiddleware(
+			func(w http.ResponseWriter, r *http.Request) {
+				/*
+						This handler will never be called because CORSMiddleware handles OPTIONS
+					 	but we need it for the route to be registered
+				*/
+			},
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
+	)
 
 	/* 
 		for fetching list of users matching the query in the LDAP server 
@@ -203,7 +223,7 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 	/* ARCHIVE WILL BE MADE POST REQUEST -> Header based Authentication */
 
 	/* websocket connection for streaming user session data from PostgreSQL database (archived sessions) */
-	mux.Handle("GET /users/archive/session", http.HandlerFunc(
+	mux.Handle("POST /users/archive/session", http.HandlerFunc(
 		middleware.CORSMiddleware(
 			middleware.LoggingMiddleware(
 				middleware.AuthenticationMiddleware(sessionManager.StreamUserArchiveSessions),
@@ -230,7 +250,7 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 	)
 
 	/* websocket connection for streaming user transactions data from PostgreSQL database (archived sessions) */
-	mux.Handle("GET /users/archive/transactions/results", http.HandlerFunc(
+	mux.Handle("POST /users/archive/transactions/results", http.HandlerFunc(
 		middleware.CORSMiddleware(
 			middleware.LoggingMiddleware(
 				middleware.AuthenticationMiddleware(sessionManager.StreamUserArchiveResultsTransactions),
@@ -241,7 +261,7 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 		),
 	))
 
-		/* handle OPTIONS preflight requests for /users/archive/transactions/results */
+	/* handle OPTIONS preflight requests for /users/archive/transactions/results */
 	mux.HandleFunc("OPTIONS /users/archive/transactions/results",
 		middleware.CORSMiddleware(
 			func(w http.ResponseWriter, r *http.Request) {
@@ -257,7 +277,7 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 	)
 
 	/* websocket connection for streaming user transactions data from PostgreSQL database (archived sessions) */
-	mux.Handle("GET /users/archive/transactions/pending", http.HandlerFunc(
+	mux.Handle("POST /users/archive/transactions/pending", http.HandlerFunc(
 		middleware.CORSMiddleware(
 			middleware.LoggingMiddleware(
 				middleware.AuthenticationMiddleware(sessionManager.StreamUserArchivePendingTransactions),
