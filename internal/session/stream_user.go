@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/PythonHacker24/linux-acl-management-backend/internal/postgresql"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
@@ -331,119 +330,5 @@ func (m *Manager) handleTransactionChangeEventPending(conn *websocket.Conn, sess
 	}
 
 	/* send the message to the client */
-	return conn.WriteJSON(message)
-}
-
-/* ==== User Archived Session ==== */
-
-/* send list of archived session of a user */
-func (m *Manager) sendCurrentArchivedSessions(conn *websocket.Conn, username string, page int, pageSize int) error {
-	ctx := context.Background()
-
-	/* calculate LIMIT and OFFSET */
-	limit := int32(pageSize)
-	offset := int32((page - 1) * pageSize)
-
-	pqParams := &postgresql.GetSessionByUsernamePaginatedPQParams{
-		Username: username,
-		Limit: limit,
-		Offset: offset,
-	}
-
-	/* query sessions */
-	sessions, err := m.archivalPQ.GetSessionByUsernamePaginatedPQ(ctx, *pqParams)
-	if err != nil {
-		return fmt.Errorf("failed to get sessions for username %s: %w", username, err)
-	}
-
-	exists := len(sessions) > 0
-
-	/* convert to plain JSON-compatible slices */
-	var outgoing []map[string]any
-	for _, session := range sessions {
-		outgoing = append(outgoing, map[string]any{
-			"id":              session.ID,
-			"username":        session.Username,
-			"ip":              session.Ip.String,
-			"user_agent":      session.UserAgent.String,
-			"status":          session.Status,
-			"created_at":      session.CreatedAt,
-			"last_active_at":  session.LastActiveAt,
-			"expiry":          session.Expiry,
-			"completed_count": session.CompletedCount,
-			"failed_count":    session.FailedCount,
-			"archived_at":     session.ArchivedAt,
-		})
-	}
-
-	message := StreamMessage{
-		Type: "session_state",
-		Data: map[string]any{
-			"username": username,
-			"exists":   exists,
-			"sessions": outgoing,
-			"page":     page,
-			"pageSize": pageSize,
-		},
-		Timestamp: time.Now(),
-	}
-
-	return conn.WriteJSON(message)
-}
-
-/* ==== User Archived Transactions ==== */
-
-/* send list of archived pending transactions */
-func (m *Manager) sendCurrentArchivedPendingTransactions(conn *websocket.Conn, username string, page int, pageSize int) error {
-	ctx := context.Background()
-
-	limit := int32(pageSize)
-	offset := int32((page - 1) * pageSize)
-
-	pqParams := &postgresql.GetPendingTransactionsByUserPaginatedPQParams{
-		ExecutedBy: username,
-		Limit: limit,
-		Offset: offset,
-	}
-
-	/* query transactions by executed_by */
-	transactions, err := m.archivalPQ.GetPendingTransactionsByUserPaginatedPQ(ctx, *pqParams)
-	if err != nil {
-		return fmt.Errorf("failed to get transactions for user %s: %w", username, err)
-	}
-
-	exists := len(transactions) > 0
-
-	var outgoing []map[string]any
-	for _, tx := range transactions {
-		outgoing = append(outgoing, map[string]any{
-			"id":           tx.ID,
-			"session_id":   tx.SessionID,
-			"timestamp":    tx.Timestamp,
-			"operation":    tx.Operation,
-			"target_path":  tx.TargetPath,
-			"entries":      tx.Entries, // JSONB will decode as []byte, so decode if needed
-			"status":       tx.Status,
-			"error_msg":    tx.ErrorMsg,
-			"output":       tx.Output,
-			"executed_by":  tx.ExecutedBy,
-			"duration_ms":  tx.DurationMs,
-			"ExecStatus":   tx.Execstatus,
-			"created_at":   tx.CreatedAt,
-		})
-	}
-
-	message := StreamMessage{
-		Type: "transactions_state",
-		Data: map[string]any{
-			"username":    username,
-			"exists":      exists,
-			"transactions": outgoing,
-			"page":        page,
-			"pageSize":    pageSize,
-		},
-		Timestamp: time.Now(),
-	}
-
 	return conn.WriteJSON(message)
 }
