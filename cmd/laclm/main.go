@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/PythonHacker24/linux-acl-management-backend/api/routes"
 	"github.com/PythonHacker24/linux-acl-management-backend/config"
@@ -29,7 +30,6 @@ import (
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/transprocessor"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/utils"
-	"github.com/jackc/pgx/v5"
 )
 
 func main() {
@@ -183,13 +183,13 @@ func run(ctx context.Context) error {
 		config.BackendConfig.Database.ArchivalPQ.SSLMode,
 	)
 
-	connPQ, err := pgx.Connect(context.Background(), pqDB)
+	poolPQ, err := pgxpool.New(context.Background(), pqDB)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
 		os.Exit(1)
 	}
 
-	archivalPQ := postgresql.New(connPQ)
+	archivalPQ := postgresql.New(poolPQ)
 
 	/* create a session manager */
 	sessionManager := session.NewManager(logRedisClient, archivalPQ, errChLog)
@@ -321,7 +321,7 @@ func run(ctx context.Context) error {
 	}
 
 	/* close archival database connection */
-	connPQ.Close(context.Background())
+	poolPQ.Close()
 
 	zap.L().Info("All background processes closed gracefully")
 
