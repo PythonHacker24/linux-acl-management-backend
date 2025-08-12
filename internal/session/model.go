@@ -108,3 +108,9 @@ type ACLEntryStream struct {
 	Success     bool   `json:"success"`
 	Error       string `json:"error,omitempty"`
 }
+
+/* archival data fetch requests */
+type ArchivalRequest struct {
+	Limit    int32  `json:"limit"`
+	Offset   int32  `json:"offset"`
+}
