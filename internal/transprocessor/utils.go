@@ -1,4 +1,4 @@
-package transprocessor 
+package transprocessor
 
 import (
 	"strings"

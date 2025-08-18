@@ -2,6 +2,7 @@ package transprocessor
 
 import (
 	"context"
+	"fmt"
 
 	"go.uber.org/zap"
 
@@ -12,10 +13,10 @@ import (
 )
 
 /* instanciate new permission processor */
-func NewPermProcessor(gRPCPool *grpcpool.ClientPool, errCh chan<-error) *PermProcessor {
+func NewPermProcessor(gRPCPool *grpcpool.ClientPool, errCh chan<- error) *PermProcessor {
 	return &PermProcessor{
 		gRPCPool: gRPCPool,
-		errCh: errCh,
+		errCh:    errCh,
 	}
 }
 
@@ -44,6 +45,15 @@ func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session
 		/* this line decides between systems like BeeGFS and NFS due to difference in ACL execution */
 		isRemote, host, port, found, absolutePath := FindServerFromPath(config.BackendConfig.FileSystemServers, txn.TargetPath)
 
+		zap.L().Info("Found server",
+			zap.String("targetPath", txn.TargetPath),
+			zap.String("isRemote", fmt.Sprintf("%t", isRemote)),
+			zap.String("host", host),
+			zap.Int("port", port),
+			zap.String("found", fmt.Sprintf("%t", found)),
+			zap.String("absolutePath", absolutePath),
+		)
+
 		if !found {
 			/* filepath is invalid, filesystem doesn't exist */
 			txn.ErrorMsg = "filesystem of given path doesn't exist"
@@ -60,7 +70,7 @@ func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session
 		}
 
 		/* REMOVE THIS */
-		zap.L().Info("Completed Transaction", 
+		zap.L().Info("Completed Transaction",
 			zap.String("ID", txn.ID.String()),
 		)
 	}
