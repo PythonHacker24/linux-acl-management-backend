@@ -36,7 +36,7 @@ logging:
 
 # filesystem server that needs management
 filesystem_servers:
-  - path: /mnt/nfs-system
+  - path: /nfs-system
     method: remote
     remote:
       host: localhost 
