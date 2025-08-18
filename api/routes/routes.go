@@ -127,10 +127,30 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 
 	/* for listing files in a directory */
 	mux.Handle("POST /traverse/list-files", http.HandlerFunc(
-		middleware.LoggingMiddleware(
-			middleware.AuthenticationMiddleware(traversal.ListFilesInDirectory),
+		middleware.CORSMiddleware(
+			middleware.LoggingMiddleware(
+				middleware.AuthenticationMiddleware(traversal.ListFilesInDirectory),
+			),
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
 		),
 	))
+
+	/* handle OPTIONS preflight requests for /traverse/list-files */
+	mux.HandleFunc("OPTIONS /traverse/list-files",
+		middleware.CORSMiddleware(
+			func(w http.ResponseWriter, r *http.Request) {
+				/*
+						This handler will never be called because CORSMiddleware handles OPTIONS
+					 	but we need it for the route to be registered
+				*/
+			},
+			allowedOrigin,
+			allowedMethods,
+			allowedHeaders,
+		),
+	)
 
 	/* for scheduling a transaction */
 	mux.Handle("POST /transactions/schedule", http.HandlerFunc(
