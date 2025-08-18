@@ -84,7 +84,23 @@ func CORSMiddleware(next http.HandlerFunc, allowedOrigins []string, allowedMetho
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Vary", "Origin")
 			w.Header().Set("Access-Control-Allow-Methods", methods)
-			w.Header().Set("Access-Control-Allow-Headers", headers)
+
+			/* determine final allowed headers
+			   If configured as "*", echo back the requested headers to ensure
+			   headers like Authorization are explicitly allowed.
+			*/
+			finalAllowedHeaders := headers
+			if strings.Contains(headers, "*") {
+				requestedHeaders := r.Header.Get("Access-Control-Request-Headers")
+				if requestedHeaders != "" {
+					finalAllowedHeaders = requestedHeaders
+				} else {
+					/* sensible defaults when no specific request headers are provided */
+					finalAllowedHeaders = "Authorization, Content-Type"
+				}
+			}
+			w.Header().Set("Access-Control-Allow-Headers", finalAllowedHeaders)
+
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 		}
 
