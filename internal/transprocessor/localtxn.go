@@ -30,11 +30,11 @@ func (p *PermProcessor) HandleLocalTransaction(txn *types.Transaction, absoluteP
 		zap.String("Transaction ID", txn.ID.String()),
 		zap.String("Action", txn.Entries.Action),
 		zap.String("Entry", aclEntry),
-		zap.String("Path", txn.TargetPath),
+		zap.String("Path", absolutePath),
 	)
 
 	/* lock the file path for thread safety (ensure unlock even on panic) */
-	lock := getPathLock(txn.TargetPath)
+	lock := getPathLock(absolutePath)
 	lock.Lock()
 	defer lock.Unlock()
 
@@ -42,16 +42,16 @@ func (p *PermProcessor) HandleLocalTransaction(txn *types.Transaction, absoluteP
 	var cmd *exec.Cmd
 	switch txn.Entries.Action {
 	case "add", "modify":
-		cmd = exec.Command("setfacl", "-m", aclEntry, txn.TargetPath)
+		cmd = exec.Command("setfacl", "-m", aclEntry, absolutePath)
 	case "remove":
-		cmd = exec.Command("setfacl", "-x", aclEntry, txn.TargetPath)
+		cmd = exec.Command("setfacl", "-x", aclEntry, absolutePath)
 	default:
 		// sendResponse(conn, false, "Unsupported action: "+req.Action)
 		txn.ErrorMsg = fmt.Sprintf("unsupported ACL action: %s", txn.Entries.Action)
 	}
 
 	start := time.Now()
-	
+
 	output, err := cmd.CombinedOutput()
 
 	duration := time.Since(start).Milliseconds()
