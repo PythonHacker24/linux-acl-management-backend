@@ -41,6 +41,8 @@ filesystem_servers:
     remote:
       host: localhost 
       port: 6593
+  - path: /beegfs-system
+    method: local
 
 # authentication information
 authentication:
