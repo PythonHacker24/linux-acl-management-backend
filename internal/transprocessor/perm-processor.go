@@ -6,7 +6,6 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/PythonHacker24/linux-acl-management-backend/config"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/grpcpool"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/session"
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
@@ -43,7 +42,7 @@ func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session
 		*/
 
 		/* this line decides between systems like BeeGFS and NFS due to difference in ACL execution */
-		isRemote, host, port, found, absolutePath := FindServerFromPath(config.BackendConfig.FileSystemServers, txn.TargetPath)
+		isRemote, host, port, found, absolutePath := FindServerFromPath(txn.TargetPath)
 
 		zap.L().Info("Found server",
 			zap.String("targetPath", txn.TargetPath),
