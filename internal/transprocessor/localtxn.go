@@ -7,8 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"go.uber.org/zap"
-
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 )
 
@@ -24,14 +22,6 @@ func getPathLock(path string) *sync.Mutex {
 /* handles local transaction execution (change permissions via mounts) */
 func (p *PermProcessor) HandleLocalTransaction(txn *types.Transaction, absolutePath string) error {
 	aclEntry := BuildACLEntry(txn.Entries)
-
-	/* REMOVE THIS */
-	zap.L().Info("ACL Request recieved",
-		zap.String("Transaction ID", txn.ID.String()),
-		zap.String("Action", txn.Entries.Action),
-		zap.String("Entry", aclEntry),
-		zap.String("Path", absolutePath),
-	)
 
 	/* lock the file path for thread safety (ensure unlock even on panic) */
 	lock := getPathLock(absolutePath)
@@ -65,24 +55,11 @@ func (p *PermProcessor) HandleLocalTransaction(txn *types.Transaction, absoluteP
 		txn.ExecStatus = false
 		txn.ErrorMsg = err.Error()
 
-		/* REMOVE THIS */
-		zap.L().Error("ACL command failed",
-			zap.String("Transaction ID", txn.ID.String()),
-			zap.String("Output", string(output)),
-			zap.Error(err),
-		)
-
-		txn.ErrorMsg = fmt.Sprintf("setfacl failed: %w, output: %s", err, output)
+		txn.ErrorMsg = fmt.Sprintf("setfacl failed: %s, output: %s", err.Error(), output)
 	}
 
 	txn.Status = types.StatusSuccess
 	txn.ExecStatus = true
-
-	/* REMOVE THIS */
-	zap.L().Info("ACL command executed successfully",
-		zap.String("Transaction ID", txn.ID.String()),
-		zap.String("Output", string(output)),
-	)
 
 	return nil
 }
