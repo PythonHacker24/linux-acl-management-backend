@@ -50,6 +50,10 @@ test:
 
 ## Lint (requires golangci-lint)
 lint:
+	@if ! command -v golangci-lint >/dev/null 2>&1; then \
+		echo "Installing golangci-lint..."; \
+		go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest; \
+	fi
 	@echo "Linting..."
 	@golangci-lint run
 
