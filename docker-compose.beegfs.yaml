@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  beegfs-mgmtd:
+    image: ghcr.io/thinkparq/beegfs-mgmtd:latest
+    container_name: beegfs-mgmtd
+    ports:
+      - "8008:8008"
+    networks:
+      - beegfs-net
+
+  beegfs-meta:
+    image: ghcr.io/thinkparq/beegfs-meta:latest
+    container_name: beegfs-meta
+    depends_on:
+      - beegfs-mgmtd
+    environment:
+      - BEEGFS_MGMTD_HOSTNAME=beegfs-mgmtd
+    networks:
+      - beegfs-net
+
+  beegfs-storage:
+    image: ghcr.io/thinkparq/beegfs-storage:latest
+    container_name: beegfs-storage
+    depends_on:
+      - beegfs-mgmtd
+    environment:
+      - BEEGFS_MGMTD_HOSTNAME=beegfs-mgmtd
+    volumes:
+      - beegfs-storage-data:/data
+    networks:
+      - beegfs-net
+
+  beegfs-client:
+    image: ghcr.io/thinkparq/beegfs-client:latest
+    container_name: beegfs-client
+    privileged: true
+    depends_on:
+      - beegfs-mgmtd
+      - beegfs-meta
+      - beegfs-storage
+    environment:
+      - BEEGFS_MGMTD_HOSTNAME=beegfs-mgmtd
+    volumes:
+      - beegfs-client-mount:/mnt/beegfs
+    networks:
+      - beegfs-net
+
+  nfs-export:
+    image: itsthenetwork/nfs-server-alpine:latest
+    container_name: nfs-export
+    depends_on:
+      - beegfs-client
+    environment:
+      - SHARED_DIRECTORY=/exports
+    volumes:
+      - beegfs-client-mount:/exports
+    ports:
+      - "2049:2049"
+    networks:
+      - beegfs-net
+
+volumes:
+  beegfs-storage-data:
+  beegfs-client-mount:
+
+networks:
+  beegfs-net:
+    driver: bridge

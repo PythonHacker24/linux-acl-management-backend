@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  go-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laclm
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config.yaml:/app/config.yaml
+      - ./.env:/app/.env
+      - ./logs/app.log:/app/logs/app.log
+      - /tmp/testnfs:/mnt/nfs-system
+    depends_on:
+      - openldap
+#      - redis
+    networks:
+      - backend
+
+  openldap:
+    image: osixia/openldap:latest
+    container_name: institutional-openldap
+    environment:
+      LDAP_ORGANISATION: "My Org"
+      LDAP_DOMAIN: "myorg.local"
+      LDAP_ADMIN_PASSWORD: "admin"
+    ports:
+      - "389:389"
+      - "636:636"
+    networks:
+      - backend
+
+  phpldapadmin:
+    image: osixia/phpldapadmin:0.9.0
+    container_name: phpldapadmin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: openldap
+      PHPLDAPADMIN_HTTPS: "false"
+    ports:
+      - "8090:80"
+    depends_on:
+      - openldap
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

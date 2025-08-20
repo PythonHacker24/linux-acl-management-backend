@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package acl;
+
+option go_package = 'github.com/PythonHacker24/linux-acl-management-aclapi/internal/grpcserver/protos;protos';
+
+service ACLService {
+  rpc ApplyACLEntry (ApplyACLRequest) returns (ApplyACLResponse);
+}
+
+message ACLEntry {
+  string entity_type = 1;   // "user", "group", "mask", "other"
+  string entity = 2;        // e.g., "alice", "", etc.
+  string permissions = 3;   // e.g., "rw-"
+  string action = 4;        // "add", "modify", "remove"
+  bool is_default = 5;
+}
+
+message ApplyACLRequest {
+  string transactionID = 1;
+  string target_path = 2;
+  ACLEntry entry = 3;
+}
+
+message ApplyACLResponse {
+  bool success = 1;
+  string message = 2;
+}

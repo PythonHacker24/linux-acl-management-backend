@@ -1,0 +1,58 @@
+# backend environment configs
+app:
+  name: laclm
+  version: v1.1
+  debug_mode: true
+  session_timeout: 1
+  base_path: /mnt
+  max_workers: 5
+
+# backend server deployment configs
+server:
+  host: 0.0.0.0
+  port: 8080
+
+# databases for operations
+database:
+  transaction_log_redis: 
+    address: localhost:6379
+    password: ${LACLM_TRANS_REDIS_PASSWORD}
+    db: 0
+  archival_postgres:
+    host: localhost 
+    port: 5432
+    user: postgres
+    password: idontlikepeople
+    dbname: postgres
+    sslmode: disable
+
+# logging configurations
+logging:
+  file: logs/app.log
+  max_size: 100
+  max_backups: 5
+  max_age: 30
+  compress: true
+
+# filesystem server that needs management
+filesystem_servers:
+  - path: /nfs-system
+    method: remote
+    remote:
+      host: localhost 
+      port: 6593
+  - path: /beegfs-system
+    method: local
+
+# authentication information
+authentication:
+  ldap:
+    tls: false
+    address: "ldap://localhost:389"
+    admin_dn: ${LACLM_LDAP_ADMIN_DN}
+    admin_password: ${LACLM_LDAP_ADMIN_PASSWORD}
+    search_base: "cn=Princeton Plainsboro Hospital ,dc=myorg,dc=local"
+
+backend_security:
+  jwt_secret_token: ${JWT_SECRET_TOKEN}
+  jwt_expiry: 1

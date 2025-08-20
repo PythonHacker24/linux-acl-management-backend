@@ -1,0 +1,1689 @@
+{
+  "type": "transaction_update",
+  "data": {
+    "session_id": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+    "transactions": [
+      {
+        "id": "377384ac-5150-488b-9b3b-9a87b20293ac",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:19:55.539192133Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 5047
+      },
+      {
+        "id": "208a6783-3a98-4ee5-b652-b73e88b5d619",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:19:57.611573842Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 2974
+      },
+      {
+        "id": "02859fcd-10ef-463a-a46d-91d6398613dc",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:19:56.576371383Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 4010
+      },
+      {
+        "id": "888578ce-3eb0-4856-9b91-f95adb4487c6",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:19:58.641457467Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1945
+      },
+      {
+        "id": "c6411fd6-3e2e-44ef-aff3-eb15b44ed2a9",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:45.483365961Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 2972
+      },
+      {
+        "id": "0aab5a00-11a1-42f5-b29f-2568f7cd8b06",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:44.454141127Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 4001
+      },
+      {
+        "id": "fd5ac53a-bc4b-4fd8-9f71-2142ea573d9a",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:46.513228128Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1943
+      },
+      {
+        "id": "200152de-e2e1-47f4-8435-a47e8cf62da8",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:43.417411335Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 5039
+      },
+      {
+        "id": "de255983-d7d8-4fb3-894b-859545849bd1",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:47.543978754Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 933
+      },
+      {
+        "id": "a822b2dd-e922-4cda-95a6-00c7c3c20b36",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:48.567198004Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1
+      },
+      {
+        "id": "df77f214-b16f-4127-a5d0-f089b248a382",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:49.597916421Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1
+      },
+      {
+        "id": "58a46980-05fd-4244-b5ea-147fbd10e8c8",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:50.628755213Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "58451ac0-7e07-4285-9296-a1b9a13ec1fa",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:51.654990506Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "7156e3c2-b9c1-4ba2-a646-813365067d4f",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:52.687491631Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "09a307a7-9511-454b-bb13-2939b30bec87",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:55.779916799Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 2958
+      },
+      {
+        "id": "c5e807fa-40cd-44d3-8c3a-397838fc0ed2",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:53.720900257Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 5017
+      },
+      {
+        "id": "57811baa-ed28-44ae-bcc0-cf0c8e9b16a1",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:56.810698258Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1927
+      },
+      {
+        "id": "e5c5e8f4-dc77-4d0a-9443-949e4ce35b87",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:54.751162382Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 3987
+      },
+      {
+        "id": "97c8109a-9381-4a1e-b49f-d4d984b565a7",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:57.8389078Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 911
+      },
+      {
+        "id": "2d8e1839-db99-4032-be67-7d7119ba057d",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:58.869435176Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "436acfde-6d9b-44e1-b2c1-4aae12a8392c",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:20:59.899248385Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "203be62d-345b-4669-a9b0-ccd870c0c828",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:00.924158135Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "08c61186-16c9-42bf-ba30-8111176d4fe0",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:01.953121261Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1
+      },
+      {
+        "id": "993af8a6-a7b8-4967-9409-f04fd79bcb3d",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:02.986921969Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "95763dff-9bef-41de-a564-99f26ddba397",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:04.018682137Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 5027
+      },
+      {
+        "id": "e515c3a6-3924-40ef-8ece-3c0397ee399c",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:07.106753596Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1939
+      },
+      {
+        "id": "a42f44c9-3910-43e6-94ef-09083a24cfc9",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:05.049596304Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 3996
+      },
+      {
+        "id": "da5b5b54-c068-4c3e-aee1-811e8253d308",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:06.075456179Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 2970
+      },
+      {
+        "id": "36f2b8ca-3c40-480d-8dff-db4bf0d5a559",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:08.134713639Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 917
+      },
+      {
+        "id": "efce8861-42e5-4edf-96e0-8a6b3a6b8495",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:09.165836708Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "4501b051-5f47-4fa8-b159-573680aa0a20",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:10.198888Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "880ecc04-dc0b-4ea1-a46c-6c0f006c039c",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:11.227483709Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "ca6228f3-6637-4f58-9b24-57870c023906",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:12.252500459Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "a3c4c962-f051-42a0-9cf7-4ef5965332cc",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:13.272417752Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "4fad4ee0-d1dc-44a2-bed2-ef4d8783c4e9",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:14.300204669Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 5027
+      },
+      {
+        "id": "e1d275bf-c99f-4e23-acb9-0c238de36767",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:15.337219711Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 3990
+      },
+      {
+        "id": "547a0c11-48ca-4ec9-9c68-0e6bf39b34f9",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:17.400858337Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1927
+      },
+      {
+        "id": "f30d7980-9f79-44bf-aa1a-1452c16a6986",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:16.369401045Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 2958
+      },
+      {
+        "id": "2083d95b-567f-4426-9244-e88af696e223",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:18.442704379Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 892
+      },
+      {
+        "id": "771f1f4b-379b-4cf3-9716-6844c61b3811",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:19.471885963Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "51be2f14-1f98-47ab-b547-9bb85976f140",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:20.49489563Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "8116ffd5-65ec-476d-9365-ca8bdd03bb7c",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:21.542684464Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1
+      },
+      {
+        "id": "344982e0-151f-4651-a5c8-0246d16916cd",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:22.574008006Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "d46172c1-246f-47bf-9d92-0355d956710b",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:23.603847548Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "5dcb76c3-e14a-4907-ab48-8a7a92c0b9c6",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:24.638855882Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 5023
+      },
+      {
+        "id": "951d5cd6-1569-483d-895d-42dda1a5b529",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:27.735915634Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1926
+      },
+      {
+        "id": "b0a04cb0-2444-40e5-87a1-576307a751fa",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:26.70241305Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 2960
+      },
+      {
+        "id": "2f375d31-ddb7-46ef-ac06-bf748ee7f31a",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:25.669617591Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 3993
+      },
+      {
+        "id": "0a01e2bf-5928-4585-8b3d-e4242cdf5122",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:28.768099551Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 908
+      },
+      {
+        "id": "bd40daf0-5205-43c0-ae9c-460855665180",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:29.798931551Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "d3f74fe9-41ac-49f7-9053-d48de8abc6be",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:30.829165135Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "cbb8428c-02f2-4b8b-8af7-ea9de16c0b26",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:31.857656844Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "264fe7d1-9553-43e4-a7ee-81423e1b91b8",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:32.888017969Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "da34dc26-d569-4dac-ab7a-1eca52a1f0dc",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:33.922098553Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1
+      },
+      {
+        "id": "3f7e91ff-10ef-493b-bb63-50592b98f1da",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:38.071134805Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1923
+      },
+      {
+        "id": "e985d6d7-07a5-46f7-b389-6bbc6ad6db85",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:35.996089762Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 3999
+      },
+      {
+        "id": "2fa330b6-683c-474f-8aa6-9863b4f8577b",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:34.95962547Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 5035
+      },
+      {
+        "id": "35ca8fc4-55c2-45f3-8f45-d6ba522d2e99",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:37.034021388Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 2961
+      },
+      {
+        "id": "3fac3d38-7e65-450d-9be3-5d51e61c285d",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:39.109838583Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 898
+      },
+      {
+        "id": "b0a30d92-e7f9-4674-9ccd-08ac2b86eb1f",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:40.140427542Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "7727721d-4329-4923-9f40-908febba72be",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:41.175902501Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 2
+      },
+      {
+        "id": "d7d3d810-5fdb-417a-8db6-98560d7002d3",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:42.222340084Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1
+      },
+      {
+        "id": "c01b91f7-1fb0-4d6d-820a-201843397429",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:43.261692668Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "8e98f68a-c813-432d-bb67-7873385d2de7",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:44.291233085Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1
+      },
+      {
+        "id": "50956d8c-25c8-4e58-aef5-5d35e95c1543",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:45.324548378Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 5021
+      },
+      {
+        "id": "a2a7a0fa-abce-477f-8341-b60ee6ac08d5",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:47.40122317Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 2946
+      },
+      {
+        "id": "123abf3b-dd11-4fa0-920f-63941688f31e",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:48.433981921Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1913
+      },
+      {
+        "id": "10d566a7-712b-4e28-ab8f-3c481b3d9c1c",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:49.471165796Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 890
+      },
+      {
+        "id": "0241c3e6-1060-4f57-a92b-e1bcefbdec73",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:21:46.36116942Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 3986
+      },
+      {
+        "id": "fdfd5f4e-fdce-4b22-9352-76b66e52aec9",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:14.101428919Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 3988
+      },
+      {
+        "id": "fdb8ca82-457b-4b79-854a-4f77d4f4bb62",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:13.06736871Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 5022
+      },
+      {
+        "id": "0a0a5a69-f231-40ce-87a1-ed11365c42fa",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:16.153670961Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1936
+      },
+      {
+        "id": "4217356d-14f4-4d44-9e66-48aa82fa73af",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:15.121899169Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 2968
+      },
+      {
+        "id": "8b45ceb9-9831-4596-87b5-c64ad2eac3a1",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:17.19300767Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 904
+      },
+      {
+        "id": "19adf19a-5a09-4d15-8aa1-f222ca426db1",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:18.224942629Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "67e9e615-2184-472e-aca0-9b2e35b557e4",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:19.268614671Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "b5798d9a-2311-4ac7-b6ba-174d8017e66e",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:20.303264713Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1
+      },
+      {
+        "id": "9ad05148-3bfa-437b-af45-40fe214c80cb",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:21.333222089Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "39bae5f3-495c-4456-a7d2-9a032068f9aa",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:22.364232006Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 0
+      },
+      {
+        "id": "dc0ba2fe-1c2b-40df-9160-61c300285299",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:23.396925298Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 5017
+      },
+      {
+        "id": "6c6f0028-b21a-4cb5-9568-308455d2dfb0",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:26.495702633Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 1919
+      },
+      {
+        "id": "2ffecd3e-9c44-4b21-9b8f-21a88976684e",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:24.427421632Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 3987
+      },
+      {
+        "id": "fcd6d82c-c126-4ab2-88dc-54b7b125d786",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:25.462212924Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 2953
+      },
+      {
+        "id": "ad10c7e1-16ef-4d0f-9861-c04383dfd1e0",
+        "sessionId": "c9233899-7fd2-47b1-8652-1b05ad94511b",
+        "timestamp": "2025-07-27T09:24:27.526038925Z",
+        "operation": "setfacl",
+        "targetPath": "/mnt/nfs-system/home/maverick/linux-acl-management-aclapi/README.md",
+        "entries": {
+          "entityType": "user",
+          "entity": "tommy",
+          "permissions": "rw-",
+          "action": "modify",
+          "isDefault": false,
+          "success": false
+        },
+        "status": "success",
+        "execStatus": false,
+        "output": "",
+        "executedBy": "Gregory House",
+        "durationMs": 899
+      }
+    ]
+  },
+  "timestamp": "2025-07-27T09:25:04.166194553Z"
+}
