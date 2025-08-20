@@ -103,18 +103,26 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 				curSession.Mutex.Lock()
 				if transaction.ExecStatus {
 					curSession.CompletedCount++
-					f.curSessionManager.IncrementSessionCompletedRedis(curSession)
+					if err := f.curSessionManager.IncrementSessionCompletedRedis(curSession); err != nil {
+						zap.L().Error("Failed to increment completed session in Redis")
+					}
 				} else {
 					curSession.FailedCount++
-					f.curSessionManager.IncrementSessionFailedRedis(curSession)
+					if err := f.curSessionManager.IncrementSessionFailedRedis(curSession); err != nil {
+						zap.L().Error("Failed to increment failed session in Redis")
+					}
 				}
 				curSession.Mutex.Unlock()
 
 				/* store the result of processed transaction into Redis */
-				f.curSessionManager.SaveTransactionRedisList(curSession, transaction, "txresults")
+				if err := f.curSessionManager.SaveTransactionRedisList(curSession, transaction, "txresults"); err != nil {
+					zap.L().Error("Failed to store processed transaction into Redis")
+				}
 
 				/* remove the transaction as pending from Redis */
-				f.curSessionManager.RemovePendingTransaction(curSession, transaction.ID)
+				if err := f.curSessionManager.RemovePendingTransaction(curSession, transaction.ID); err != nil {
+					zap.L().Error("Failed to remove pending transaction from Redis")
+				}
 
 			}(curSession, transaction)
 		}
