@@ -78,6 +78,11 @@ func (m *Manager) IssueTransaction(w http.ResponseWriter, r *http.Request) {
 }
 
 type handlerCtxKey string
+type handlerType string
+
+const (
+	HandlerType handlerType = "type"
+)
 
 const (
 	CtxStreamUserSession					handlerCtxKey = "stream_user_session"
@@ -143,7 +148,7 @@ func (m *Manager) StreamUserSession(w http.ResponseWriter, r *http.Request) {
 	go m.listenForSessionChanges(ctx, conn, sessionID)
 
 	/* specify the handler context */
-	ctxVal := context.WithValue(ctx, "type", CtxStreamUserSession)
+	ctxVal := context.WithValue(ctx, HandlerType, CtxStreamUserSession)
 
 	/* handle web socket instructions from client */
 	m.handleWebSocketCommands(conn, username, sessionID, ctxVal, cancel)
@@ -205,7 +210,7 @@ func (m *Manager) StreamUserTransactionsResults(w http.ResponseWriter, r *http.R
 	go m.listenForTransactionsChangesResults(ctx, conn, sessionID)
 
 	/* specify the handler context */
-	ctxVal := context.WithValue(ctx, "type", CtxStreamUserTransactionsResults)
+	ctxVal := context.WithValue(ctx, HandlerType, CtxStreamUserTransactionsResults)
 
 	/* handle web socket instructions from client */
 	m.handleWebSocketCommands(conn, username, sessionID, ctxVal, cancel)
@@ -267,7 +272,7 @@ func (m *Manager) StreamUserTransactionsPending(w http.ResponseWriter, r *http.R
 	go m.listenForTransactionsChangesPending(ctx, conn, sessionID)
 
 	/* specify the handler context */
-	ctxVal := context.WithValue(ctx, "type", CtxStreamUserTransactionsPending)
+	ctxVal := context.WithValue(ctx, HandlerType, CtxStreamUserTransactionsPending)
 
 	/* handle web socket instructions from client */
 	m.handleWebSocketCommands(conn, username, sessionID, ctxVal, cancel)
@@ -336,7 +341,10 @@ func (m *Manager) StreamUserArchiveSessions(w http.ResponseWriter, r *http.Reque
 
 	/* send response with json */
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(sessions)
+	if err := json.NewEncoder(w).Encode(sessions); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 } 
 
 /*
@@ -402,7 +410,10 @@ func (m *Manager) StreamUserArchiveResultsTransactions(w http.ResponseWriter, r 
 
 	/* send response with json */
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(sessions)
+	if err := json.NewEncoder(w).Encode(sessions); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 /*
@@ -468,5 +479,8 @@ func (m *Manager) StreamUserArchivePendingTransactions(w http.ResponseWriter, r 
 
 	/* send response with json */
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(sessions)
+	if err := json.NewEncoder(w).Encode(sessions); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
