@@ -18,9 +18,9 @@ func GenerateJWT(username string, sessionID uuid.UUID) (string, error) {
 
 	/* generate JWT token with claims */
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": username,
-		"sessionID": sessionID, 
-		"exp":      time.Now().Add(time.Hour * time.Duration(expiryHours)).Unix(),
+		"username":  username,
+		"sessionID": sessionID,
+		"exp":       time.Now().Add(time.Hour * time.Duration(expiryHours)).Unix(),
 	})
 
 	return token.SignedString([]byte(config.BackendConfig.BackendSecurity.JWTTokenSecret))
@@ -82,7 +82,7 @@ func ExtractDataFromRequest(r *http.Request) (string, string, error) {
 	/* check if the header is in the correct format */
 	parts := strings.Split(authHeader, " ")
 	if len(parts) != 2 || parts[0] != "Bearer" {
-		return "","",  fmt.Errorf("invalid authorization header format")
+		return "", "", fmt.Errorf("invalid authorization header format")
 	}
 
 	/* extract username and sessionID from JWT token */

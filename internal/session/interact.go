@@ -244,7 +244,7 @@ func (m *Manager) RefreshTimer(username string) error {
 
 	/* reset the session timer */
 	session.Timer = time.AfterFunc(time.Duration(config.BackendConfig.AppInfo.SessionTimeout)*time.Hour,
-		func() { 
+		func() {
 			if err := m.ExpireSession(username); err != nil {
 				m.errCh <- err
 			}

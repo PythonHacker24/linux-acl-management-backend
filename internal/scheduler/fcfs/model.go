@@ -13,8 +13,8 @@ import (
 
 /* FCFS Scheduler attached with curSession.Manager */
 type FCFSScheduler struct {
-	curSessionManager *session.Manager 
-	maxWorkers int
+	curSessionManager *session.Manager
+	maxWorkers        int
 
 	/* for limiting spawning of goroutines */
 	semaphore chan struct{}

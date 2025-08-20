@@ -17,33 +17,32 @@ var customupgrader = websocket.Upgrader{
 }
 
 /*
-	session manager
-	sessionsMap -> Maps of sessions -> for O(1) access | fast access during deletion
-	sessionOrder -> LinkedList of sessions -> for round robin | fair scheduling
-	sessionsMap and sessionOrder are always in sync
-	both are kept at the same time due to various runtime performance requirements
-	trading off space for runtime speed performance
+session manager
+sessionsMap -> Maps of sessions -> for O(1) access | fast access during deletion
+sessionOrder -> LinkedList of sessions -> for round robin | fair scheduling
+sessionsMap and sessionOrder are always in sync
+both are kept at the same time due to various runtime performance requirements
+trading off space for runtime speed performance
 */
 type Manager struct {
-	sessionsMap		map[string]*Session
-	sessionOrder	*list.List
-	mutex 			sync.RWMutex
-	redis 			redis.RedisClient
-	archivalPQ		*postgresql.Queries
-	errCh 			chan<-error
-	upgrader		websocket.Upgrader	
+	sessionsMap  map[string]*Session
+	sessionOrder *list.List
+	mutex        sync.RWMutex
+	redis        redis.RedisClient
+	archivalPQ   *postgresql.Queries
+	errCh        chan<- error
+	upgrader     websocket.Upgrader
 }
 
-
 /* create a new session manager */
-func NewManager(redis redis.RedisClient, archivalPQ *postgresql.Queries, errCh chan<-error) *Manager {
+func NewManager(redis redis.RedisClient, archivalPQ *postgresql.Queries, errCh chan<- error) *Manager {
 	return &Manager{
 		sessionsMap:  make(map[string]*Session),
 		sessionOrder: list.New(),
-		redis:	redis,
-		archivalPQ: archivalPQ,
-		errCh: errCh,
-		upgrader: customupgrader,
+		redis:        redis,
+		archivalPQ:   archivalPQ,
+		errCh:        errCh,
+		upgrader:     customupgrader,
 	}
 }
 
@@ -54,12 +53,12 @@ func (m *Manager) GetNextSession() *Session {
 
 	/* check if sessionOrder is empty */
 	if m.sessionOrder.Len() == 0 {
-		return nil 
+		return nil
 	}
 
 	element := m.sessionOrder.Front()
 	session := element.Value.(*Session)
-	
+
 	m.sessionOrder.MoveToBack(element)
-	return session 
+	return session
 }

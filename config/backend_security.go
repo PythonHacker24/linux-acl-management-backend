@@ -11,7 +11,7 @@ type BackendSecurity struct {
 	JWTTokenSecret string `yaml:"jwt_secret_token,omitempty"`
 
 	/* make this obselete */
-	JWTExpiry      int    `yaml:"jwt_expiry,omitempty"`
+	JWTExpiry int `yaml:"jwt_expiry,omitempty"`
 }
 
 /* normalization function */

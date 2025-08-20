@@ -4,7 +4,7 @@ import "time"
 
 /* serialize session information to store in Redis */
 func (s *Session) serializeSessionForRedis() map[string]any {
-	return map[string]any {
+	return map[string]any{
 		"id":             s.ID,
 		"username":       s.Username,
 		"ip":             s.IP,

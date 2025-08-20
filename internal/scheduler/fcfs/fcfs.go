@@ -93,7 +93,7 @@ func (f *FCFSScheduler) Run(ctx context.Context) error {
 
 				/* we assume the transaction has been processed -> updated Redis */
 				transaction.Status = types.StatusSuccess
-				
+
 				/* update duration of transaction execution */
 				elapsed := time.Since(transaction.Timestamp)
 				transaction.DurationMs = elapsed.Milliseconds()

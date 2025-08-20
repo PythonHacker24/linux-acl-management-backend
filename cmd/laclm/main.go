@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/MakeNowJust/heredoc"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"go.uber.org/automaxprocs/maxprocs"
@@ -18,7 +19,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
-	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/PythonHacker24/linux-acl-management-backend/api/routes"
 	"github.com/PythonHacker24/linux-acl-management-backend/config"

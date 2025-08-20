@@ -16,7 +16,7 @@ import (
 
 /* returns search for query in the pool of all users in LDAP server */
 func GetAllUsersFromLDAP(query string) ([]User, error) {
-	
+
 	var l *ldap.Conn
 	var err error
 	ldapAddress := config.BackendConfig.Authentication.LDAPConfig.Address
@@ -47,46 +47,46 @@ func GetAllUsersFromLDAP(query string) ([]User, error) {
 
 	/* wild card to avoid errors */
 	if query == "" {
-        query = "*" 
-    }
+		query = "*"
+	}
 
 	/* filter for query */
 	// filter := fmt.Sprintf("(|(cn=%s*)(uid=%s*)(mail=%s*))", query, query, query)
 	filter := fmt.Sprintf("(&(objectClass=inetOrgPerson)(|(uid=%s*)(cn=%s*)(mail=%s*)))", query, query, query)
 
 	/* search for users */
-    searchRequest := ldap.NewSearchRequest(
+	searchRequest := ldap.NewSearchRequest(
 		/* Base DN */
 		config.BackendConfig.Authentication.LDAPConfig.SearchBase,
-        ldap.ScopeWholeSubtree,
-        ldap.NeverDerefAliases,
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases,
 		/* size limit */
-        0,     
+		0,
 		/* time limit */
-        0,     
+		0,
 		/* types only */
-        false, 
+		false,
 		/* filter */
-        filter,
+		filter,
 		/* attributes to retrieve */
-        []string{"cn", "mail", "sAMAccountName"}, // 
-        nil,
-    )
+		[]string{"cn", "mail", "sAMAccountName"}, //
+		nil,
+	)
 
 	/* search for request in LDAP Server */
-    sr, err := l.Search(searchRequest)
-    if err != nil {
-        return nil, err
-    }
+	sr, err := l.Search(searchRequest)
+	if err != nil {
+		return nil, err
+	}
 
-    users := []User{}
-    for _, entry := range sr.Entries {
-        users = append(users, User{
-            CN:       entry.GetAttributeValue("cn"),
-            Mail:     entry.GetAttributeValue("mail"),
-            Username: entry.GetAttributeValue("sAMAccountName"),
-        })
-    }
+	users := []User{}
+	for _, entry := range sr.Entries {
+		users = append(users, User{
+			CN:       entry.GetAttributeValue("cn"),
+			Mail:     entry.GetAttributeValue("mail"),
+			Username: entry.GetAttributeValue("sAMAccountName"),
+		})
+	}
 
-    return users, nil
+	return users, nil
 }

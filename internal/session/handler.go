@@ -85,11 +85,11 @@ const (
 )
 
 const (
-	CtxStreamUserSession					handlerCtxKey = "stream_user_session"
-	CtxStreamUserTransactionsResults		handlerCtxKey = "stream_user_transactions_results"
-	CtxStreamUserTransactionsPending		handlerCtxKey = "stream_user_transactions_pending"
-	CtxStreamAllSessions      				handlerCtxKey = "stream_all_sessions"
-	CtxStreamAllTransactions  				handlerCtxKey = "stream_all_transactions"
+	CtxStreamUserSession             handlerCtxKey = "stream_user_session"
+	CtxStreamUserTransactionsResults handlerCtxKey = "stream_user_transactions_results"
+	CtxStreamUserTransactionsPending handlerCtxKey = "stream_user_transactions_pending"
+	CtxStreamAllSessions             handlerCtxKey = "stream_all_sessions"
+	CtxStreamAllTransactions         handlerCtxKey = "stream_all_transactions"
 )
 
 /*
@@ -308,7 +308,7 @@ func (m *Manager) StreamUserArchiveSessions(w http.ResponseWriter, r *http.Reque
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-	
+
 	/* deserialize archival request */
 	var req ArchivalRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -345,7 +345,7 @@ func (m *Manager) StreamUserArchiveSessions(w http.ResponseWriter, r *http.Reque
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		return
 	}
-} 
+}
 
 /*
 get user archived results transactions information
@@ -377,7 +377,7 @@ func (m *Manager) StreamUserArchiveResultsTransactions(w http.ResponseWriter, r 
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-	
+
 	/* deserialize archival request */
 	var req ArchivalRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -398,8 +398,8 @@ func (m *Manager) StreamUserArchiveResultsTransactions(w http.ResponseWriter, r 
 		r.Context(),
 		postgresql.GetResultsTransactionsByUserPaginatedPQParams{
 			ExecutedBy: username,
-			Limit:    	req.Limit,
-			Offset:   	req.Offset,
+			Limit:      req.Limit,
+			Offset:     req.Offset,
 		},
 	)
 	if err != nil {
@@ -446,7 +446,7 @@ func (m *Manager) StreamUserArchivePendingTransactions(w http.ResponseWriter, r 
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-	
+
 	/* deserialize archival request */
 	var req ArchivalRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -467,8 +467,8 @@ func (m *Manager) StreamUserArchivePendingTransactions(w http.ResponseWriter, r 
 		r.Context(),
 		postgresql.GetPendingTransactionsByUserPaginatedPQParams{
 			ExecutedBy: username,
-			Limit:    	req.Limit,
-			Offset:   	req.Offset,
+			Limit:      req.Limit,
+			Offset:     req.Offset,
 		},
 	)
 	if err != nil {

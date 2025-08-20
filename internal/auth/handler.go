@@ -44,7 +44,7 @@ func LoginHandler(sessionManager *session.Manager) http.HandlerFunc {
 			return
 		}
 
-		/* 
+		/*
 			check if the session already exists in the manager.
 			if it exists, refresh it's timer and return a jwt token
 		*/
@@ -85,7 +85,7 @@ func LoginHandler(sessionManager *session.Manager) http.HandlerFunc {
 /* handles user logout and expire session */
 func LogoutHandler(sessionManager *session.Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		
+
 		/* authenticate the request through JWT */
 		username, _, err := token.ExtractDataFromRequest(r)
 		if err != nil {

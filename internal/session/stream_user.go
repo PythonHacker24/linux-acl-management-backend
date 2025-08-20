@@ -253,7 +253,7 @@ func (m *Manager) listenForTransactionsChangesPending(ctx context.Context, conn 
 }
 
 /*
-	currently, handleTransactionChangeEvent sends the complete JSON package whenever anything is updated. 
+	currently, handleTransactionChangeEvent sends the complete JSON package whenever anything is updated.
 	The whole frontend will be updated even if one transaction changes it's state (for example, setting active to expired).
 */
 

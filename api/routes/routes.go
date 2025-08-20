@@ -179,8 +179,8 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 		),
 	)
 
-	/* 
-		for fetching list of users matching the query in the LDAP server 
+	/*
+		for fetching list of users matching the query in the LDAP server
 		supports URL params: q (Query)
 	*/
 	mux.Handle("GET /users/ldap/search", http.HandlerFunc(
@@ -193,7 +193,7 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 			allowedHeaders,
 		),
 	))
-	
+
 	/* handle OPTIONS preflight requests for /users/ldap/search */
 	mux.HandleFunc("OPTIONS /users/ldap/search",
 		middleware.CORSMiddleware(
@@ -209,8 +209,8 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 		),
 	)
 
-	/* 
-		websocket connection for streaming user session data from Redis 
+	/*
+		websocket connection for streaming user session data from Redis
 		supports URL pamars: token (JWT authentication)
 	*/
 	mux.Handle("/users/session", http.HandlerFunc(
@@ -220,8 +220,8 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 		),
 	))
 
-	/* 
-		websocket connection for streaming user transactions data from Redis 
+	/*
+		websocket connection for streaming user transactions data from Redis
 		supports URL pamars: token (JWT authentication)
 	*/
 	mux.Handle("/users/transactions/results", http.HandlerFunc(
@@ -230,8 +230,8 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 		),
 	))
 
-	/* 
-		websocket connection for streaming user transactions data from Redis 
+	/*
+		websocket connection for streaming user transactions data from Redis
 		supports URL pamars: token (JWT authentication)
 	*/
 	mux.Handle("/users/transactions/pending", http.HandlerFunc(
@@ -304,7 +304,7 @@ func RegisterRoutes(mux *http.ServeMux, sessionManager *session.Manager) {
 			),
 			allowedOrigin,
 			allowedMethods,
-			allowedHeaders,	
+			allowedHeaders,
 		),
 	))
 

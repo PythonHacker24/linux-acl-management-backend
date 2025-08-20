@@ -79,9 +79,9 @@ type SessionStreamData struct {
 
 /* websocket stream message */
 type StreamMessage struct {
-	Type      string      `json:"type"`
-	Data      any		  `json:"data"`
-	Timestamp time.Time   `json:"timestamp"`
+	Type      string    `json:"type"`
+	Data      any       `json:"data"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 /* TransactionStreamData is a frontend-safe representation of a transaction sent via websocket */
@@ -111,6 +111,6 @@ type ACLEntryStream struct {
 
 /* archival data fetch requests */
 type ArchivalRequest struct {
-	Limit    int32  `json:"limit"`
-	Offset   int32  `json:"offset"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
