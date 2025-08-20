@@ -14,7 +14,7 @@ func (m *Manager) handleWebSocketCommands(conn *websocket.Conn, username, sessio
 
 	/* infinite loop */
 	for {
-		var msg map[string]interface{}
+		var msg map[string]any
 		err := conn.ReadJSON(&msg)
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
@@ -42,7 +42,7 @@ func (m *Manager) handleWebSocketCommands(conn *websocket.Conn, username, sessio
 			/* refresh content served */
 			case "refresh":
 				/* client requests fresh data - implement based on current context */
-				val := ctxVal.Value("type")
+				val := ctxVal.Value(HandlerType)
 
 				switch val {
 				case CtxStreamUserSession:
