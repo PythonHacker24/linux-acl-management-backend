@@ -302,7 +302,11 @@ func run(ctx context.Context) error {
 
 	usernames := sessionManager.GetAllUsernames()
 	for _, username := range usernames {
-		sessionManager.ExpireSession(username)
+		if err := sessionManager.ExpireSession(username); err != nil {
+			zap.L().Warn("Failed to expire session during shutdown",
+				zap.String("username: ", username),
+			)
+		}
 		zap.L().Info("Session forced expired for: ",
 			zap.String("username", username),
 		)
