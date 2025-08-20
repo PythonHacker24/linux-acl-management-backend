@@ -10,7 +10,6 @@ A robust web-based management interface for Linux Access Control Lists (ACLs), d
 
 [View Documentation](https://pythonhacker24.github.io/linux-acl-management/)
 
-
 </div>
 
 ## Project Summary 
