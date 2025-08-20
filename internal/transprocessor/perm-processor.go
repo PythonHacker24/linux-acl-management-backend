@@ -59,12 +59,16 @@ func (p *PermProcessor) Process(ctx context.Context, curSession *session.Session
 		} else {
 			if isRemote {
 				/* handle through daemons */
-				p.HandleRemoteTransaction(host, port, txn, absolutePath)
+				if err := p.HandleRemoteTransaction(host, port, txn, absolutePath); err != nil {
+					p.errCh <- err
+					return fmt.Errorf("failed to handle remote transaction")
+				}
 			} else {
 				/* handle locally */
-
-				/* HandleLocalTransactions(txn) */
-				p.HandleLocalTransaction(txn, absolutePath)
+				if err := p.HandleLocalTransaction(txn, absolutePath); err != nil {
+					p.errCh <- err
+					return fmt.Errorf("failed to handler local transaction")
+				}
 			}
 		}
 
