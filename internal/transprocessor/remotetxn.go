@@ -7,7 +7,6 @@ import (
 
 	"github.com/PythonHacker24/linux-acl-management-backend/internal/types"
 	protos "github.com/PythonHacker24/linux-acl-management-backend/proto"
-	"go.uber.org/zap"
 )
 
 /* NEED TO ADD DURATION TIME -> EXISTS IN LOCAL */
@@ -24,10 +23,8 @@ func (p *PermProcessor) HandleRemoteTransaction(host string, port int, txn *type
 	address := fmt.Sprintf("%s:%d", host, port) 
 	conn, err := p.gRPCPool.GetConn(address, p.errCh)
 	if err != nil {
-		zap.L().Error("Failed to get connect with a daemon", 
-			zap.String("Address", address), 
-			zap.Error(err),
-		)
+		p.errCh <- err
+		return fmt.Errorf("failed to connect with a daemon: %s", address)
 	}
 
 	/* make it a for loop for interating all entries */
