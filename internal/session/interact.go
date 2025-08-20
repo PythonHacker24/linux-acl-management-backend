@@ -21,7 +21,10 @@ func (m *Manager) CreateSession(username, ipAddress, userAgent string) (uuid.UUI
 
 	/* check if session exists -> if yes, reset the timer and return the session ID */
 	if session, exists := m.sessionsMap[username]; exists {
-		m.RefreshTimer(username)
+		if err := m.RefreshTimer(username); err != nil {
+			m.errCh <- err
+			return uuid.Nil, fmt.Errorf("sessions exists, but failed to refresh the timer")
+		}
 		return session.ID, nil
 	}
 
@@ -60,7 +63,10 @@ func (m *Manager) CreateSession(username, ipAddress, userAgent string) (uuid.UUI
 	m.sessionsMap[username] = session
 
 	/* store session to Redis */
-	m.saveSessionRedis(session)
+	if err := m.saveSessionRedis(session); err != nil {
+		m.errCh <- err
+		return uuid.Nil, fmt.Errorf("failed to store session to Redis")
+	}
 
 	return sessionID, nil
 }
@@ -238,11 +244,18 @@ func (m *Manager) RefreshTimer(username string) error {
 
 	/* reset the session timer */
 	session.Timer = time.AfterFunc(time.Duration(config.BackendConfig.AppInfo.SessionTimeout)*time.Hour,
-		func() { m.ExpireSession(username) },
+		func() { 
+			if err := m.ExpireSession(username); err != nil {
+				m.errCh <- err
+			}
+		},
 	)
 
 	/* update Redis for session */
-	m.saveSessionRedis(session)
+	if err := m.saveSessionRedis(session); err != nil {
+		m.errCh <- err
+		return fmt.Errorf("failed to store session to Redis")
+	}
 
 	return nil
 }
