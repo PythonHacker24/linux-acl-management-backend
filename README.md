@@ -8,7 +8,7 @@ A robust web-based management interface for Linux Access Control Lists (ACLs), d
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[View Documentation](https://pythonhacker24.github.io/linux-acl-management/)
+[View Documentation](https://pythonhacker24.github.io/linux-acl-management-docs/)
 
 </div>
 
