@@ -94,18 +94,6 @@ A complete optional Docker based deployment option will be developed in later st
 
 For detailed usage instructions, please refer to our [documentation](https://pythonhacker24.github.io/linux-acl-management/).
 
-## Project Structure
-
-```
-.
-├── cmd/          # Application entry points
-├── internal/     # Private application code
-├── pkg/          # Public library code
-├── api/          # API definitions and handlers
-├── docs/         # Documentation
-└── deployments/  # Deployment configurations
-```
-
 ## Development
 
 ### Branches
