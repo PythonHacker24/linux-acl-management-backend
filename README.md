@@ -37,7 +37,7 @@ Institutional departments, such as the Biomedical Informatics (BMI) Department o
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/PythonHacker24/linux-acl-management.git
+   git clone https://github.com/PythonHacker24/linux-acl-management-backend.git
    cd linux-acl-management
    ```
 
@@ -57,7 +57,7 @@ For production build, it is recommended to use the Makefile. This allows you to 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/linux-acl-management.git
+   git clone https://github.com/PythonHacker24/linux-acl-management.git
    cd linux-acl-management
    ```
 
